@@ -18,7 +18,7 @@
   <img src="https://img.shields.io/pypi/dm/perigon?style=for-the-badge" alt="pypi downloads">
   <!-- tests -->
   <a href="https://github.com/goperigon/perigon‑python/actions/workflows/test.yml">
-    <img src="https://github.com/goperigon/perigon‑python/actions/workflows/test.yml/badge.svg?label=tests%20%E2%9C%85&style=for-the-badge" alt="tests status">
+    <img src="https://img.shields.io/github/actions/workflow/status/goperigon/perigon‑python/test.yml?label=tests%20%E2%9C%85&style=for-the-badge" alt="tests status">
   </a>
   <!-- docs -->
   <a href="https://docs.perigon.io">
