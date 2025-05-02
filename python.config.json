@@ -1,0 +1,10 @@
+{
+  "pypiName": "perigon",
+  "packageImportName": "perigon",
+  "moduleName": "PerigonClient",
+  "supportsPython": ">=3.9",
+  "rtdSlug": "perigon",
+  "githubOrg": "goperigon",
+  "githubRepo": "perigon‑python",
+  "pyTyped": true
+}

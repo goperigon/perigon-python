@@ -1,0 +1,69 @@
+[tool.poetry]
+name = "{{{packageName}}}"
+version = "0.0.0"
+description = "{{{appName}}}"
+authors = ["{{infoName}}{{^infoName}}Perigon Support{{/infoName}} <{{infoEmail}}{{^infoEmail}}data@perigon.io{{/infoEmail}}>"]
+license = "{{{licenseInfo}}}{{^licenseInfo}}NoLicense{{/licenseInfo}}"
+readme = "README.md"
+repository = "https://github.com/{{githubOrg}}/{{githubRepo}}"
+keywords = ["OpenAPI", "OpenAPI-Generator", "{{{appName}}}"]
+include = ["{{packageName}}/py.typed"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+
+# ---- core runtime dependencies ----
+httpx = ">= 0.27, < 1.0"        {{! replaces urllib3 }}
+python-dateutil = ">= 2.8.2"
+pydantic = ">= 2"
+typing-extensions = ">= 4.7.1"
+
+{{#asyncio}}
+aiohttp = ">= 3.8.4"
+aiohttp-retry = ">= 2.8.3"
+{{/asyncio}}
+
+{{#hasHttpSignatureMethods}}
+pem = ">= 19.3.0"
+pycryptodome = ">= 3.9.0"
+{{/hasHttpSignatureMethods}}
+
+[tool.poetry.group.dev.dependencies]
+isort = ">= 6.0.1"
+black = ">=25.1.0"
+pytest = ">= 7.2.1"
+pytest-cov = ">= 2.8.1"
+tox = ">= 3.9.0"
+flake8 = ">= 4.0.0"
+types-python-dateutil = ">= 2.8.19.14"
+mypy = ">= 1.5"
+
+[tool.poetry-dynamic-versioning]
+enable = true          # plugin only activates if this flag is on
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.pylint.'MESSAGES CONTROL']
+extension-pkg-whitelist = "pydantic"
+
+[tool.mypy]
+files = [
+  "{{packageName}}",
+  "tests",
+]
+warn_unused_configs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+strict_equality = true
+extra_checks = true
+check_untyped_defs = true
+disallow_subclassing_any = true
+disallow_untyped_decorators = true
+disallow_any_generics = true
+disallow_untyped_calls = true
+disallow_incomplete_defs = true
+disallow_untyped_defs = true
+no_implicit_reexport = true
+warn_return_any = true

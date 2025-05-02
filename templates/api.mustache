@@ -1,0 +1,158 @@
+from enum import Enum
+from typing import Any, Dict, Mapping, Iterable, Optional
+
+{{#packageName}}
+from {{packageName}}.api_client import ApiClient
+{{/packageName}}
+{{^packageName}}
+from ..api_client import ApiClient
+{{/packageName}}
+
+{{#imports}}
+{{import}}
+{{/imports}}
+
+# Define API paths
+{{#operations}}
+{{#operation}}
+PATH_{{operationId.toUpperCase}} = "{{{path}}}"
+{{/operation}}
+{{/operations}}
+
+def _normalise_query(params: Mapping[str, Any]) -> Dict[str, Any]:
+    """
+    • Convert Enum → Enum.value
+    • Convert list/tuple/set → CSV string (after Enum handling)
+    • Skip None values
+    """
+    out: Dict[str, Any] = {}
+    for key, value in params.items():
+        if value is None:                      # ignore “unset”
+            continue
+
+        # Unwrap single Enum
+        if isinstance(value, Enum):            # Enum → str
+            value = value.value
+
+        # Handle collection (after possible Enum unwrap)
+        if isinstance(value, (list, tuple, set)):
+            # unwrap Enum members inside the collection
+            items: Iterable[str] = (
+                str(item.value if isinstance(item, Enum) else item)
+                for item in value
+            )
+            value = ",".join(items)            # CSV join
+
+        out[key] = value
+    return out
+
+class {{classname}}:
+    """{{description}}"""
+    
+
+    def __init__(self, api_client: Optional[ApiClient] = None):
+        self.api_client = api_client or ApiClient()
+
+{{#operations}}
+{{#operation}}
+    # ----------------- {{operationId}} (sync) ----------------- #
+    def {{operationId}}(
+        self{{#allParams}}, {{paramName}}: {{^required}}Optional[{{/required}}{{dataType}}{{^required}}] = None{{/required}}{{/allParams}}
+    ){{#returnType}} -> {{returnType}}{{/returnType}}:
+        """
+        {{#notes}}
+        {{notes}}
+        {{/notes}}
+
+        {{#allParams.0}}
+        Args:
+        {{#allParams}}
+            {{paramName}} ({{^required}}Optional[{{/required}}{{dataType}}{{^required}}]{{/required}}): {{#description}}{{description}}{{/description}}{{^description}}Parameter {{paramName}}{{/description}}{{#required}} (required){{/required}}{{#isEnum}}
+                Allowed values: {{#allowableValues}}{{#enumVars}}{{value}}{{^-last}}, {{/-last}}{{/enumVars}}{{/allowableValues}}{{/isEnum}}
+        {{/allParams}}
+        {{/allParams.0}}
+
+        {{#returnType}}
+        Returns:
+            {{returnType}}: {{#returnTypeDescription}}{{returnTypeDescription}}{{/returnTypeDescription}}{{^returnTypeDescription}}The response{{/returnTypeDescription}}
+        {{/returnType}}
+        """
+        # Get path template from class attribute
+        path = PATH_{{operationId.toUpperCase}}
+        
+        {{#pathParams}}
+        # Replace path parameters
+        path = path.replace("{{{baseName}}}", str({{paramName}}))
+        {{/pathParams}}
+
+        # --- build query dict on the fly ---
+        params: Dict[str, Any] = {}
+{{#queryParams}}
+        if {{paramName}} is not None:
+            params["{{baseName}}"] = {{paramName}}
+{{/queryParams}}
+        params = _normalise_query(params)
+
+        resp = self.api_client.request(
+            "{{httpMethod}}",
+            path,
+            params=params{{#bodyParam}}, json={{paramName}}{{/bodyParam}}
+        )
+        resp.raise_for_status()
+{{#returnType}}
+        return {{returnType}}.model_validate(resp.json())
+{{/returnType}}
+{{^returnType}}
+        return resp.json()
+{{/returnType}}
+
+    # ----------------- {{operationId}} (async) ----------------- #
+    async def {{operationId}}_async(
+        self{{#allParams}}, {{paramName}}: {{^required}}Optional[{{/required}}{{dataType}}{{^required}}] = None{{/required}}{{/allParams}}
+    ){{#returnType}} -> {{returnType}}{{/returnType}}:
+        """
+        Async variant of {{operationId}}. {{#notes}}{{notes}}{{/notes}}
+
+        {{#allParams.0}}
+        Args:
+        {{#allParams}}
+            {{paramName}} ({{^required}}Optional[{{/required}}{{dataType}}{{^required}}]{{/required}}): {{#description}}{{description}}{{/description}}{{^description}}Parameter {{paramName}}{{/description}}{{#required}} (required){{/required}}{{#isEnum}}
+                Allowed values: {{#allowableValues}}{{#enumVars}}{{value}}{{^-last}}, {{/-last}}{{/enumVars}}{{/allowableValues}}{{/isEnum}}
+        {{/allParams}}
+        {{/allParams.0}}
+
+        {{#returnType}}
+        Returns:
+            {{returnType}}: {{#returnTypeDescription}}{{returnTypeDescription}}{{/returnTypeDescription}}{{^returnTypeDescription}}The response{{/returnTypeDescription}}
+        {{/returnType}}
+        """
+        # Get path template from class attribute
+        path = PATH_{{operationId.toUpperCase}}
+        
+        {{#pathParams}}
+        # Replace path parameters
+        path = path.replace("{{{baseName}}}", str({{paramName}}))
+        {{/pathParams}}
+
+        params: Dict[str, Any] = {}
+{{#queryParams}}
+        if {{paramName}} is not None:
+            params["{{baseName}}"] = {{paramName}}
+{{/queryParams}}
+        params = _normalise_query(params)
+
+        resp = await self.api_client.request_async(
+            "{{httpMethod}}",
+            path,
+            params=params{{#bodyParam}}, json={{paramName}}{{/bodyParam}}
+        )
+        resp.raise_for_status()
+{{#returnType}}
+        return {{returnType}}.model_validate(resp.json())
+{{/returnType}}
+{{^returnType}}
+        return resp.json()
+{{/returnType}}
+{{/operation}}
+
+{{/operations}}
