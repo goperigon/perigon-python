@@ -44,9 +44,7 @@ Works in **CPython 3.8+**, **PyPy**, serverless runtimes, notebooks, and async f
 - **Type‑hinted** request/response models powered by Pydantic
 - **Async and sync support** - choose the right approach for your application
 - Ships with **PEP 561 type hints** for excellent IDE integration
-- **Zero required dependencies** beyond Python standard library
 - Generated directly from <https://docs.perigon.io>, so it's always in sync
-- Runs everywhere Python runs: **scripts, notebooks, web frameworks, and serverless**
 
 ---
 

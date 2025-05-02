@@ -27,27 +27,40 @@ def _normalise_query(params: Mapping[str, Any]) -> Dict[str, Any]:
     """
     out: Dict[str, Any] = {}
     for key, value in params.items():
-        if value is None:                      # ignore “unset”
+        if value is None:  # ignore "unset"
             continue
 
         # Unwrap single Enum
-        if isinstance(value, Enum):            # Enum → str
+        if isinstance(value, Enum):  # Enum → str
             value = value.value
 
+        # Handle datetime objects properly
+        from datetime import datetime
+
+        if isinstance(value, datetime):
+            value = value.isoformat().split("+")[0]
+
         # Handle collection (after possible Enum unwrap)
-        if isinstance(value, (list, tuple, set)):
+        elif isinstance(value, (list, tuple, set)):
             # unwrap Enum members inside the collection
             items: Iterable[str] = (
-                str(item.value if isinstance(item, Enum) else item)
+                (
+                    item.isoformat().replace(" ", "+")
+                    if isinstance(item, datetime)
+                    else str(item.value if isinstance(item, Enum) else item)
+                )
                 for item in value
             )
-            value = ",".join(items)            # CSV join
+            value = ",".join(items)  # CSV join
+        else:
+            value = str(value)
 
         out[key] = value
+
     return out
 
 class {{classname}}:
-    """{{description}}"""
+    """{{{description}}}"""
     
 
     def __init__(self, api_client: Optional[ApiClient] = None):
@@ -67,7 +80,7 @@ class {{classname}}:
         {{#allParams.0}}
         Args:
         {{#allParams}}
-            {{paramName}} ({{^required}}Optional[{{/required}}{{dataType}}{{^required}}]{{/required}}): {{#description}}{{description}}{{/description}}{{^description}}Parameter {{paramName}}{{/description}}{{#required}} (required){{/required}}{{#isEnum}}
+            {{paramName}} ({{^required}}Optional[{{/required}}{{dataType}}{{^required}}]{{/required}}): {{#description}}{{{description}}}{{/description}}{{^description}}Parameter {{paramName}}{{/description}}{{#required}} (required){{/required}}{{#isEnum}}
                 Allowed values: {{#allowableValues}}{{#enumVars}}{{value}}{{^-last}}, {{/-last}}{{/enumVars}}{{/allowableValues}}{{/isEnum}}
         {{/allParams}}
         {{/allParams.0}}
@@ -82,7 +95,7 @@ class {{classname}}:
         
         {{#pathParams}}
         # Replace path parameters
-        path = path.replace("{{{baseName}}}", str({{paramName}}))
+        path = path.format({{{baseName}}}=str({{paramName}}))
         {{/pathParams}}
 
         # --- build query dict on the fly ---
@@ -96,7 +109,7 @@ class {{classname}}:
         resp = self.api_client.request(
             "{{httpMethod}}",
             path,
-            params=params{{#bodyParam}}, json={{paramName}}{{/bodyParam}}
+            params=params{{#bodyParam}}, json={{paramName}}.model_dump(by_alias=True){{/bodyParam}}
         )
         resp.raise_for_status()
 {{#returnType}}
@@ -116,7 +129,7 @@ class {{classname}}:
         {{#allParams.0}}
         Args:
         {{#allParams}}
-            {{paramName}} ({{^required}}Optional[{{/required}}{{dataType}}{{^required}}]{{/required}}): {{#description}}{{description}}{{/description}}{{^description}}Parameter {{paramName}}{{/description}}{{#required}} (required){{/required}}{{#isEnum}}
+            {{paramName}} ({{^required}}Optional[{{/required}}{{dataType}}{{^required}}]{{/required}}): {{#description}}{{{description}}}{{/description}}{{^description}}Parameter {{paramName}}{{/description}}{{#required}} (required){{/required}}{{#isEnum}}
                 Allowed values: {{#allowableValues}}{{#enumVars}}{{value}}{{^-last}}, {{/-last}}{{/enumVars}}{{/allowableValues}}{{/isEnum}}
         {{/allParams}}
         {{/allParams.0}}
@@ -131,7 +144,7 @@ class {{classname}}:
         
         {{#pathParams}}
         # Replace path parameters
-        path = path.replace("{{{baseName}}}", str({{paramName}}))
+        path = path.format({{{baseName}}}=str({{paramName}}))
         {{/pathParams}}
 
         params: Dict[str, Any] = {}
@@ -144,7 +157,7 @@ class {{classname}}:
         resp = await self.api_client.request_async(
             "{{httpMethod}}",
             path,
-            params=params{{#bodyParam}}, json={{paramName}}{{/bodyParam}}
+            params=params{{#bodyParam}}, json={{paramName}}.model_dump(by_alias=True){{/bodyParam}}
         )
         resp.raise_for_status()
 {{#returnType}}

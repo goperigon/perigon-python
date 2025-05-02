@@ -33,3 +33,4 @@ git_push.sh
 setup.py
 setup.cfg
 tox.ini
+.github/workflows/python.yml
