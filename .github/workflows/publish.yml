@@ -1,0 +1,102 @@
+name: Tag & Publish Python SDK (PyPI)
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_override:
+        description: "Specify version (leave empty for auto-increment)"
+        required: false
+        default: ""
+
+jobs:
+  tag-and-publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write # for PyPI Trusted Publishing
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Setup Python
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      # Install Poetry
+      - uses: snok/install-poetry@v1
+        with:
+          version: latest
+          virtualenvs-create: false
+          virtualenvs-in-project: false
+
+      - name: Get package name and determine version
+        id: package_info
+        run: |
+          # Extract package name from pyproject.toml
+          PACKAGE_NAME=$(poetry version -s)
+          echo "Package name: $PACKAGE_NAME"
+
+          # Check if manual version override was provided
+          if [[ "${{ github.event.inputs.version_override }}" != "" ]]; then
+            VERSION="${{ github.event.inputs.version_override }}"
+            echo "Using manually specified version: $VERSION"
+          else
+            # Try to get the current version from PyPI
+            PYPI_VERSION=$(pip install $PACKAGE_NAME==0.0.0 2>&1 | grep -oP "(?<=\(from versions: ).*(?=\))" | tr ',' '\n' | sort -V | tail -n 1 || echo "0.0.0")
+            echo "Current PyPI version: $PYPI_VERSION"
+            
+            # If PyPI version is less than 1.0.0, start at 1.0.0
+            if [[ $(echo "$PYPI_VERSION" | awk -F. '{print $1}') -lt 1 ]]; then
+              VERSION="1.0.0"
+              echo "Starting at version 1.0.0"
+            else
+              # Increment the patch version
+              IFS='.' read -r major minor patch <<< "$PYPI_VERSION"
+              VERSION="$major.$minor.$((patch + 1))"
+              echo "Incrementing to version $VERSION"
+            fi
+          fi
+
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=v$VERSION" >> "$GITHUB_OUTPUT"
+
+      # Update pyproject.toml version
+      - name: Update pyproject.toml version
+        run: poetry version ${{ steps.package_info.outputs.version }}
+
+      # Install dependencies
+      - name: Install dependencies
+        run: poetry install
+
+      # Build the package
+      - name: Build package
+        run: poetry build
+
+      # Create tag only after successful build
+      - name: Create new tag
+        id: create_tag
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git tag -a ${{ steps.package_info.outputs.tag }} -m "Release ${{ steps.package_info.outputs.tag }}"
+          git push origin ${{ steps.package_info.outputs.tag }}
+          echo "tag_created=true" >> "$GITHUB_OUTPUT"
+
+      # Publish to PyPI
+      - name: Publish to PyPI
+        id: pypi_publish
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist/
+          verbose: true
+
+      # Remove tag if publishing fails
+      - name: Remove tag if publish failed
+        if: failure() && steps.create_tag.outputs.tag_created == 'true'
+        run: |
+          git push --delete origin ${{ steps.package_info.outputs.tag }}
+          git tag -d ${{ steps.package_info.outputs.tag }}
+          echo "Removed tag due to workflow failure"
