@@ -17,8 +17,8 @@
   <!-- downloads -->
   <img src="https://img.shields.io/pypi/dm/perigon?style=for-the-badge" alt="pypi downloads">
   <!-- tests -->
-  <a href="https://github.com/goperigon/perigon‑python/actions/workflows/test.yml">
-    <img src="https://img.shields.io/github/actions/workflow/status/goperigon/perigon‑python/test.yml?label=tests%20%E2%9C%85&style=for-the-badge" alt="tests status">
+  <a href="https://github.com/goperigon/perigon-python/actions/workflows/test.yml">
+    <img src="https://img.shields.io/github/actions/workflow/status/goperigon/perigon-python/test.yml?label=test%20%E2%9C%85&style=for-the-badge" alt="tests status">
   </a>
   <!-- docs -->
   <a href="https://docs.perigon.io">
@@ -26,7 +26,7 @@
   </a>
   <!-- license -->
   <a href="LICENSE">
-    <img src="https://img.shields.io/github/license/goperigon/perigon‑python?style=for-the-badge" alt="license">
+    <img src="https://img.shields.io/github/license/goperigon/perigon-python?style=for-the-badge" alt="license">
   </a>
 </p>
 
