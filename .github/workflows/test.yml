@@ -3,10 +3,10 @@ name: Python SDK Tests
 on:
   push:
     branches: [main]
-    paths: ["perigon/**"] # only run when the perigon directory changes
+    paths: ["perigon/**", "tests/**"]
   pull_request:
     branches: [main]
-    paths: ["perigon/**"] # only run when the perigon directory changes
+    paths: ["perigon/**", "tests/**"]
 
 jobs:
   test:

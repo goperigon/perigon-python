@@ -99,7 +99,7 @@ def test_company_search(api: V1Api):
 
 
 def test_get_journalist_by_id(api: V1Api):
-    search = api.search_journalists1(name="Kevin", size=1)
+    search = api.search_journalists(name="Kevin", size=1)
     results = search.results
 
     if not results:
