@@ -24,9 +24,6 @@ perigon/models/entity_holder.py
 perigon/models/event_type_holder.py
 perigon/models/id_name_holder.py
 perigon/models/illegal_parameter_exception.py
-perigon/models/illegal_parameter_exception_cause.py
-perigon/models/illegal_parameter_exception_cause_stack_trace_inner.py
-perigon/models/illegal_parameter_exception_suppressed_inner.py
 perigon/models/image_holder.py
 perigon/models/internal_error_exception.py
 perigon/models/journalist.py
@@ -60,6 +57,9 @@ perigon/models/summary_body.py
 perigon/models/summary_search_result.py
 perigon/models/symbol_holder.py
 perigon/models/too_many_requests_exception.py
+perigon/models/too_many_requests_exception_cause.py
+perigon/models/too_many_requests_exception_cause_stack_trace_inner.py
+perigon/models/too_many_requests_exception_suppressed_inner.py
 perigon/models/topic_dto.py
 perigon/models/topic_holder.py
 perigon/models/topic_labels.py

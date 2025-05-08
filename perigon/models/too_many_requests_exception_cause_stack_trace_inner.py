@@ -18,21 +18,37 @@ from __future__ import annotations
 import json
 import pprint
 import re  # noqa: F401
-from typing import Any, ClassVar, Dict, List, Optional, Set, Union
+from typing import Any, ClassVar, Dict, List, Optional, Set
 
-from pydantic import BaseModel, ConfigDict, StrictFloat, StrictInt
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictInt, StrictStr
 from typing_extensions import Self
 
 
-class CoordinateFilter(BaseModel):
+class TooManyRequestsExceptionCauseStackTraceInner(BaseModel):
     """
-    Filter articles from publishers based at specific geographic locations. Uses latitude, longitude, and radius parameters to define a circular search area for publisher locations.
+    TooManyRequestsExceptionCauseStackTraceInner
     """  # noqa: E501
 
-    lat: Optional[Union[StrictFloat, StrictInt]] = None
-    lon: Optional[Union[StrictFloat, StrictInt]] = None
-    radius: Optional[Union[StrictFloat, StrictInt]] = None
-    __properties: ClassVar[List[str]] = ["lat", "lon", "radius"]
+    class_loader_name: Optional[StrictStr] = Field(
+        default=None, alias="classLoaderName"
+    )
+    module_name: Optional[StrictStr] = Field(default=None, alias="moduleName")
+    module_version: Optional[StrictStr] = Field(default=None, alias="moduleVersion")
+    method_name: Optional[StrictStr] = Field(default=None, alias="methodName")
+    file_name: Optional[StrictStr] = Field(default=None, alias="fileName")
+    line_number: Optional[StrictInt] = Field(default=None, alias="lineNumber")
+    native_method: Optional[StrictBool] = Field(default=None, alias="nativeMethod")
+    class_name: Optional[StrictStr] = Field(default=None, alias="className")
+    __properties: ClassVar[List[str]] = [
+        "classLoaderName",
+        "moduleName",
+        "moduleVersion",
+        "methodName",
+        "fileName",
+        "lineNumber",
+        "nativeMethod",
+        "className",
+    ]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -51,7 +67,7 @@ class CoordinateFilter(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of CoordinateFilter from a JSON string"""
+        """Create an instance of TooManyRequestsExceptionCauseStackTraceInner from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -71,26 +87,11 @@ class CoordinateFilter(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # set to None if lat (nullable) is None
-        # and model_fields_set contains the field
-        if self.lat is None and "lat" in self.model_fields_set:
-            _dict["lat"] = None
-
-        # set to None if lon (nullable) is None
-        # and model_fields_set contains the field
-        if self.lon is None and "lon" in self.model_fields_set:
-            _dict["lon"] = None
-
-        # set to None if radius (nullable) is None
-        # and model_fields_set contains the field
-        if self.radius is None and "radius" in self.model_fields_set:
-            _dict["radius"] = None
-
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of CoordinateFilter from a dict"""
+        """Create an instance of TooManyRequestsExceptionCauseStackTraceInner from a dict"""
         if obj is None:
             return None
 
@@ -98,6 +99,15 @@ class CoordinateFilter(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate(
-            {"lat": obj.get("lat"), "lon": obj.get("lon"), "radius": obj.get("radius")}
+            {
+                "classLoaderName": obj.get("classLoaderName"),
+                "moduleName": obj.get("moduleName"),
+                "moduleVersion": obj.get("moduleVersion"),
+                "methodName": obj.get("methodName"),
+                "fileName": obj.get("fileName"),
+                "lineNumber": obj.get("lineNumber"),
+                "nativeMethod": obj.get("nativeMethod"),
+                "className": obj.get("className"),
+            }
         )
         return _obj

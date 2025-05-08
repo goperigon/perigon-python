@@ -23,38 +23,24 @@ from typing import Any, ClassVar, Dict, List, Optional, Set
 from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing_extensions import Self
 
-from perigon.models.too_many_requests_exception_cause import (
-    TooManyRequestsExceptionCause,
-)
 from perigon.models.too_many_requests_exception_cause_stack_trace_inner import (
     TooManyRequestsExceptionCauseStackTraceInner,
 )
-from perigon.models.too_many_requests_exception_suppressed_inner import (
-    TooManyRequestsExceptionSuppressedInner,
-)
 
 
-class InternalErrorException(BaseModel):
+class TooManyRequestsExceptionCause(BaseModel):
     """
-    InternalErrorException
+    TooManyRequestsExceptionCause
     """  # noqa: E501
 
-    cause: Optional[TooManyRequestsExceptionCause] = None
     stack_trace: Optional[List[TooManyRequestsExceptionCauseStackTraceInner]] = Field(
         default=None, alias="stackTrace"
     )
     message: Optional[StrictStr] = None
-    suppressed: Optional[List[TooManyRequestsExceptionSuppressedInner]] = None
     localized_message: Optional[StrictStr] = Field(
         default=None, alias="localizedMessage"
     )
-    __properties: ClassVar[List[str]] = [
-        "cause",
-        "stackTrace",
-        "message",
-        "suppressed",
-        "localizedMessage",
-    ]
+    __properties: ClassVar[List[str]] = ["stackTrace", "message", "localizedMessage"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -73,7 +59,7 @@ class InternalErrorException(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of InternalErrorException from a JSON string"""
+        """Create an instance of TooManyRequestsExceptionCause from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -93,9 +79,6 @@ class InternalErrorException(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of cause
-        if self.cause:
-            _dict["cause"] = self.cause.to_dict()
         # override the default output from pydantic by calling `to_dict()` of each item in stack_trace (list)
         _items = []
         if self.stack_trace:
@@ -103,46 +86,11 @@ class InternalErrorException(BaseModel):
                 if _item_stack_trace:
                     _items.append(_item_stack_trace.to_dict())
             _dict["stackTrace"] = _items
-        # override the default output from pydantic by calling `to_dict()` of each item in suppressed (list)
-        _items = []
-        if self.suppressed:
-            for _item_suppressed in self.suppressed:
-                if _item_suppressed:
-                    _items.append(_item_suppressed.to_dict())
-            _dict["suppressed"] = _items
-        # set to None if cause (nullable) is None
-        # and model_fields_set contains the field
-        if self.cause is None and "cause" in self.model_fields_set:
-            _dict["cause"] = None
-
-        # set to None if stack_trace (nullable) is None
-        # and model_fields_set contains the field
-        if self.stack_trace is None and "stack_trace" in self.model_fields_set:
-            _dict["stackTrace"] = None
-
-        # set to None if message (nullable) is None
-        # and model_fields_set contains the field
-        if self.message is None and "message" in self.model_fields_set:
-            _dict["message"] = None
-
-        # set to None if suppressed (nullable) is None
-        # and model_fields_set contains the field
-        if self.suppressed is None and "suppressed" in self.model_fields_set:
-            _dict["suppressed"] = None
-
-        # set to None if localized_message (nullable) is None
-        # and model_fields_set contains the field
-        if (
-            self.localized_message is None
-            and "localized_message" in self.model_fields_set
-        ):
-            _dict["localizedMessage"] = None
-
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of InternalErrorException from a dict"""
+        """Create an instance of TooManyRequestsExceptionCause from a dict"""
         if obj is None:
             return None
 
@@ -151,11 +99,6 @@ class InternalErrorException(BaseModel):
 
         _obj = cls.model_validate(
             {
-                "cause": (
-                    TooManyRequestsExceptionCause.from_dict(obj["cause"])
-                    if obj.get("cause") is not None
-                    else None
-                ),
                 "stackTrace": (
                     [
                         TooManyRequestsExceptionCauseStackTraceInner.from_dict(_item)
@@ -165,14 +108,6 @@ class InternalErrorException(BaseModel):
                     else None
                 ),
                 "message": obj.get("message"),
-                "suppressed": (
-                    [
-                        TooManyRequestsExceptionSuppressedInner.from_dict(_item)
-                        for _item in obj["suppressed"]
-                    ]
-                    if obj.get("suppressed") is not None
-                    else None
-                ),
                 "localizedMessage": obj.get("localizedMessage"),
             }
         )

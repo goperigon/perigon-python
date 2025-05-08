@@ -23,14 +23,14 @@ from typing import Any, ClassVar, Dict, List, Optional, Set
 from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing_extensions import Self
 
-from perigon.models.illegal_parameter_exception_cause import (
-    IllegalParameterExceptionCause,
+from perigon.models.too_many_requests_exception_cause import (
+    TooManyRequestsExceptionCause,
 )
-from perigon.models.illegal_parameter_exception_cause_stack_trace_inner import (
-    IllegalParameterExceptionCauseStackTraceInner,
+from perigon.models.too_many_requests_exception_cause_stack_trace_inner import (
+    TooManyRequestsExceptionCauseStackTraceInner,
 )
-from perigon.models.illegal_parameter_exception_suppressed_inner import (
-    IllegalParameterExceptionSuppressedInner,
+from perigon.models.too_many_requests_exception_suppressed_inner import (
+    TooManyRequestsExceptionSuppressedInner,
 )
 
 
@@ -39,12 +39,12 @@ class IllegalParameterException(BaseModel):
     IllegalParameterException
     """  # noqa: E501
 
-    cause: Optional[IllegalParameterExceptionCause] = None
-    stack_trace: Optional[List[IllegalParameterExceptionCauseStackTraceInner]] = Field(
+    cause: Optional[TooManyRequestsExceptionCause] = None
+    stack_trace: Optional[List[TooManyRequestsExceptionCauseStackTraceInner]] = Field(
         default=None, alias="stackTrace"
     )
     message: Optional[StrictStr] = None
-    suppressed: Optional[List[IllegalParameterExceptionSuppressedInner]] = None
+    suppressed: Optional[List[TooManyRequestsExceptionSuppressedInner]] = None
     localized_message: Optional[StrictStr] = Field(
         default=None, alias="localizedMessage"
     )
@@ -152,13 +152,13 @@ class IllegalParameterException(BaseModel):
         _obj = cls.model_validate(
             {
                 "cause": (
-                    IllegalParameterExceptionCause.from_dict(obj["cause"])
+                    TooManyRequestsExceptionCause.from_dict(obj["cause"])
                     if obj.get("cause") is not None
                     else None
                 ),
                 "stackTrace": (
                     [
-                        IllegalParameterExceptionCauseStackTraceInner.from_dict(_item)
+                        TooManyRequestsExceptionCauseStackTraceInner.from_dict(_item)
                         for _item in obj["stackTrace"]
                     ]
                     if obj.get("stackTrace") is not None
@@ -167,7 +167,7 @@ class IllegalParameterException(BaseModel):
                 "message": obj.get("message"),
                 "suppressed": (
                     [
-                        IllegalParameterExceptionSuppressedInner.from_dict(_item)
+                        TooManyRequestsExceptionSuppressedInner.from_dict(_item)
                         for _item in obj["suppressed"]
                     ]
                     if obj.get("suppressed") is not None

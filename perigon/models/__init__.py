@@ -32,15 +32,6 @@ from perigon.models.entity_holder import EntityHolder
 from perigon.models.event_type_holder import EventTypeHolder
 from perigon.models.id_name_holder import IdNameHolder
 from perigon.models.illegal_parameter_exception import IllegalParameterException
-from perigon.models.illegal_parameter_exception_cause import (
-    IllegalParameterExceptionCause,
-)
-from perigon.models.illegal_parameter_exception_cause_stack_trace_inner import (
-    IllegalParameterExceptionCauseStackTraceInner,
-)
-from perigon.models.illegal_parameter_exception_suppressed_inner import (
-    IllegalParameterExceptionSuppressedInner,
-)
 from perigon.models.image_holder import ImageHolder
 from perigon.models.internal_error_exception import InternalErrorException
 from perigon.models.journalist import Journalist
@@ -74,6 +65,15 @@ from perigon.models.summary_body import SummaryBody
 from perigon.models.summary_search_result import SummarySearchResult
 from perigon.models.symbol_holder import SymbolHolder
 from perigon.models.too_many_requests_exception import TooManyRequestsException
+from perigon.models.too_many_requests_exception_cause import (
+    TooManyRequestsExceptionCause,
+)
+from perigon.models.too_many_requests_exception_cause_stack_trace_inner import (
+    TooManyRequestsExceptionCauseStackTraceInner,
+)
+from perigon.models.too_many_requests_exception_suppressed_inner import (
+    TooManyRequestsExceptionSuppressedInner,
+)
 from perigon.models.topic_dto import TopicDto
 from perigon.models.topic_holder import TopicHolder
 from perigon.models.topic_labels import TopicLabels

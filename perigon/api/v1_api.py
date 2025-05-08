@@ -25,7 +25,7 @@ from perigon.models.vector_search_result import VectorSearchResult
 PATH_GET_JOURNALIST_BY_ID = "/v1/journalists/{id}"
 PATH_SEARCH_ARTICLES = "/v1/all"
 PATH_SEARCH_COMPANIES = "/v1/companies/all"
-PATH_SEARCH_JOURNALISTS1 = "/v1/journalists/all"
+PATH_SEARCH_JOURNALISTS = "/v1/journalists/all"
 PATH_SEARCH_PEOPLE = "/v1/people/all"
 PATH_SEARCH_SOURCES = "/v1/sources/all"
 PATH_SEARCH_STORIES = "/v1/stories/all"
@@ -218,45 +218,45 @@ class V1Api:
         Search and filter all news articles available via the Perigon API. The result includes a list of individual articles that were matched to your specific criteria.
 
         Args:
-            q (Optional[str]): Search query, each article will be scored and ranked against it. Articles are searched on the title, description, and content fields.
-            title (Optional[str]): Search article headlines/title field. Semantic similar to q parameter.
-            desc (Optional[str]): Search query on the description field. Semantic similar to q parameter.
-            content (Optional[str]): Search query on the article's body of content field. Semantic similar to q parameter.
-            url (Optional[str]): Search query on the url field. Semantic similar to q parameter. E.g. could be used for querying certain website sections, e.g. source=cnn.com&url=travel.
-            article_id (Optional[List[str]]): Article ID will search for a news article by the ID of the article. If several parameters are passed, all matched articles will be returned.
-            cluster_id (Optional[List[str]]): Search for related content using a cluster ID. Passing a cluster ID will filter results to only the content found within the cluster.
-            sort_by (Optional[AllEndpointSortBy]): 'relevance' to sort by relevance to the query, 'date' to sort by the publication date (desc), 'pubDate' is a synonym to 'date', 'addDate' to sort by 'addDate' field (desc), 'refreshDate' to sort by 'refreshDate' field (desc). Defaults to 'relevance'
-            page (Optional[int]): The page number to retrieve.
-            size (Optional[int]): The number of items per page.
-            var_from (Optional[datetime]): 'from' filter, will search articles published after the specified date, the date could be passed as ISO or 'yyyy-mm-dd'. Add time in ISO format, ie. 2023-03-01T00:00:00
-            to (Optional[datetime]): 'to' filter, will search articles published before the specified date, the date could be passed as ISO or 'yyyy-mm-dd'. Add time in ISO format, ie. 2022-02-01T23:59:59
-            add_date_from (Optional[datetime]): 'addDateFrom' filter, will search articles added after the specified date, the date could be passed as ISO or 'yyyy-mm-dd'. Add time in ISO format, ie. 2022-02-01T00:00:00
-            add_date_to (Optional[datetime]): 'addDateTo' filter, will search articles added before the specified date, the date could be passed as ISO or 'yyyy-mm-dd'. Add time in ISO format, ie. 2022-02-01T23:59:59
-            refresh_date_from (Optional[datetime]): Will search articles that were refreshed after the specified date. The date could be passed as ISO or 'yyyy-mm-dd'. Add time in ISO format, ie. 2022-02-01T00:00:00
-            refresh_date_to (Optional[datetime]): Will search articles that were refreshed before the specified date. The date could be passed as ISO or 'yyyy-mm-dd'. Add time in ISO format, ie. 2022-02-01T23:59:59
-            medium (Optional[List[str]]): Medium will filter out news articles medium, which could be 'Video' or 'Article'. If several parameters are passed, all matched articles will be returned.
-            source (Optional[List[str]]): Publisher's domain can include a subdomain. If multiple parameters are passed, they will be applied as OR operations. Wildcards (* and ?) are suported (e.g. *.cnn.com).
-            source_group (Optional[List[str]]): One of the supported source groups. Find Source Groups in the guided part of our documentation...
-            exclude_source_group (Optional[List[str]]): A list of built-in source group names to exclude from the results. The Perigon API categorizes sources into groups (for example, “top10” or “top100”) based on type or popularity. Using this filter allows you to remove articles coming from any source that belongs to one or more of the specified groups.
-            exclude_source (Optional[List[str]]): The domain of the website, which should be excluded from the search. Multiple parameters could be provided. Wildcards (* and ?) are suported (e.g. *.cnn.com).
+            q (Optional[str]): Primary search query for filtering articles based on their title, description, and content. Supports Boolean operators (AND, OR, NOT), exact phrases with quotes, and wildcards (* and ?) for flexible searching.
+            title (Optional[str]): Search specifically within article headlines/titles. Supports Boolean operators, exact phrases with quotes, and wildcards for matching title variations.
+            desc (Optional[str]): Search within article description fields. Supports Boolean expressions, exact phrase matching with quotes, and wildcards for flexible pattern matching.
+            content (Optional[str]): Search within the full article body content. Supports Boolean logic, exact phrase matching with quotes, and wildcards for comprehensive content searching.
+            url (Optional[str]): Search within article URLs to find content from specific website sections or domains. Supports wildcards (* and ?) for partial URL matching.
+            article_id (Optional[List[str]]): Retrieve specific news articles by their unique article identifiers. Multiple IDs can be provided to return a collection of specific articles.
+            cluster_id (Optional[List[str]]): Filter results to only show content within a specific related content cluster. Returns articles grouped together as part of Perigon Stories based on topic relevance.
+            sort_by (Optional[AllEndpointSortBy]): Determines the article sorting order. Options include relevance (default), date/pubDate (newest publication date first), reverseDate (oldest publication date first), addDate (newest ingestion date first), reverseAddDate (oldest ingestion date first), and refreshDate (most recently updated in system first, often identical to addDate).
+            page (Optional[int]): The specific page of results to retrieve in the paginated response. Starts at 0.
+            size (Optional[int]): The number of articles to return per page in the paginated response.
+            var_from (Optional[datetime]): Filter for articles published after this date. Accepts ISO 8601 format (e.g., 2023-03-01T00:00:00) or yyyy-mm-dd format.
+            to (Optional[datetime]): Filter for articles published before this date. Accepts ISO 8601 format (e.g., 2022-02-01T23:59:59) or yyyy-mm-dd format.
+            add_date_from (Optional[datetime]): Filter for articles added to Perigon's system after this date. Accepts ISO 8601 format (e.g., 2022-02-01T00:00:00) or yyyy-mm-dd format.
+            add_date_to (Optional[datetime]): Filter for articles added to Perigon's system before this date. Accepts ISO 8601 format (e.g., 2022-02-01T23:59:59) or yyyy-mm-dd format.
+            refresh_date_from (Optional[datetime]): Filter for articles refreshed/updated in Perigon's system after this date. In most cases yields similar results to addDateFrom but can differ for updated content. Accepts ISO 8601 format (e.g., 2022-02-01T00:00:00) or yyyy-mm-dd format.
+            refresh_date_to (Optional[datetime]): Filter for articles refreshed/updated in Perigon's system before this date. In most cases yields similar results to addDateTo but can differ for updated content. Accepts ISO 8601 format (e.g., 2022-02-01T23:59:59) or yyyy-mm-dd format.
+            medium (Optional[List[str]]): Filter articles by their primary medium type. Accepts Article for written content or Video for video-based stories. Multiple values create an OR filter.
+            source (Optional[List[str]]): Filter articles by specific publisher domains or subdomains. Supports wildcards (* and ?) for pattern matching (e.g., *.cnn.com). Multiple values create an OR filter.
+            source_group (Optional[List[str]]): Filter articles using Perigon's curated publisher bundles (e.g., top100, top25crypto). Multiple values create an OR filter to include articles from any of the specified bundles.
+            exclude_source_group (Optional[List[str]]): Exclude articles from specified Perigon source groups. Multiple values create an AND-exclude filter, removing content from publishers in any of the specified bundles (e.g., top10, top100).
+            exclude_source (Optional[List[str]]): Exclude articles from specific publisher domains or subdomains. Supports wildcards (* and ?) for pattern matching (e.g., *.cnn.com). Multiple values create an AND-exclude filter.
             paywall (Optional[bool]): Filter to show only results where the source has a paywall (true) or does not have a paywall (false).
-            byline (Optional[List[str]]): Author names to filter by. Article author bylines are used as a source field. If multiple parameters are passed, they will be applied as OR operations.
-            author (Optional[List[str]]): A list of author names to include. Only articles written by any of the specified authors are returned. This is ideal when you wish to focus on content from particular voices or experts.
-            exclude_author (Optional[List[str]]):  A list of author names to exclude from the search results. Any article written by an author whose name matches one in this list will be omitted, which helps to avoid content from certain individuals.
-            journalist_id (Optional[List[str]]): Filter by journalist ID. Journalist IDs are unique journalist identifiers which can be found through the Journalist API, or in the matchedAuthors field.
-            exclude_journalist_id (Optional[List[str]]): A list of journalist (or reporter) identifiers to exclude. If an article is written by a journalist whose ID matches any in this list, it will not be part of the result set.
-            language (Optional[List[str]]): Language code to filter by language. If multiple parameters are passed, they will be applied as OR operations.
-            exclude_language (Optional[List[str]]):  A list of languages to be excluded. Any article published in one of the languages provided in this filter will not be returned. This is useful when you are interested only in news published in specific languages.
-            search_translation (Optional[bool]): Expand a query to search the translation, translatedTitle, and translatedDescription fields for non-English articles.
-            label (Optional[List[str]]): Labels to filter by, could be 'Opinion', 'Paid-news', 'Non-news', etc. If multiple parameters are passed, they will be applied as OR operations.
-            exclude_label (Optional[List[str]]): Exclude results that include specific labels (Opinion, Non-news, Paid News, etc.). You can filter multiple by repeating the parameter.
-            category (Optional[List[str]]): Filter by categories. Categories are general themes that the article is about. Examples of categories: Tech, Politics, etc. If multiple parameters are passed, they will be applied as OR operations. Use 'none' to search uncategorized articles.
-            exclude_category (Optional[List[str]]): A list of article categories to be omitted. If an article is tagged with any category present in this list (such as “Polotics”, “Tech”, “Sports”, etc.), it will not appear in the search results.
-            topic (Optional[List[str]]): Filters results to include only articles with the specified topics. Topics are more specific classifications than categories, with an article potentially having multiple topics assigned. Perigon uses both human and machine curation to maintain an evolving list of available topics. Common examples include 'Markets', 'Crime', 'Cryptocurrency', 'Social Issues', 'College Sports', etc. See the Topics page in Docs for a complete list of available topics.
-            exclude_topic (Optional[List[str]]): Filter by excluding topics. Each topic is some kind of entity that the article is about. Examples of topics: Markets, Joe Biden, Green Energy, Climate Change, Cryptocurrency, etc. If multiple parameters are passed, they will be applied as OR operations.
-            link_to (Optional[str]): Returns only articles that point to specified links (as determined by the 'links' field in the article response).
-            show_reprints (Optional[bool]): Whether to return reprints in the response or not. Reprints are usually wired articles from sources like AP or Reuters that are reprinted in multiple sources at the same time. By default, this parameter is 'true'.
-            reprint_group_id (Optional[str]): Shows all articles belonging to the same reprint group. A reprint group includes one original article (the first one processed by the API) and all its known reprints.
+            byline (Optional[List[str]]): Filter articles by author bylines. Works as an exact match for each author name provided. Multiple values create an OR filter to find articles by any of the specified authors.
+            author (Optional[List[str]]): Filter articles by specific author names. Works as an exact match for each name. Multiple values create an OR filter to find articles by any of the specified authors.
+            exclude_author (Optional[List[str]]): Exclude articles written by specific authors. Any article with an author name matching an entry in this list will be omitted from results. Multiple values create an AND-exclude filter.
+            journalist_id (Optional[List[str]]): Filter by unique journalist identifiers which can be found through the Journalist API or in the matchedAuthors field. Multiple values create an OR filter.
+            exclude_journalist_id (Optional[List[str]]): Exclude articles written by specific journalists identified by their unique IDs. Multiple values create an AND-exclude filter.
+            language (Optional[List[str]]): Filter articles by their language using ISO-639 two-letter codes (e.g., en, es, fr). Multiple values create an OR filter.
+            exclude_language (Optional[List[str]]): Exclude articles in specific languages using ISO-639 two-letter codes. Multiple values create an AND-exclude filter.
+            search_translation (Optional[bool]): Expand search to include translated content fields for non-English articles. When true, searches translated title, description, and content fields.
+            label (Optional[List[str]]): Filter articles by editorial labels such as Opinion, Paid-news, Non-news, Fact Check, or Press Release. Multiple values create an OR filter.
+            exclude_label (Optional[List[str]]): Exclude articles with specific editorial labels. Multiple values create an AND-exclude filter, removing all content with any of these labels.
+            category (Optional[List[str]]): Filter by broad content categories such as Politics, Tech, Sports, Business, or Finance. Use 'none' to find uncategorized articles. Multiple values create an OR filter.
+            exclude_category (Optional[List[str]]): Exclude articles with specific categories. Multiple values create an AND-exclude filter, removing all content with any of these categories.
+            topic (Optional[List[str]]): Filter by specific topics such as Markets, Crime, Cryptocurrency, or College Sports. Topics are more granular than categories, and articles can have multiple topics. Use the /topics endpoint for a complete list of available topics. Multiple values create an OR filter.
+            exclude_topic (Optional[List[str]]): Exclude articles with specific topics. Multiple values create an AND-exclude filter, removing all content with any of these topics.
+            link_to (Optional[str]): Returns only articles that contain links to the specified URL pattern. Matches against the 'links' field in article responses.
+            show_reprints (Optional[bool]): Controls whether to include reprinted content in results. When true (default), shows syndicated articles from wire services like AP or Reuters that appear on multiple sites.
+            reprint_group_id (Optional[str]): Returns all articles in a specific reprint group, including the original article and all its known reprints. Use when you want to see all versions of the same content.
             city (Optional[List[str]]): Filters articles where a specified city plays a central role in the content, beyond mere mentions, to ensure the results are deeply relevant to the urban area in question. If multiple parameters are passed, they will be applied as OR operations.
             exclude_city (Optional[List[str]]): A list of cities to exclude from the results. Articles that are associated with any of the specified cities will be filtered out.
             area (Optional[List[str]]): Filters articles where a specified area, such as a neighborhood, borough, or district, plays a central role in the content, beyond mere mentions, to ensure the results are deeply relevant to the area in question. If multiple parameters are passed, they will be applied as OR operations.
@@ -278,25 +278,25 @@ class V1Api:
             source_lat (Optional[float]): Latitude of the center point to search articles created by local publications.
             source_lon (Optional[float]): Latitude of the center point to search articles created by local publications.
             source_max_distance (Optional[float]): Maximum distance from starting point to search articles created by local publications.
-            person_wikidata_id (Optional[List[str]]): List of person Wikidata IDs for filtering.
-            exclude_person_wikidata_id (Optional[List[str]]): A list of Wikidata identifiers for individuals. Articles mentioning persons with any of these Wikidata IDs will be filtered out. This is particularly helpful when using a unique identifier to prevent ambiguity in names.
-            person_name (Optional[List[str]]): List of person names for exact matches. Boolean and complex logic is not supported on this paramter.
-            exclude_person_name (Optional[List[str]]): A list of person names that, when associated with the content, cause the article to be excluded. This filter removes articles related to any individuals whose names match those on the list.
-            company_id (Optional[List[str]]): List of company IDs to filter by.
-            exclude_company_id (Optional[List[str]]): A list of company identifiers. Articles associated with companies that have any of these unique IDs will be filtered out from the returned results, ensuring that certain companies or corporate entities are not included.
-            company_name (Optional[str]): Search by company name.
-            company_domain (Optional[List[str]]): Search by company domains for filtering. E.g. companyDomain=apple.com.
-            exclude_company_domain (Optional[List[str]]): A list of company domains to exclude. If an article is related to a company that uses one of the specified domains (for instance, “example.com”), it will not be returned in the results.
-            company_symbol (Optional[List[str]]): Search by company symbols.
+            person_wikidata_id (Optional[List[str]]): Filter articles by Wikidata IDs of mentioned people. Refer to the /people endpoint for a complete list of tracked individuals.
+            exclude_person_wikidata_id (Optional[List[str]]): Exclude articles mentioning people with specific Wikidata IDs. Creates an AND-exclude filter to remove content about these individuals. Uses precise identifiers to avoid name ambiguity.
+            person_name (Optional[List[str]]): Filter articles by exact person name matches. Does not support Boolean or complex logic. For available person entities, consult the /people endpoint.
+            exclude_person_name (Optional[List[str]]): Exclude articles mentioning specific people by name. Creates an AND-exclude filter to remove content about these individuals.
+            company_id (Optional[List[str]]): Filter articles by company identifiers. For a complete list of tracked companies, refer to the /companies endpoint.
+            exclude_company_id (Optional[List[str]]): Exclude articles mentioning companies with specific identifiers. Creates an AND-exclude filter to remove content about these corporate entities.
+            company_name (Optional[str]): Filter articles by company name mentions. Performs an exact match on company names.
+            company_domain (Optional[List[str]]): Filter articles by company domains (e.g., apple.com). For available company entities, consult the /companies endpoint.
+            exclude_company_domain (Optional[List[str]]): Exclude articles related to companies with specific domains. Creates an AND-exclude filter to remove content about these companies.
+            company_symbol (Optional[List[str]]): Filter articles by company stock symbols. For available company entities and their symbols, consult the /companies endpoint.
             exclude_company_symbol (Optional[List[str]]): A list of stock symbols (ticker symbols) that identify companies to be excluded. Articles related to companies using any of these symbols will be omitted, which is useful for targeting or avoiding specific public companies.
             show_num_results (Optional[bool]): Whether to show the total number of all matched articles. Default value is false which makes queries a bit more efficient but also counts up to 10000 articles.
-            positive_sentiment_from (Optional[float]): Filters results with a sentiment score greater than or equal to the specified value, indicating positive sentiment. See the Article Data section in Docs for an explanation of scores.
-            positive_sentiment_to (Optional[float]): Filters results with a sentiment score less than or equal to the specified value, indicating positive sentiment. See the Article Data section in Docs for an explanation of scores.
-            neutral_sentiment_from (Optional[float]): Filters results with a sentiment score greater than or equal to the specified value, indicating neutral sentiment. Explanation of sentimental values can be found in Docs under the Article Data section.
-            neutral_sentiment_to (Optional[float]): Filters results with a sentiment score less than or equal to the specified value, indicating neutral sentiment. See the Article Data section in Docs for an explanation of scores.
-            negative_sentiment_from (Optional[float]): Filters results with a sentiment score greater than or equal to the specified value, indicating negative sentiment. See the Article Data section in Docs for an explanation of scores.
-            negative_sentiment_to (Optional[float]): Filters results with a sentiment score less than or equal to the specified value, indicating negative sentiment. See the Article Data section in Docs for an explanation of scores.
-            taxonomy (Optional[List[str]]): Filters by Google Content Categories. This field will accept 1 or more categories, must pass the full name of the category. Example: taxonomy=/Finance/Banking/Other, /Finance/Investing/Funds
+            positive_sentiment_from (Optional[float]): Filter articles with a positive sentiment score greater than or equal to the specified value. Scores range from 0 to 1, with higher values indicating stronger positive tone.
+            positive_sentiment_to (Optional[float]): Filter articles with a positive sentiment score less than or equal to the specified value. Scores range from 0 to 1, with higher values indicating stronger positive tone.
+            neutral_sentiment_from (Optional[float]): Filter articles with a neutral sentiment score greater than or equal to the specified value. Scores range from 0 to 1, with higher values indicating stronger neutral tone.
+            neutral_sentiment_to (Optional[float]): Filter articles with a neutral sentiment score less than or equal to the specified value. Scores range from 0 to 1, with higher values indicating stronger neutral tone.
+            negative_sentiment_from (Optional[float]): Filter articles with a negative sentiment score greater than or equal to the specified value. Scores range from 0 to 1, with higher values indicating stronger negative tone.
+            negative_sentiment_to (Optional[float]): Filter articles with a negative sentiment score less than or equal to the specified value. Scores range from 0 to 1, with higher values indicating stronger negative tone.
+            taxonomy (Optional[List[str]]): Filters by Google Content Categories. This field will accept 1 or more categories, must pass the full name of the category. Example: taxonomy=/Finance/Banking/Other, /Finance/Investing/Funds. [Full list](https://cloud.google.com/natural-language/docs/categories)
             prefix_taxonomy (Optional[str]): Filters by Google Content Categories. This field will filter by the category prefix only. Example: prefixTaxonomy=/Finance
 
         Returns:
@@ -561,45 +561,45 @@ class V1Api:
         Async variant of search_articles. Search and filter all news articles available via the Perigon API. The result includes a list of individual articles that were matched to your specific criteria.
 
         Args:
-            q (Optional[str]): Search query, each article will be scored and ranked against it. Articles are searched on the title, description, and content fields.
-            title (Optional[str]): Search article headlines/title field. Semantic similar to q parameter.
-            desc (Optional[str]): Search query on the description field. Semantic similar to q parameter.
-            content (Optional[str]): Search query on the article's body of content field. Semantic similar to q parameter.
-            url (Optional[str]): Search query on the url field. Semantic similar to q parameter. E.g. could be used for querying certain website sections, e.g. source=cnn.com&url=travel.
-            article_id (Optional[List[str]]): Article ID will search for a news article by the ID of the article. If several parameters are passed, all matched articles will be returned.
-            cluster_id (Optional[List[str]]): Search for related content using a cluster ID. Passing a cluster ID will filter results to only the content found within the cluster.
-            sort_by (Optional[AllEndpointSortBy]): 'relevance' to sort by relevance to the query, 'date' to sort by the publication date (desc), 'pubDate' is a synonym to 'date', 'addDate' to sort by 'addDate' field (desc), 'refreshDate' to sort by 'refreshDate' field (desc). Defaults to 'relevance'
-            page (Optional[int]): The page number to retrieve.
-            size (Optional[int]): The number of items per page.
-            var_from (Optional[datetime]): 'from' filter, will search articles published after the specified date, the date could be passed as ISO or 'yyyy-mm-dd'. Add time in ISO format, ie. 2023-03-01T00:00:00
-            to (Optional[datetime]): 'to' filter, will search articles published before the specified date, the date could be passed as ISO or 'yyyy-mm-dd'. Add time in ISO format, ie. 2022-02-01T23:59:59
-            add_date_from (Optional[datetime]): 'addDateFrom' filter, will search articles added after the specified date, the date could be passed as ISO or 'yyyy-mm-dd'. Add time in ISO format, ie. 2022-02-01T00:00:00
-            add_date_to (Optional[datetime]): 'addDateTo' filter, will search articles added before the specified date, the date could be passed as ISO or 'yyyy-mm-dd'. Add time in ISO format, ie. 2022-02-01T23:59:59
-            refresh_date_from (Optional[datetime]): Will search articles that were refreshed after the specified date. The date could be passed as ISO or 'yyyy-mm-dd'. Add time in ISO format, ie. 2022-02-01T00:00:00
-            refresh_date_to (Optional[datetime]): Will search articles that were refreshed before the specified date. The date could be passed as ISO or 'yyyy-mm-dd'. Add time in ISO format, ie. 2022-02-01T23:59:59
-            medium (Optional[List[str]]): Medium will filter out news articles medium, which could be 'Video' or 'Article'. If several parameters are passed, all matched articles will be returned.
-            source (Optional[List[str]]): Publisher's domain can include a subdomain. If multiple parameters are passed, they will be applied as OR operations. Wildcards (* and ?) are suported (e.g. *.cnn.com).
-            source_group (Optional[List[str]]): One of the supported source groups. Find Source Groups in the guided part of our documentation...
-            exclude_source_group (Optional[List[str]]): A list of built-in source group names to exclude from the results. The Perigon API categorizes sources into groups (for example, “top10” or “top100”) based on type or popularity. Using this filter allows you to remove articles coming from any source that belongs to one or more of the specified groups.
-            exclude_source (Optional[List[str]]): The domain of the website, which should be excluded from the search. Multiple parameters could be provided. Wildcards (* and ?) are suported (e.g. *.cnn.com).
+            q (Optional[str]): Primary search query for filtering articles based on their title, description, and content. Supports Boolean operators (AND, OR, NOT), exact phrases with quotes, and wildcards (* and ?) for flexible searching.
+            title (Optional[str]): Search specifically within article headlines/titles. Supports Boolean operators, exact phrases with quotes, and wildcards for matching title variations.
+            desc (Optional[str]): Search within article description fields. Supports Boolean expressions, exact phrase matching with quotes, and wildcards for flexible pattern matching.
+            content (Optional[str]): Search within the full article body content. Supports Boolean logic, exact phrase matching with quotes, and wildcards for comprehensive content searching.
+            url (Optional[str]): Search within article URLs to find content from specific website sections or domains. Supports wildcards (* and ?) for partial URL matching.
+            article_id (Optional[List[str]]): Retrieve specific news articles by their unique article identifiers. Multiple IDs can be provided to return a collection of specific articles.
+            cluster_id (Optional[List[str]]): Filter results to only show content within a specific related content cluster. Returns articles grouped together as part of Perigon Stories based on topic relevance.
+            sort_by (Optional[AllEndpointSortBy]): Determines the article sorting order. Options include relevance (default), date/pubDate (newest publication date first), reverseDate (oldest publication date first), addDate (newest ingestion date first), reverseAddDate (oldest ingestion date first), and refreshDate (most recently updated in system first, often identical to addDate).
+            page (Optional[int]): The specific page of results to retrieve in the paginated response. Starts at 0.
+            size (Optional[int]): The number of articles to return per page in the paginated response.
+            var_from (Optional[datetime]): Filter for articles published after this date. Accepts ISO 8601 format (e.g., 2023-03-01T00:00:00) or yyyy-mm-dd format.
+            to (Optional[datetime]): Filter for articles published before this date. Accepts ISO 8601 format (e.g., 2022-02-01T23:59:59) or yyyy-mm-dd format.
+            add_date_from (Optional[datetime]): Filter for articles added to Perigon's system after this date. Accepts ISO 8601 format (e.g., 2022-02-01T00:00:00) or yyyy-mm-dd format.
+            add_date_to (Optional[datetime]): Filter for articles added to Perigon's system before this date. Accepts ISO 8601 format (e.g., 2022-02-01T23:59:59) or yyyy-mm-dd format.
+            refresh_date_from (Optional[datetime]): Filter for articles refreshed/updated in Perigon's system after this date. In most cases yields similar results to addDateFrom but can differ for updated content. Accepts ISO 8601 format (e.g., 2022-02-01T00:00:00) or yyyy-mm-dd format.
+            refresh_date_to (Optional[datetime]): Filter for articles refreshed/updated in Perigon's system before this date. In most cases yields similar results to addDateTo but can differ for updated content. Accepts ISO 8601 format (e.g., 2022-02-01T23:59:59) or yyyy-mm-dd format.
+            medium (Optional[List[str]]): Filter articles by their primary medium type. Accepts Article for written content or Video for video-based stories. Multiple values create an OR filter.
+            source (Optional[List[str]]): Filter articles by specific publisher domains or subdomains. Supports wildcards (* and ?) for pattern matching (e.g., *.cnn.com). Multiple values create an OR filter.
+            source_group (Optional[List[str]]): Filter articles using Perigon's curated publisher bundles (e.g., top100, top25crypto). Multiple values create an OR filter to include articles from any of the specified bundles.
+            exclude_source_group (Optional[List[str]]): Exclude articles from specified Perigon source groups. Multiple values create an AND-exclude filter, removing content from publishers in any of the specified bundles (e.g., top10, top100).
+            exclude_source (Optional[List[str]]): Exclude articles from specific publisher domains or subdomains. Supports wildcards (* and ?) for pattern matching (e.g., *.cnn.com). Multiple values create an AND-exclude filter.
             paywall (Optional[bool]): Filter to show only results where the source has a paywall (true) or does not have a paywall (false).
-            byline (Optional[List[str]]): Author names to filter by. Article author bylines are used as a source field. If multiple parameters are passed, they will be applied as OR operations.
-            author (Optional[List[str]]): A list of author names to include. Only articles written by any of the specified authors are returned. This is ideal when you wish to focus on content from particular voices or experts.
-            exclude_author (Optional[List[str]]):  A list of author names to exclude from the search results. Any article written by an author whose name matches one in this list will be omitted, which helps to avoid content from certain individuals.
-            journalist_id (Optional[List[str]]): Filter by journalist ID. Journalist IDs are unique journalist identifiers which can be found through the Journalist API, or in the matchedAuthors field.
-            exclude_journalist_id (Optional[List[str]]): A list of journalist (or reporter) identifiers to exclude. If an article is written by a journalist whose ID matches any in this list, it will not be part of the result set.
-            language (Optional[List[str]]): Language code to filter by language. If multiple parameters are passed, they will be applied as OR operations.
-            exclude_language (Optional[List[str]]):  A list of languages to be excluded. Any article published in one of the languages provided in this filter will not be returned. This is useful when you are interested only in news published in specific languages.
-            search_translation (Optional[bool]): Expand a query to search the translation, translatedTitle, and translatedDescription fields for non-English articles.
-            label (Optional[List[str]]): Labels to filter by, could be 'Opinion', 'Paid-news', 'Non-news', etc. If multiple parameters are passed, they will be applied as OR operations.
-            exclude_label (Optional[List[str]]): Exclude results that include specific labels (Opinion, Non-news, Paid News, etc.). You can filter multiple by repeating the parameter.
-            category (Optional[List[str]]): Filter by categories. Categories are general themes that the article is about. Examples of categories: Tech, Politics, etc. If multiple parameters are passed, they will be applied as OR operations. Use 'none' to search uncategorized articles.
-            exclude_category (Optional[List[str]]): A list of article categories to be omitted. If an article is tagged with any category present in this list (such as “Polotics”, “Tech”, “Sports”, etc.), it will not appear in the search results.
-            topic (Optional[List[str]]): Filters results to include only articles with the specified topics. Topics are more specific classifications than categories, with an article potentially having multiple topics assigned. Perigon uses both human and machine curation to maintain an evolving list of available topics. Common examples include 'Markets', 'Crime', 'Cryptocurrency', 'Social Issues', 'College Sports', etc. See the Topics page in Docs for a complete list of available topics.
-            exclude_topic (Optional[List[str]]): Filter by excluding topics. Each topic is some kind of entity that the article is about. Examples of topics: Markets, Joe Biden, Green Energy, Climate Change, Cryptocurrency, etc. If multiple parameters are passed, they will be applied as OR operations.
-            link_to (Optional[str]): Returns only articles that point to specified links (as determined by the 'links' field in the article response).
-            show_reprints (Optional[bool]): Whether to return reprints in the response or not. Reprints are usually wired articles from sources like AP or Reuters that are reprinted in multiple sources at the same time. By default, this parameter is 'true'.
-            reprint_group_id (Optional[str]): Shows all articles belonging to the same reprint group. A reprint group includes one original article (the first one processed by the API) and all its known reprints.
+            byline (Optional[List[str]]): Filter articles by author bylines. Works as an exact match for each author name provided. Multiple values create an OR filter to find articles by any of the specified authors.
+            author (Optional[List[str]]): Filter articles by specific author names. Works as an exact match for each name. Multiple values create an OR filter to find articles by any of the specified authors.
+            exclude_author (Optional[List[str]]): Exclude articles written by specific authors. Any article with an author name matching an entry in this list will be omitted from results. Multiple values create an AND-exclude filter.
+            journalist_id (Optional[List[str]]): Filter by unique journalist identifiers which can be found through the Journalist API or in the matchedAuthors field. Multiple values create an OR filter.
+            exclude_journalist_id (Optional[List[str]]): Exclude articles written by specific journalists identified by their unique IDs. Multiple values create an AND-exclude filter.
+            language (Optional[List[str]]): Filter articles by their language using ISO-639 two-letter codes (e.g., en, es, fr). Multiple values create an OR filter.
+            exclude_language (Optional[List[str]]): Exclude articles in specific languages using ISO-639 two-letter codes. Multiple values create an AND-exclude filter.
+            search_translation (Optional[bool]): Expand search to include translated content fields for non-English articles. When true, searches translated title, description, and content fields.
+            label (Optional[List[str]]): Filter articles by editorial labels such as Opinion, Paid-news, Non-news, Fact Check, or Press Release. Multiple values create an OR filter.
+            exclude_label (Optional[List[str]]): Exclude articles with specific editorial labels. Multiple values create an AND-exclude filter, removing all content with any of these labels.
+            category (Optional[List[str]]): Filter by broad content categories such as Politics, Tech, Sports, Business, or Finance. Use 'none' to find uncategorized articles. Multiple values create an OR filter.
+            exclude_category (Optional[List[str]]): Exclude articles with specific categories. Multiple values create an AND-exclude filter, removing all content with any of these categories.
+            topic (Optional[List[str]]): Filter by specific topics such as Markets, Crime, Cryptocurrency, or College Sports. Topics are more granular than categories, and articles can have multiple topics. Use the /topics endpoint for a complete list of available topics. Multiple values create an OR filter.
+            exclude_topic (Optional[List[str]]): Exclude articles with specific topics. Multiple values create an AND-exclude filter, removing all content with any of these topics.
+            link_to (Optional[str]): Returns only articles that contain links to the specified URL pattern. Matches against the 'links' field in article responses.
+            show_reprints (Optional[bool]): Controls whether to include reprinted content in results. When true (default), shows syndicated articles from wire services like AP or Reuters that appear on multiple sites.
+            reprint_group_id (Optional[str]): Returns all articles in a specific reprint group, including the original article and all its known reprints. Use when you want to see all versions of the same content.
             city (Optional[List[str]]): Filters articles where a specified city plays a central role in the content, beyond mere mentions, to ensure the results are deeply relevant to the urban area in question. If multiple parameters are passed, they will be applied as OR operations.
             exclude_city (Optional[List[str]]): A list of cities to exclude from the results. Articles that are associated with any of the specified cities will be filtered out.
             area (Optional[List[str]]): Filters articles where a specified area, such as a neighborhood, borough, or district, plays a central role in the content, beyond mere mentions, to ensure the results are deeply relevant to the area in question. If multiple parameters are passed, they will be applied as OR operations.
@@ -621,25 +621,25 @@ class V1Api:
             source_lat (Optional[float]): Latitude of the center point to search articles created by local publications.
             source_lon (Optional[float]): Latitude of the center point to search articles created by local publications.
             source_max_distance (Optional[float]): Maximum distance from starting point to search articles created by local publications.
-            person_wikidata_id (Optional[List[str]]): List of person Wikidata IDs for filtering.
-            exclude_person_wikidata_id (Optional[List[str]]): A list of Wikidata identifiers for individuals. Articles mentioning persons with any of these Wikidata IDs will be filtered out. This is particularly helpful when using a unique identifier to prevent ambiguity in names.
-            person_name (Optional[List[str]]): List of person names for exact matches. Boolean and complex logic is not supported on this paramter.
-            exclude_person_name (Optional[List[str]]): A list of person names that, when associated with the content, cause the article to be excluded. This filter removes articles related to any individuals whose names match those on the list.
-            company_id (Optional[List[str]]): List of company IDs to filter by.
-            exclude_company_id (Optional[List[str]]): A list of company identifiers. Articles associated with companies that have any of these unique IDs will be filtered out from the returned results, ensuring that certain companies or corporate entities are not included.
-            company_name (Optional[str]): Search by company name.
-            company_domain (Optional[List[str]]): Search by company domains for filtering. E.g. companyDomain=apple.com.
-            exclude_company_domain (Optional[List[str]]): A list of company domains to exclude. If an article is related to a company that uses one of the specified domains (for instance, “example.com”), it will not be returned in the results.
-            company_symbol (Optional[List[str]]): Search by company symbols.
+            person_wikidata_id (Optional[List[str]]): Filter articles by Wikidata IDs of mentioned people. Refer to the /people endpoint for a complete list of tracked individuals.
+            exclude_person_wikidata_id (Optional[List[str]]): Exclude articles mentioning people with specific Wikidata IDs. Creates an AND-exclude filter to remove content about these individuals. Uses precise identifiers to avoid name ambiguity.
+            person_name (Optional[List[str]]): Filter articles by exact person name matches. Does not support Boolean or complex logic. For available person entities, consult the /people endpoint.
+            exclude_person_name (Optional[List[str]]): Exclude articles mentioning specific people by name. Creates an AND-exclude filter to remove content about these individuals.
+            company_id (Optional[List[str]]): Filter articles by company identifiers. For a complete list of tracked companies, refer to the /companies endpoint.
+            exclude_company_id (Optional[List[str]]): Exclude articles mentioning companies with specific identifiers. Creates an AND-exclude filter to remove content about these corporate entities.
+            company_name (Optional[str]): Filter articles by company name mentions. Performs an exact match on company names.
+            company_domain (Optional[List[str]]): Filter articles by company domains (e.g., apple.com). For available company entities, consult the /companies endpoint.
+            exclude_company_domain (Optional[List[str]]): Exclude articles related to companies with specific domains. Creates an AND-exclude filter to remove content about these companies.
+            company_symbol (Optional[List[str]]): Filter articles by company stock symbols. For available company entities and their symbols, consult the /companies endpoint.
             exclude_company_symbol (Optional[List[str]]): A list of stock symbols (ticker symbols) that identify companies to be excluded. Articles related to companies using any of these symbols will be omitted, which is useful for targeting or avoiding specific public companies.
             show_num_results (Optional[bool]): Whether to show the total number of all matched articles. Default value is false which makes queries a bit more efficient but also counts up to 10000 articles.
-            positive_sentiment_from (Optional[float]): Filters results with a sentiment score greater than or equal to the specified value, indicating positive sentiment. See the Article Data section in Docs for an explanation of scores.
-            positive_sentiment_to (Optional[float]): Filters results with a sentiment score less than or equal to the specified value, indicating positive sentiment. See the Article Data section in Docs for an explanation of scores.
-            neutral_sentiment_from (Optional[float]): Filters results with a sentiment score greater than or equal to the specified value, indicating neutral sentiment. Explanation of sentimental values can be found in Docs under the Article Data section.
-            neutral_sentiment_to (Optional[float]): Filters results with a sentiment score less than or equal to the specified value, indicating neutral sentiment. See the Article Data section in Docs for an explanation of scores.
-            negative_sentiment_from (Optional[float]): Filters results with a sentiment score greater than or equal to the specified value, indicating negative sentiment. See the Article Data section in Docs for an explanation of scores.
-            negative_sentiment_to (Optional[float]): Filters results with a sentiment score less than or equal to the specified value, indicating negative sentiment. See the Article Data section in Docs for an explanation of scores.
-            taxonomy (Optional[List[str]]): Filters by Google Content Categories. This field will accept 1 or more categories, must pass the full name of the category. Example: taxonomy=/Finance/Banking/Other, /Finance/Investing/Funds
+            positive_sentiment_from (Optional[float]): Filter articles with a positive sentiment score greater than or equal to the specified value. Scores range from 0 to 1, with higher values indicating stronger positive tone.
+            positive_sentiment_to (Optional[float]): Filter articles with a positive sentiment score less than or equal to the specified value. Scores range from 0 to 1, with higher values indicating stronger positive tone.
+            neutral_sentiment_from (Optional[float]): Filter articles with a neutral sentiment score greater than or equal to the specified value. Scores range from 0 to 1, with higher values indicating stronger neutral tone.
+            neutral_sentiment_to (Optional[float]): Filter articles with a neutral sentiment score less than or equal to the specified value. Scores range from 0 to 1, with higher values indicating stronger neutral tone.
+            negative_sentiment_from (Optional[float]): Filter articles with a negative sentiment score greater than or equal to the specified value. Scores range from 0 to 1, with higher values indicating stronger negative tone.
+            negative_sentiment_to (Optional[float]): Filter articles with a negative sentiment score less than or equal to the specified value. Scores range from 0 to 1, with higher values indicating stronger negative tone.
+            taxonomy (Optional[List[str]]): Filters by Google Content Categories. This field will accept 1 or more categories, must pass the full name of the category. Example: taxonomy=/Finance/Banking/Other, /Finance/Investing/Funds. [Full list](https://cloud.google.com/natural-language/docs/categories)
             prefix_taxonomy (Optional[str]): Filters by Google Content Categories. This field will filter by the category prefix only. Example: prefixTaxonomy=/Finance
 
         Returns:
@@ -838,21 +838,21 @@ class V1Api:
         Browse or search for companies Perigon tracks using name, domain, ticker symbol, industry, and more. Supports Boolean search logic and filtering by metadata such as country, exchange, employee count, and IPO date.
 
         Args:
-            id (Optional[List[str]]): Search by company id.
-            symbol (Optional[List[str]]): Search by ticker symbol.
-            domain (Optional[List[str]]): Search by company domain.
-            country (Optional[List[str]]): Search by company country.
-            exchange (Optional[List[str]]): Search by exchange name.
-            num_employees_from (Optional[int]): Minimum number of employees.
-            num_employees_to (Optional[int]): Maximum number of employees.
-            ipo_from (Optional[datetime]): Starting IPO date.
-            ipo_to (Optional[datetime]): Ending IPO date.
-            q (Optional[str]): Search companies over 'name', 'altNames', 'domains' and 'symbols.symbol' fields. Boolean operators and logic are supported.
-            name (Optional[str]): Search by company name. Boolean operators and logic are supported.
-            industry (Optional[str]): Search by industry. Boolean operators and logic are supported.
-            sector (Optional[str]): Search by sector. Boolean operators and logic are supported.
-            size (Optional[int]): The number of items per page.
-            page (Optional[int]): The page number to retrieve.
+            id (Optional[List[str]]): Filter by unique company identifiers. Multiple values create an OR filter.
+            symbol (Optional[List[str]]): Filter by company stock ticker symbols (e.g., AAPL, MSFT, GOOGL). Multiple values create an OR filter.
+            domain (Optional[List[str]]): Filter by company domains or websites (e.g., apple.com, microsoft.com). Multiple values create an OR filter.
+            country (Optional[List[str]]): Filter by company headquarters country. Multiple values create an OR filter.
+            exchange (Optional[List[str]]): Filter by stock exchange where companies are listed (e.g., NASDAQ, NYSE). Multiple values create an OR filter.
+            num_employees_from (Optional[int]): Filter for companies with at least this many employees.
+            num_employees_to (Optional[int]): Filter for companies with no more than this many employees.
+            ipo_from (Optional[datetime]): Filter for companies that went public on or after this date. Accepts ISO 8601 format (e.g., 2023-01-01T00:00:00) or yyyy-mm-dd format.
+            ipo_to (Optional[datetime]): Filter for companies that went public on or before this date. Accepts ISO 8601 format (e.g., 2023-12-31T23:59:59) or yyyy-mm-dd format.
+            q (Optional[str]): Primary search query for filtering companies across name, alternative names, domains, and ticker symbols. Supports Boolean operators (AND, OR, NOT), exact phrases with quotes, and wildcards (* and ?) for flexible searching.
+            name (Optional[str]): Search within company names. Supports Boolean operators (AND, OR, NOT), exact phrases with quotes, and wildcards (* and ?) for flexible searching.
+            industry (Optional[str]): Filter by company industry classifications. Supports Boolean operators (AND, OR, NOT), exact phrases with quotes, and wildcards (* and ?) for flexible searching.
+            sector (Optional[str]): Filter by company sector classifications. Supports Boolean operators (AND, OR, NOT), exact phrases with quotes, and wildcards (* and ?) for flexible searching.
+            size (Optional[int]): The number of companies to return per page in the paginated response.
+            page (Optional[int]): The specific page of results to retrieve in the paginated response. Starts at 0.
 
         Returns:
             CompanySearchResult: The response
@@ -921,21 +921,21 @@ class V1Api:
         Async variant of search_companies. Browse or search for companies Perigon tracks using name, domain, ticker symbol, industry, and more. Supports Boolean search logic and filtering by metadata such as country, exchange, employee count, and IPO date.
 
         Args:
-            id (Optional[List[str]]): Search by company id.
-            symbol (Optional[List[str]]): Search by ticker symbol.
-            domain (Optional[List[str]]): Search by company domain.
-            country (Optional[List[str]]): Search by company country.
-            exchange (Optional[List[str]]): Search by exchange name.
-            num_employees_from (Optional[int]): Minimum number of employees.
-            num_employees_to (Optional[int]): Maximum number of employees.
-            ipo_from (Optional[datetime]): Starting IPO date.
-            ipo_to (Optional[datetime]): Ending IPO date.
-            q (Optional[str]): Search companies over 'name', 'altNames', 'domains' and 'symbols.symbol' fields. Boolean operators and logic are supported.
-            name (Optional[str]): Search by company name. Boolean operators and logic are supported.
-            industry (Optional[str]): Search by industry. Boolean operators and logic are supported.
-            sector (Optional[str]): Search by sector. Boolean operators and logic are supported.
-            size (Optional[int]): The number of items per page.
-            page (Optional[int]): The page number to retrieve.
+            id (Optional[List[str]]): Filter by unique company identifiers. Multiple values create an OR filter.
+            symbol (Optional[List[str]]): Filter by company stock ticker symbols (e.g., AAPL, MSFT, GOOGL). Multiple values create an OR filter.
+            domain (Optional[List[str]]): Filter by company domains or websites (e.g., apple.com, microsoft.com). Multiple values create an OR filter.
+            country (Optional[List[str]]): Filter by company headquarters country. Multiple values create an OR filter.
+            exchange (Optional[List[str]]): Filter by stock exchange where companies are listed (e.g., NASDAQ, NYSE). Multiple values create an OR filter.
+            num_employees_from (Optional[int]): Filter for companies with at least this many employees.
+            num_employees_to (Optional[int]): Filter for companies with no more than this many employees.
+            ipo_from (Optional[datetime]): Filter for companies that went public on or after this date. Accepts ISO 8601 format (e.g., 2023-01-01T00:00:00) or yyyy-mm-dd format.
+            ipo_to (Optional[datetime]): Filter for companies that went public on or before this date. Accepts ISO 8601 format (e.g., 2023-12-31T23:59:59) or yyyy-mm-dd format.
+            q (Optional[str]): Primary search query for filtering companies across name, alternative names, domains, and ticker symbols. Supports Boolean operators (AND, OR, NOT), exact phrases with quotes, and wildcards (* and ?) for flexible searching.
+            name (Optional[str]): Search within company names. Supports Boolean operators (AND, OR, NOT), exact phrases with quotes, and wildcards (* and ?) for flexible searching.
+            industry (Optional[str]): Filter by company industry classifications. Supports Boolean operators (AND, OR, NOT), exact phrases with quotes, and wildcards (* and ?) for flexible searching.
+            sector (Optional[str]): Filter by company sector classifications. Supports Boolean operators (AND, OR, NOT), exact phrases with quotes, and wildcards (* and ?) for flexible searching.
+            size (Optional[int]): The number of companies to return per page in the paginated response.
+            page (Optional[int]): The specific page of results to retrieve in the paginated response. Starts at 0.
 
         Returns:
             CompanySearchResult: The response
@@ -980,8 +980,8 @@ class V1Api:
         resp.raise_for_status()
         return CompanySearchResult.model_validate(resp.json())
 
-    # ----------------- search_journalists1 (sync) ----------------- #
-    def search_journalists1(
+    # ----------------- search_journalists (sync) ----------------- #
+    def search_journalists(
         self,
         id: Optional[List[str]] = None,
         q: Optional[str] = None,
@@ -1004,28 +1004,28 @@ class V1Api:
         Search journalists using broad search attributes. Our database contains over 230,000 journalists from around the world and is refreshed frequently.
 
         Args:
-            id (Optional[List[str]]): Filter by journalist ID. Journalist IDs are unique journalist identifiers which can be found through the Journalist API, or in the matchedAuthors field.
-            q (Optional[str]): Searches through name, title, twitterBio fields with priority given to the name, then to the title, then to the twitter bio. Returns results sorted by relevance.
-            name (Optional[str]): Searches through journalist names, scores and ranks them, returns results sorted by relevance.
-            twitter (Optional[str]): Searches for journalists by (exact match) twitter handle.
-            size (Optional[int]): The number of items per page.
-            page (Optional[int]): The page number to retrieve.
-            source (Optional[List[str]]): Search for journalist by the publisher's domain can include a subdomain. If multiple parameters are passed, they will be applied as OR operations. Wildcards (* and ?) are suported (e.g. *.cnn.com).
-            topic (Optional[List[str]]): Searches for journalists by topic.
-            category (Optional[List[str]]): Filter by categories. Categories are general themes that the article is about. Examples of categories: Tech, Politics, etc. If multiple parameters are passed, they will be applied as OR operations.
-            label (Optional[List[str]]): Filter journalists by label. For example, searching 'Opinion' will return the journalists where 'Opinion'-type articles is one of the top labels for the articles they publish.
-            min_monthly_posts (Optional[int]): Returns the journalists with the minimum indicated number of average monthly posts.
-            max_monthly_posts (Optional[int]): Returns the journalist with the maximum indicated number of average monthly posts.
-            country (Optional[List[str]]): Country code to filter by country. If multiple parameters are passed, they will be applied as OR operations.
-            updated_at_from (Optional[datetime]): Starting date when the record was last updated.
-            updated_at_to (Optional[datetime]): Ending date when the record was last updated.
-            show_num_results (Optional[bool]): If 'true', shows accurate number of results matched by the query. By default, the counter is accurate only up to 10,000 results due performance reasons.
+            id (Optional[List[str]]): Filter by unique journalist identifiers. Multiple values create an OR filter to find journalists matching any of the specified IDs.
+            q (Optional[str]): Primary search query for filtering journalists based on their name, title, and Twitter bio. Supports Boolean operators (AND, OR, NOT), exact phrases with quotes, and wildcards (* and ?) for flexible searching.
+            name (Optional[str]): Search specifically within journalist names. Supports Boolean operators (AND, OR, NOT), exact phrases with quotes, and wildcards (* and ?) for flexible searching.
+            twitter (Optional[str]): Filter journalists by their exact Twitter handle, without the @ symbol.
+            size (Optional[int]): The number of journalists to return per page in the paginated response.
+            page (Optional[int]): The specific page of results to retrieve in the paginated response. Starts at 0.
+            source (Optional[List[str]]): Filter journalists by the publisher domains they write for. Supports wildcards (* and ?) for pattern matching (e.g., *.cnn.com). Multiple values create an OR filter.
+            topic (Optional[List[str]]): Filter journalists by the topics they frequently cover. Multiple values create an OR filter to find journalists covering any of the specified topics.
+            category (Optional[List[str]]): Filter journalists by the content categories they typically write about (e.g., Politics, Tech, Sports, Business). Multiple values create an OR filter.
+            label (Optional[List[str]]): Filter journalists by the type of content they typically produce (e.g., Opinion, Paid-news, Non-news). Multiple values create an OR filter.
+            min_monthly_posts (Optional[int]): Filter for journalists who publish at least this many articles per month. Used to identify more active journalists.
+            max_monthly_posts (Optional[int]): Filter for journalists who publish no more than this many articles per month.
+            country (Optional[List[str]]): Filter journalists by countries they commonly cover in their reporting. Uses ISO 3166-1 alpha-2 two-letter country codes in lowercase (e.g., us, gb, jp). Multiple values create an OR filter.
+            updated_at_from (Optional[datetime]): Filter for journalist profiles updated on or after this date. Accepts ISO 8601 format (e.g., 2023-03-01T00:00:00) or yyyy-mm-dd format.
+            updated_at_to (Optional[datetime]): Filter for journalist profiles updated on or before this date. Accepts ISO 8601 format (e.g., 2023-03-01T23:59:59) or yyyy-mm-dd format.
+            show_num_results (Optional[bool]): Controls whether to return the exact result count. When false (default), counts are capped at 10,000 for performance reasons. Set to true for precise counts in smaller result sets.
 
         Returns:
             JournalistSearchResult: The response
         """
         # Get path template from class attribute
-        path = PATH_SEARCH_JOURNALISTS1
+        path = PATH_SEARCH_JOURNALISTS
 
         # --- build query dict on the fly ---
         params: Dict[str, Any] = {}
@@ -1067,8 +1067,8 @@ class V1Api:
         resp.raise_for_status()
         return JournalistSearchResult.model_validate(resp.json())
 
-    # ----------------- search_journalists1 (async) ----------------- #
-    async def search_journalists1_async(
+    # ----------------- search_journalists (async) ----------------- #
+    async def search_journalists_async(
         self,
         id: Optional[List[str]] = None,
         q: Optional[str] = None,
@@ -1088,31 +1088,31 @@ class V1Api:
         show_num_results: Optional[bool] = None,
     ) -> JournalistSearchResult:
         """
-        Async variant of search_journalists1. Search journalists using broad search attributes. Our database contains over 230,000 journalists from around the world and is refreshed frequently.
+        Async variant of search_journalists. Search journalists using broad search attributes. Our database contains over 230,000 journalists from around the world and is refreshed frequently.
 
         Args:
-            id (Optional[List[str]]): Filter by journalist ID. Journalist IDs are unique journalist identifiers which can be found through the Journalist API, or in the matchedAuthors field.
-            q (Optional[str]): Searches through name, title, twitterBio fields with priority given to the name, then to the title, then to the twitter bio. Returns results sorted by relevance.
-            name (Optional[str]): Searches through journalist names, scores and ranks them, returns results sorted by relevance.
-            twitter (Optional[str]): Searches for journalists by (exact match) twitter handle.
-            size (Optional[int]): The number of items per page.
-            page (Optional[int]): The page number to retrieve.
-            source (Optional[List[str]]): Search for journalist by the publisher's domain can include a subdomain. If multiple parameters are passed, they will be applied as OR operations. Wildcards (* and ?) are suported (e.g. *.cnn.com).
-            topic (Optional[List[str]]): Searches for journalists by topic.
-            category (Optional[List[str]]): Filter by categories. Categories are general themes that the article is about. Examples of categories: Tech, Politics, etc. If multiple parameters are passed, they will be applied as OR operations.
-            label (Optional[List[str]]): Filter journalists by label. For example, searching 'Opinion' will return the journalists where 'Opinion'-type articles is one of the top labels for the articles they publish.
-            min_monthly_posts (Optional[int]): Returns the journalists with the minimum indicated number of average monthly posts.
-            max_monthly_posts (Optional[int]): Returns the journalist with the maximum indicated number of average monthly posts.
-            country (Optional[List[str]]): Country code to filter by country. If multiple parameters are passed, they will be applied as OR operations.
-            updated_at_from (Optional[datetime]): Starting date when the record was last updated.
-            updated_at_to (Optional[datetime]): Ending date when the record was last updated.
-            show_num_results (Optional[bool]): If 'true', shows accurate number of results matched by the query. By default, the counter is accurate only up to 10,000 results due performance reasons.
+            id (Optional[List[str]]): Filter by unique journalist identifiers. Multiple values create an OR filter to find journalists matching any of the specified IDs.
+            q (Optional[str]): Primary search query for filtering journalists based on their name, title, and Twitter bio. Supports Boolean operators (AND, OR, NOT), exact phrases with quotes, and wildcards (* and ?) for flexible searching.
+            name (Optional[str]): Search specifically within journalist names. Supports Boolean operators (AND, OR, NOT), exact phrases with quotes, and wildcards (* and ?) for flexible searching.
+            twitter (Optional[str]): Filter journalists by their exact Twitter handle, without the @ symbol.
+            size (Optional[int]): The number of journalists to return per page in the paginated response.
+            page (Optional[int]): The specific page of results to retrieve in the paginated response. Starts at 0.
+            source (Optional[List[str]]): Filter journalists by the publisher domains they write for. Supports wildcards (* and ?) for pattern matching (e.g., *.cnn.com). Multiple values create an OR filter.
+            topic (Optional[List[str]]): Filter journalists by the topics they frequently cover. Multiple values create an OR filter to find journalists covering any of the specified topics.
+            category (Optional[List[str]]): Filter journalists by the content categories they typically write about (e.g., Politics, Tech, Sports, Business). Multiple values create an OR filter.
+            label (Optional[List[str]]): Filter journalists by the type of content they typically produce (e.g., Opinion, Paid-news, Non-news). Multiple values create an OR filter.
+            min_monthly_posts (Optional[int]): Filter for journalists who publish at least this many articles per month. Used to identify more active journalists.
+            max_monthly_posts (Optional[int]): Filter for journalists who publish no more than this many articles per month.
+            country (Optional[List[str]]): Filter journalists by countries they commonly cover in their reporting. Uses ISO 3166-1 alpha-2 two-letter country codes in lowercase (e.g., us, gb, jp). Multiple values create an OR filter.
+            updated_at_from (Optional[datetime]): Filter for journalist profiles updated on or after this date. Accepts ISO 8601 format (e.g., 2023-03-01T00:00:00) or yyyy-mm-dd format.
+            updated_at_to (Optional[datetime]): Filter for journalist profiles updated on or before this date. Accepts ISO 8601 format (e.g., 2023-03-01T23:59:59) or yyyy-mm-dd format.
+            show_num_results (Optional[bool]): Controls whether to return the exact result count. When false (default), counts are capped at 10,000 for performance reasons. Set to true for precise counts in smaller result sets.
 
         Returns:
             JournalistSearchResult: The response
         """
         # Get path template from class attribute
-        path = PATH_SEARCH_JOURNALISTS1
+        path = PATH_SEARCH_JOURNALISTS
 
         params: Dict[str, Any] = {}
         if id is not None:
@@ -1167,12 +1167,12 @@ class V1Api:
         Search and retrieve additional information on known persons that exist within Perigon&#39;s entity database and as referenced in any article response object. Our database contains over 650,000 people from around the world and is refreshed frequently. People data is derived from Wikidata and includes a wikidataId field that can be used to lookup even more information on Wikidata&#39;s website.
 
         Args:
-            name (Optional[str]): Search by name of the person. Supports exact matching with quotes (\"\") and Boolean operators (AND, OR, NOT).
-            wikidata_id (Optional[List[str]]): Filter by Wikidata entity ID(s). Use this to find specific people by their Wikidata identifiers.
-            occupation_id (Optional[List[str]]): Filter by Wikidata occupation ID(s). Use this to find people with specific occupations.
-            occupation_label (Optional[str]): Search by occupation name. Supports exact matching with quotes (\"\") and Boolean operators (AND, OR, NOT).
-            page (Optional[int]): The page number to retrieve.
-            size (Optional[int]): The number of items per page.
+            name (Optional[str]): Search by person's name. Supports Boolean operators (AND, OR, NOT), exact phrases with quotes, and wildcards (* and ?) for flexible searching.
+            wikidata_id (Optional[List[str]]): Filter by Wikidata entity IDs (e.g., Q7747, Q937). These are unique identifiers from Wikidata.org that precisely identify public figures and eliminate name ambiguity. Multiple values create an OR filter.
+            occupation_id (Optional[List[str]]): Filter by Wikidata occupation IDs (e.g., Q82955 for politician, Q33999 for actor, Q19546 for businessman). Finds people with specific professions. Multiple values create an OR filter.
+            occupation_label (Optional[str]): Search by occupation name (e.g., politician, actor, CEO, athlete). Supports Boolean operators (AND, OR, NOT), exact phrases with quotes, and wildcards (* and ?) for flexible searching.
+            page (Optional[int]): The specific page of results to retrieve in the paginated response. Starts at 0.
+            size (Optional[int]): The number of people to return per page in the paginated response.
 
         Returns:
             PeopleSearchResult: The response
@@ -1214,12 +1214,12 @@ class V1Api:
         Async variant of search_people. Search and retrieve additional information on known persons that exist within Perigon&#39;s entity database and as referenced in any article response object. Our database contains over 650,000 people from around the world and is refreshed frequently. People data is derived from Wikidata and includes a wikidataId field that can be used to lookup even more information on Wikidata&#39;s website.
 
         Args:
-            name (Optional[str]): Search by name of the person. Supports exact matching with quotes (\"\") and Boolean operators (AND, OR, NOT).
-            wikidata_id (Optional[List[str]]): Filter by Wikidata entity ID(s). Use this to find specific people by their Wikidata identifiers.
-            occupation_id (Optional[List[str]]): Filter by Wikidata occupation ID(s). Use this to find people with specific occupations.
-            occupation_label (Optional[str]): Search by occupation name. Supports exact matching with quotes (\"\") and Boolean operators (AND, OR, NOT).
-            page (Optional[int]): The page number to retrieve.
-            size (Optional[int]): The number of items per page.
+            name (Optional[str]): Search by person's name. Supports Boolean operators (AND, OR, NOT), exact phrases with quotes, and wildcards (* and ?) for flexible searching.
+            wikidata_id (Optional[List[str]]): Filter by Wikidata entity IDs (e.g., Q7747, Q937). These are unique identifiers from Wikidata.org that precisely identify public figures and eliminate name ambiguity. Multiple values create an OR filter.
+            occupation_id (Optional[List[str]]): Filter by Wikidata occupation IDs (e.g., Q82955 for politician, Q33999 for actor, Q19546 for businessman). Finds people with specific professions. Multiple values create an OR filter.
+            occupation_label (Optional[str]): Search by occupation name (e.g., politician, actor, CEO, athlete). Supports Boolean operators (AND, OR, NOT), exact phrases with quotes, and wildcards (* and ?) for flexible searching.
+            page (Optional[int]): The specific page of results to retrieve in the paginated response. Starts at 0.
+            size (Optional[int]): The number of people to return per page in the paginated response.
 
         Returns:
             PeopleSearchResult: The response
@@ -1278,30 +1278,30 @@ class V1Api:
         Search and filter the 142,000+ media sources available via the Perigon API. The result includes a list of individual media sources that were matched to your specific criteria.
 
         Args:
-            domain (Optional[List[str]]): Domain name for the media source to lookup. This parameter supports wildcard queries, ie. \"*.cnn.com\" will match all subdomains for cnn.com.
-            name (Optional[str]): Search by name of source. This parameter supports complex boolean search operators, and also searches the altNames field for alternative names of the source.
-            source_group (Optional[str]): Find all sources within a sourceGroup. Find Source Groups in the guided part of our documentation...
-            sort_by (Optional[SortBy]): Use 'relevance' to sort by relevance to the query, 'globalRank' for top ranked sources based on popularity, 'monthlyVisits' for sources with the largest audience, 'avgMonthlyPosts' for sources with the highest publishing frequency. Defaults to 'relevance'.
-            page (Optional[int]): The page number to retrieve.
-            size (Optional[int]): The number of items per page.
-            min_monthly_visits (Optional[int]): Filter by popularity. Enter a minimum number of monthly visits that the source must have in order to match your query.
-            max_monthly_visits (Optional[int]): Enter a maximum number of monthly visits that the source must have in order to match your query.
-            min_monthly_posts (Optional[int]): Returns the sources that have at least this number of average monthly posts.
-            max_monthly_posts (Optional[int]): Returns the sources that have at most this number of average monthly posts.
-            country (Optional[List[str]]): Country code to filter sources by the countries in which they most commonly cover. If multiple parameters are passed, they will be applied as OR operations.
-            source_country (Optional[List[str]]): Find all local publications that are located within a given country.
-            source_state (Optional[List[str]]): Find all local publications that are located within a given state.
-            source_county (Optional[List[str]]): Find all local publications that are located within a given county.
-            source_city (Optional[List[str]]): Find all local publications that are located within a given city.
-            source_lat (Optional[float]): Latitude of the center point to search local publications.
-            source_lon (Optional[float]): Longitude of the center point to search local publications.
-            source_max_distance (Optional[float]): Maximum distance from starting point to search local publications.
-            category (Optional[List[str]]): Filter by categories. Categories are general themes that the article is about. Examples of categories: Tech, Politics, etc. If multiple parameters are passed, they will be applied as OR operations.
-            topic (Optional[List[str]]): Find sources by topic. For example, searching 'Markets' will return the sources where 'Markets' is one of the top 10 topics that they cover.
-            label (Optional[List[str]]): Filter sources by label. For example, searching 'Opinion' will return the sources where 'Opinion'-type articles is one of the top labels for the articles they publish.
-            paywall (Optional[bool]): Use 'true' to find only sources known to have a paywall, or use 'false' to filter for only sources that do not have a paywall.
-            show_subdomains (Optional[bool]): Controls whether subdomains are included in the response. When set to true (default), all relevant subdomains of media sources will be returned as separate results. Set to false to consolidate results to parent domains only.
-            show_num_results (Optional[bool]): If 'true', shows accurate number of results matched by the query. By default, the counter is accurate only up to 10,000 results due performance reasons.
+            domain (Optional[List[str]]): Filter by specific publisher domains or subdomains. Supports wildcards (* and ?) for pattern matching (e.g., *.cnn.com, us?.nytimes.com). Multiple values create an OR filter.
+            name (Optional[str]): Search by source name or alternative names. Supports Boolean operators (AND, OR, NOT), exact phrases with quotes, and wildcards (* and ?) for flexible searching.
+            source_group (Optional[str]): Filter by predefined publisher bundles (e.g., top100, top50tech). Returns all sources within the specified group. See documentation for available source groups.
+            sort_by (Optional[SortBy]): Determines the source sorting order. Options include relevance (default, best match to query), globalRank (by overall traffic and popularity), monthlyVisits (by total monthly visitor count), and avgMonthlyPosts (by number of articles published monthly).
+            page (Optional[int]): The specific page of results to retrieve in the paginated response. Starts at 0.
+            size (Optional[int]): The number of sources to return per page in the paginated response.
+            min_monthly_visits (Optional[int]): Filter for sources with at least this many monthly visitors. Used to target publishers by audience size.
+            max_monthly_visits (Optional[int]): Filter for sources with no more than this many monthly visitors. Used to target publishers by audience size.
+            min_monthly_posts (Optional[int]): Filter for sources that publish at least this many articles per month. Used to target publishers by content volume.
+            max_monthly_posts (Optional[int]): Filter for sources that publish no more than this many articles per month. Used to target publishers by content volume.
+            country (Optional[List[str]]): Filter sources by countries they commonly cover in their reporting. Uses ISO 3166-1 alpha-2 two-letter country codes in lowercase (e.g., us, gb, jp). See documentation for supported country codes. Multiple values create an OR filter.
+            source_country (Optional[List[str]]): Filter for local publications based in specific countries. Uses ISO 3166-1 alpha-2 two-letter country codes in lowercase (e.g., us, gb, jp). See documentation for supported country codes. Multiple values create an OR filter.
+            source_state (Optional[List[str]]): Filter for local publications based in specific states or regions. Uses standard two-letter state codes in lowercase (e.g., ca, ny, tx). See documentation for supported state codes. Multiple values create an OR filter.
+            source_county (Optional[List[str]]): Filter for local publications based in specific counties. Multiple values create an OR filter.
+            source_city (Optional[List[str]]): Filter for local publications based in specific cities. Multiple values create an OR filter.
+            source_lat (Optional[float]): Latitude coordinate for filtering local publications by geographic proximity. Used with sourceLon and sourceMaxDistance for radius search.
+            source_lon (Optional[float]): Longitude coordinate for filtering local publications by geographic proximity. Used with sourceLat and sourceMaxDistance for radius search.
+            source_max_distance (Optional[float]): Maximum distance in kilometers from the coordinates defined by sourceLat and sourceLon. Defines the radius for local publication searches.
+            category (Optional[List[str]]): Filter sources by their primary content categories such as Politics, Tech, Sports, Business, or Finance. Returns sources that frequently cover these topics. Multiple values create an OR filter.
+            topic (Optional[List[str]]): Filter sources by their frequently covered topics (e.g., Markets, Cryptocurrency, Climate Change). Returns sources where the specified topic is among their top 10 covered areas. Multiple values create an OR filter.
+            label (Optional[List[str]]): Filter sources by their content label patterns (e.g., Opinion, Paid-news, Non-news). Returns sources where the specified label is common in their published content. See documentation for all available labels. Multiple values create an OR filter.
+            paywall (Optional[bool]): Filter by paywall status. Set to true to find sources with paywalls, or false to find sources without paywalls.
+            show_subdomains (Optional[bool]): Controls whether subdomains are included as separate results. When true (default), subdomains appear as distinct sources. When false, results are consolidated to parent domains only.
+            show_num_results (Optional[bool]): Controls whether to return the exact result count. When false (default), counts are capped at 10,000 for performance reasons. Set to true for precise counts in smaller result sets.
 
         Returns:
             SourceSearchResult: The response
@@ -1397,30 +1397,30 @@ class V1Api:
         Async variant of search_sources. Search and filter the 142,000+ media sources available via the Perigon API. The result includes a list of individual media sources that were matched to your specific criteria.
 
         Args:
-            domain (Optional[List[str]]): Domain name for the media source to lookup. This parameter supports wildcard queries, ie. \"*.cnn.com\" will match all subdomains for cnn.com.
-            name (Optional[str]): Search by name of source. This parameter supports complex boolean search operators, and also searches the altNames field for alternative names of the source.
-            source_group (Optional[str]): Find all sources within a sourceGroup. Find Source Groups in the guided part of our documentation...
-            sort_by (Optional[SortBy]): Use 'relevance' to sort by relevance to the query, 'globalRank' for top ranked sources based on popularity, 'monthlyVisits' for sources with the largest audience, 'avgMonthlyPosts' for sources with the highest publishing frequency. Defaults to 'relevance'.
-            page (Optional[int]): The page number to retrieve.
-            size (Optional[int]): The number of items per page.
-            min_monthly_visits (Optional[int]): Filter by popularity. Enter a minimum number of monthly visits that the source must have in order to match your query.
-            max_monthly_visits (Optional[int]): Enter a maximum number of monthly visits that the source must have in order to match your query.
-            min_monthly_posts (Optional[int]): Returns the sources that have at least this number of average monthly posts.
-            max_monthly_posts (Optional[int]): Returns the sources that have at most this number of average monthly posts.
-            country (Optional[List[str]]): Country code to filter sources by the countries in which they most commonly cover. If multiple parameters are passed, they will be applied as OR operations.
-            source_country (Optional[List[str]]): Find all local publications that are located within a given country.
-            source_state (Optional[List[str]]): Find all local publications that are located within a given state.
-            source_county (Optional[List[str]]): Find all local publications that are located within a given county.
-            source_city (Optional[List[str]]): Find all local publications that are located within a given city.
-            source_lat (Optional[float]): Latitude of the center point to search local publications.
-            source_lon (Optional[float]): Longitude of the center point to search local publications.
-            source_max_distance (Optional[float]): Maximum distance from starting point to search local publications.
-            category (Optional[List[str]]): Filter by categories. Categories are general themes that the article is about. Examples of categories: Tech, Politics, etc. If multiple parameters are passed, they will be applied as OR operations.
-            topic (Optional[List[str]]): Find sources by topic. For example, searching 'Markets' will return the sources where 'Markets' is one of the top 10 topics that they cover.
-            label (Optional[List[str]]): Filter sources by label. For example, searching 'Opinion' will return the sources where 'Opinion'-type articles is one of the top labels for the articles they publish.
-            paywall (Optional[bool]): Use 'true' to find only sources known to have a paywall, or use 'false' to filter for only sources that do not have a paywall.
-            show_subdomains (Optional[bool]): Controls whether subdomains are included in the response. When set to true (default), all relevant subdomains of media sources will be returned as separate results. Set to false to consolidate results to parent domains only.
-            show_num_results (Optional[bool]): If 'true', shows accurate number of results matched by the query. By default, the counter is accurate only up to 10,000 results due performance reasons.
+            domain (Optional[List[str]]): Filter by specific publisher domains or subdomains. Supports wildcards (* and ?) for pattern matching (e.g., *.cnn.com, us?.nytimes.com). Multiple values create an OR filter.
+            name (Optional[str]): Search by source name or alternative names. Supports Boolean operators (AND, OR, NOT), exact phrases with quotes, and wildcards (* and ?) for flexible searching.
+            source_group (Optional[str]): Filter by predefined publisher bundles (e.g., top100, top50tech). Returns all sources within the specified group. See documentation for available source groups.
+            sort_by (Optional[SortBy]): Determines the source sorting order. Options include relevance (default, best match to query), globalRank (by overall traffic and popularity), monthlyVisits (by total monthly visitor count), and avgMonthlyPosts (by number of articles published monthly).
+            page (Optional[int]): The specific page of results to retrieve in the paginated response. Starts at 0.
+            size (Optional[int]): The number of sources to return per page in the paginated response.
+            min_monthly_visits (Optional[int]): Filter for sources with at least this many monthly visitors. Used to target publishers by audience size.
+            max_monthly_visits (Optional[int]): Filter for sources with no more than this many monthly visitors. Used to target publishers by audience size.
+            min_monthly_posts (Optional[int]): Filter for sources that publish at least this many articles per month. Used to target publishers by content volume.
+            max_monthly_posts (Optional[int]): Filter for sources that publish no more than this many articles per month. Used to target publishers by content volume.
+            country (Optional[List[str]]): Filter sources by countries they commonly cover in their reporting. Uses ISO 3166-1 alpha-2 two-letter country codes in lowercase (e.g., us, gb, jp). See documentation for supported country codes. Multiple values create an OR filter.
+            source_country (Optional[List[str]]): Filter for local publications based in specific countries. Uses ISO 3166-1 alpha-2 two-letter country codes in lowercase (e.g., us, gb, jp). See documentation for supported country codes. Multiple values create an OR filter.
+            source_state (Optional[List[str]]): Filter for local publications based in specific states or regions. Uses standard two-letter state codes in lowercase (e.g., ca, ny, tx). See documentation for supported state codes. Multiple values create an OR filter.
+            source_county (Optional[List[str]]): Filter for local publications based in specific counties. Multiple values create an OR filter.
+            source_city (Optional[List[str]]): Filter for local publications based in specific cities. Multiple values create an OR filter.
+            source_lat (Optional[float]): Latitude coordinate for filtering local publications by geographic proximity. Used with sourceLon and sourceMaxDistance for radius search.
+            source_lon (Optional[float]): Longitude coordinate for filtering local publications by geographic proximity. Used with sourceLat and sourceMaxDistance for radius search.
+            source_max_distance (Optional[float]): Maximum distance in kilometers from the coordinates defined by sourceLat and sourceLon. Defines the radius for local publication searches.
+            category (Optional[List[str]]): Filter sources by their primary content categories such as Politics, Tech, Sports, Business, or Finance. Returns sources that frequently cover these topics. Multiple values create an OR filter.
+            topic (Optional[List[str]]): Filter sources by their frequently covered topics (e.g., Markets, Cryptocurrency, Climate Change). Returns sources where the specified topic is among their top 10 covered areas. Multiple values create an OR filter.
+            label (Optional[List[str]]): Filter sources by their content label patterns (e.g., Opinion, Paid-news, Non-news). Returns sources where the specified label is common in their published content. See documentation for all available labels. Multiple values create an OR filter.
+            paywall (Optional[bool]): Filter by paywall status. Set to true to find sources with paywalls, or false to find sources without paywalls.
+            show_subdomains (Optional[bool]): Controls whether subdomains are included as separate results. When true (default), subdomains appear as distinct sources. When false, results are consolidated to parent domains only.
+            show_num_results (Optional[bool]): Controls whether to return the exact result count. When false (default), counts are capped at 10,000 for performance reasons. Set to true for precise counts in smaller result sets.
 
         Returns:
             SourceSearchResult: The response
@@ -1489,11 +1489,16 @@ class V1Api:
         q: Optional[str] = None,
         name: Optional[str] = None,
         cluster_id: Optional[List[str]] = None,
+        exclude_cluster_id: Optional[List[str]] = None,
         sort_by: Optional[SortBy] = None,
         page: Optional[int] = None,
         size: Optional[int] = None,
         var_from: Optional[datetime] = None,
         to: Optional[datetime] = None,
+        initialized_from: Optional[datetime] = None,
+        initialized_to: Optional[datetime] = None,
+        updated_from: Optional[datetime] = None,
+        updated_to: Optional[datetime] = None,
         topic: Optional[List[str]] = None,
         category: Optional[List[str]] = None,
         taxonomy: Optional[List[str]] = None,
@@ -1519,60 +1524,55 @@ class V1Api:
         neutral_sentiment_to: Optional[float] = None,
         negative_sentiment_from: Optional[float] = None,
         negative_sentiment_to: Optional[float] = None,
-        initialized_from: Optional[datetime] = None,
-        initialized_to: Optional[datetime] = None,
-        updated_from: Optional[datetime] = None,
-        updated_to: Optional[datetime] = None,
         show_story_page_info: Optional[bool] = None,
         show_num_results: Optional[bool] = None,
         show_duplicates: Optional[bool] = None,
-        exclude_cluster_id: Optional[List[str]] = None,
     ) -> StorySearchResult:
         """
         Search and filter all news stories available via the Perigon API. Each story aggregates key information across related articles, including AI-generated names, summaries, and key points.
 
         Args:
-            q (Optional[str]): Search story by name, summary and key points. Preference is given to the name field. Supports complex query syntax, same way as q parameter from /all endpoint.
-            name (Optional[str]): Search story by name. Supports complex query syntax, same way as q parameter from /all endpoint.
-            cluster_id (Optional[List[str]]): Filter to specific story. Passing a cluster ID will filter results to only the content found within the cluster. Multiple params could be passed.
-            sort_by (Optional[SortBy]): Sort stories by count ('count'), total count ('totalCount'), creation date ('createdAt'), last updated date ('updatedAt'), or relevance ('relevance'). By default is sorted by 'createdAt'
-            page (Optional[int]): The page number to retrieve.
-            size (Optional[int]): The number of items per page.
+            q (Optional[str]): Primary search query for filtering stories based on their name, summary, and key points. Supports Boolean operators (AND, OR, NOT), exact phrases with quotes, and wildcards (* and ?) for flexible searching.
+            name (Optional[str]): Search specifically within story names. Supports Boolean operators, exact phrases with quotes, and wildcards for matching name variations.
+            cluster_id (Optional[List[str]]): Filter to specific stories using their unique identifiers. Each clusterId represents a distinct story that groups related articles. Multiple values create an OR filter.
+            exclude_cluster_id (Optional[List[str]]): Excludes specific stories from the results by their unique identifiers. Use this parameter to filter out unwanted or previously seen stories.
+            sort_by (Optional[SortBy]): Determines the story sorting order. Options include createdAt (default, when stories first emerged), updatedAt (when stories received new articles, best for tracking developing events), relevance (best match to query), count (by unique article count), and totalCount (by total article count including reprints).
+            page (Optional[int]): The specific page of results to retrieve in the paginated response. Starts at 0.
+            size (Optional[int]): The number of articles to return per page in the paginated response.
             var_from (Optional[datetime]): 'from' filter, will search stories created after the specified date, the date could be passed as ISO or 'yyyy-mm-dd'. Add time in ISO format, ie. 2023-03-01T00:00:00
             to (Optional[datetime]): 'to' filter, will search stories created before the specified date, the date could be passed as ISO or 'yyyy-mm-dd'. Add time in ISO format, ie. 2023-03-01T23:59:59
-            topic (Optional[List[str]]): Filter by topics. Each topic is some kind of entity that the article is about. Examples of topics: Markets, Joe Biden, Green Energy, Climate Change, Cryptocurrency, etc. If multiple parameters are passed, they will be applied as OR operations.
-            category (Optional[List[str]]): Filter by categories. Categories are general themes that the article is about. Examples of categories: Tech, Politics, etc. If multiple parameters are passed, they will be applied as OR operations. Use 'none' to search uncategorized articles. More ➜
-            taxonomy (Optional[List[str]]): Filters by Google Content Categories. This field will accept 1 or more categories, must pass the full name of the category. Example: taxonomy=/Finance/Banking/Other, /Finance/Investing/Funds
-            source (Optional[List[str]]): Filter stories by sources that wrote articles belonging to this story. At least 1 article is required for story to match. Multiple parameters could be passed.
-            source_group (Optional[List[str]]): Filter stories by sources that wrote articles belonging to this story. Source groups are expanded into a list of sources. At least 1 article by the source is required for story to match. Multiple params could be passed.
+            initialized_from (Optional[datetime]): Filter for stories created after this date. Alternative parameter for filtering by story creation date.
+            initialized_to (Optional[datetime]): Filter for stories created before this date. Alternative parameter for filtering by story creation date.
+            updated_from (Optional[datetime]): Filter for stories that received new articles after this date. Useful for tracking developing news events or evolving storylines.
+            updated_to (Optional[datetime]): Filter for stories that received new articles before this date. Useful for tracking developing news events or evolving storylines.
+            topic (Optional[List[str]]): Filter stories by specific topics such as Markets, Crime, Cryptocurrency, or College Sports. Topics are more granular than categories, and stories can include multiple topics based on their constituent articles. Use the /topics endpoint for a complete list of available topics. Multiple values create an OR filter.
+            category (Optional[List[str]]): Filter stories by broad content categories such as Politics, Tech, Sports, Business, or Finance. Use 'none' to find uncategorized stories. Categories are derived from the articles within each story. Multiple values create an OR filter.
+            taxonomy (Optional[List[str]]): Filter stories by Google Content Categories. Must pass the full hierarchical path of the category. Example: taxonomy=/Finance/Banking/Other,/Finance/Investing/Funds. Stories are categorized based on their constituent articles. Multiple values create an OR filter.
+            source (Optional[List[str]]): Filter stories that contain articles from specific publisher domains or subdomains. Supports wildcards (* and ?) for pattern matching (e.g., *.cnn.com). A story will match if it contains at least one article from any of the specified sources. Multiple values create an OR filter.
+            source_group (Optional[List[str]]): Filter stories that contain articles from publishers in Perigon's curated bundles (e.g., top100, top25crypto). A story will match if it contains at least one article from any publisher in the specified bundles. Multiple values create an OR filter.
             min_unique_sources (Optional[int]): Specifies the minimum number of unique sources required for a story to appear in results. Higher values return more significant stories covered by multiple publications. Default is 3.
-            person_wikidata_id (Optional[List[str]]): List of person Wikidata IDs for filtering. Filter is applied on topPeople field.
-            person_name (Optional[str]): List of people names. Filtering is applied on topPeople field.
-            company_id (Optional[List[str]]): List of company IDs for filtering. Filtering is applied to topCompanies field.
-            company_name (Optional[str]): List of company names for filtering. Filtering is applied on topCompanies field.
-            company_domain (Optional[List[str]]): List of company domains for filtering. Filtering is applied on topCompanies field.
-            company_symbol (Optional[List[str]]): List of company tickers for filtering. Filtering is applied on topCompanies field.
+            person_wikidata_id (Optional[List[str]]): Filter stories by Wikidata IDs of top mentioned people. Returns stories where these individuals appear prominently. Refer to the /people endpoint for a complete list of tracked individuals.
+            person_name (Optional[str]): Filter stories by exact name matches of top mentioned people. Does not support Boolean or complex logic. For available person entities, consult the /people endpoint.
+            company_id (Optional[List[str]]): Filter stories by identifiers of top mentioned companies. Returns stories where these companies appear prominently. For a complete list of tracked companies, refer to the /companies endpoint.
+            company_name (Optional[str]): Filter stories by names of top mentioned companies. Performs an exact match on company names in the topCompanies field.
+            company_domain (Optional[List[str]]): Filter stories by domains of top mentioned companies (e.g., apple.com). Returns stories where companies with these domains appear prominently. For available company entities, consult the /companies endpoint.
+            company_symbol (Optional[List[str]]): Filter stories by stock symbols of top mentioned companies. Returns stories where companies with these symbols appear prominently. For available company entities and their symbols, consult the /companies endpoint.
             country (Optional[List[str]]): Country code to filter by country. If multiple parameters are passed, they will be applied as OR operations.
             state (Optional[List[str]]): Filter local news by state. Applies only to local news, when this param is passed non-local news will not be returned. If multiple parameters are passed, they will be applied as OR operations.
             city (Optional[List[str]]): Filter local news by city. Applies only to local news, when this param is passed non-local news will not be returned. If multiple parameters are passed, they will be applied as OR operations.
             area (Optional[List[str]]): Filter local news by area. Applies only to local news, when this param is passed non-local news will not be returned. If multiple parameters are passed, they will be applied as OR operations.
             min_cluster_size (Optional[int]): Filter by minimum cluster size. Minimum cluster size filter applies to number of unique articles.
             max_cluster_size (Optional[int]): Filter by maximum cluster size. Maximum cluster size filter applies to number of unique articles in the cluster.
-            name_exists (Optional[bool]): Returns stories with name assigned. Defaults to true.
-            positive_sentiment_from (Optional[float]): Filters results with a sentiment score greater than or equal to the specified value, indicating positive sentiment. See the Article Data section in Docs for an explanation of scores.
-            positive_sentiment_to (Optional[float]): Filters results with a sentiment score less than or equal to the specified value, indicating positive sentiment. See the Article Data section in Docs for an explanation of scores.
-            neutral_sentiment_from (Optional[float]): Filters results with a sentiment score greater than or equal to the specified value, indicating neutral sentiment. Explanation of sentimental values can be found in Docs under the Article Data section.
-            neutral_sentiment_to (Optional[float]): Filters results with a sentiment score less than or equal to the specified value, indicating neutral sentiment. See the Article Data section in Docs for an explanation of scores.
-            negative_sentiment_from (Optional[float]): Filters results with a sentiment score greater than or equal to the specified value, indicating negative sentiment. See the Article Data section in Docs for an explanation of scores.
-            negative_sentiment_to (Optional[float]): Filters results with a sentiment score less than or equal to the specified value, indicating negative sentiment. See the Article Data section in Docs for an explanation of scores.
-            initialized_from (Optional[datetime]): 'initializedFrom' filter, will search stories that became available after provided date
-            initialized_to (Optional[datetime]): 'initializedTo' filter, will search stories that became available before provided date
-            updated_from (Optional[datetime]): Will return stories with 'updatedAt' >= 'updatedFrom'.
-            updated_to (Optional[datetime]): Will return stories with 'updatedAt' <= 'updatedTo'.
+            name_exists (Optional[bool]): Filter to only include stories that have been assigned names. Defaults to true. Note that stories only receive names after they contain at least 5 unique articles.
+            positive_sentiment_from (Optional[float]): Filter articles with an aggregate positive sentiment score greater than or equal to the specified value. Scores range from 0 to 1, with higher values indicating stronger positive tone.
+            positive_sentiment_to (Optional[float]): Filter articles with an aggregate positive sentiment score less than or equal to the specified value. Scores range from 0 to 1, with higher values indicating stronger positive tone.
+            neutral_sentiment_from (Optional[float]): Filter articles with an aggregate neutral sentiment score greater than or equal to the specified value. Scores range from 0 to 1, with higher values indicating stronger neutral tone.
+            neutral_sentiment_to (Optional[float]): Filter articles with an aggregate neutral sentiment score less than or equal to the specified value. Scores range from 0 to 1, with higher values indicating stronger neutral tone.
+            negative_sentiment_from (Optional[float]): Filter stories with an aggregate negative sentiment score greater than or equal to the specified value. Scores range from 0 to 1, with higher values indicating stronger negative tone.
+            negative_sentiment_to (Optional[float]): Filter articles with an aggregate negative sentiment score less than or equal to the specified value. Scores range from 0 to 1, with higher values indicating stronger negative tone.
             show_story_page_info (Optional[bool]): Parameter show_story_page_info
             show_num_results (Optional[bool]): Show total number of results. By default set to false, will cap result count at 10000.
             show_duplicates (Optional[bool]): Stories are deduplicated by default. If a story is deduplicated, all future articles are merged into the original story. duplicateOf field contains the original cluster Id. When showDuplicates=true, all stories are shown.
-            exclude_cluster_id (Optional[List[str]]): Excludes specific stories from the results by their unique identifiers. Use this parameter to filter out unwanted or previously seen stories.
 
         Returns:
             StorySearchResult: The response
@@ -1588,6 +1588,8 @@ class V1Api:
             params["name"] = name
         if cluster_id is not None:
             params["clusterId"] = cluster_id
+        if exclude_cluster_id is not None:
+            params["excludeClusterId"] = exclude_cluster_id
         if sort_by is not None:
             params["sortBy"] = sort_by
         if page is not None:
@@ -1598,6 +1600,14 @@ class V1Api:
             params["from"] = var_from
         if to is not None:
             params["to"] = to
+        if initialized_from is not None:
+            params["initializedFrom"] = initialized_from
+        if initialized_to is not None:
+            params["initializedTo"] = initialized_to
+        if updated_from is not None:
+            params["updatedFrom"] = updated_from
+        if updated_to is not None:
+            params["updatedTo"] = updated_to
         if topic is not None:
             params["topic"] = topic
         if category is not None:
@@ -1648,22 +1658,12 @@ class V1Api:
             params["negativeSentimentFrom"] = negative_sentiment_from
         if negative_sentiment_to is not None:
             params["negativeSentimentTo"] = negative_sentiment_to
-        if initialized_from is not None:
-            params["initializedFrom"] = initialized_from
-        if initialized_to is not None:
-            params["initializedTo"] = initialized_to
-        if updated_from is not None:
-            params["updatedFrom"] = updated_from
-        if updated_to is not None:
-            params["updatedTo"] = updated_to
         if show_story_page_info is not None:
             params["showStoryPageInfo"] = show_story_page_info
         if show_num_results is not None:
             params["showNumResults"] = show_num_results
         if show_duplicates is not None:
             params["showDuplicates"] = show_duplicates
-        if exclude_cluster_id is not None:
-            params["excludeClusterId"] = exclude_cluster_id
         params = _normalise_query(params)
 
         resp = self.api_client.request("GET", path, params=params)
@@ -1676,11 +1676,16 @@ class V1Api:
         q: Optional[str] = None,
         name: Optional[str] = None,
         cluster_id: Optional[List[str]] = None,
+        exclude_cluster_id: Optional[List[str]] = None,
         sort_by: Optional[SortBy] = None,
         page: Optional[int] = None,
         size: Optional[int] = None,
         var_from: Optional[datetime] = None,
         to: Optional[datetime] = None,
+        initialized_from: Optional[datetime] = None,
+        initialized_to: Optional[datetime] = None,
+        updated_from: Optional[datetime] = None,
+        updated_to: Optional[datetime] = None,
         topic: Optional[List[str]] = None,
         category: Optional[List[str]] = None,
         taxonomy: Optional[List[str]] = None,
@@ -1706,60 +1711,55 @@ class V1Api:
         neutral_sentiment_to: Optional[float] = None,
         negative_sentiment_from: Optional[float] = None,
         negative_sentiment_to: Optional[float] = None,
-        initialized_from: Optional[datetime] = None,
-        initialized_to: Optional[datetime] = None,
-        updated_from: Optional[datetime] = None,
-        updated_to: Optional[datetime] = None,
         show_story_page_info: Optional[bool] = None,
         show_num_results: Optional[bool] = None,
         show_duplicates: Optional[bool] = None,
-        exclude_cluster_id: Optional[List[str]] = None,
     ) -> StorySearchResult:
         """
         Async variant of search_stories. Search and filter all news stories available via the Perigon API. Each story aggregates key information across related articles, including AI-generated names, summaries, and key points.
 
         Args:
-            q (Optional[str]): Search story by name, summary and key points. Preference is given to the name field. Supports complex query syntax, same way as q parameter from /all endpoint.
-            name (Optional[str]): Search story by name. Supports complex query syntax, same way as q parameter from /all endpoint.
-            cluster_id (Optional[List[str]]): Filter to specific story. Passing a cluster ID will filter results to only the content found within the cluster. Multiple params could be passed.
-            sort_by (Optional[SortBy]): Sort stories by count ('count'), total count ('totalCount'), creation date ('createdAt'), last updated date ('updatedAt'), or relevance ('relevance'). By default is sorted by 'createdAt'
-            page (Optional[int]): The page number to retrieve.
-            size (Optional[int]): The number of items per page.
+            q (Optional[str]): Primary search query for filtering stories based on their name, summary, and key points. Supports Boolean operators (AND, OR, NOT), exact phrases with quotes, and wildcards (* and ?) for flexible searching.
+            name (Optional[str]): Search specifically within story names. Supports Boolean operators, exact phrases with quotes, and wildcards for matching name variations.
+            cluster_id (Optional[List[str]]): Filter to specific stories using their unique identifiers. Each clusterId represents a distinct story that groups related articles. Multiple values create an OR filter.
+            exclude_cluster_id (Optional[List[str]]): Excludes specific stories from the results by their unique identifiers. Use this parameter to filter out unwanted or previously seen stories.
+            sort_by (Optional[SortBy]): Determines the story sorting order. Options include createdAt (default, when stories first emerged), updatedAt (when stories received new articles, best for tracking developing events), relevance (best match to query), count (by unique article count), and totalCount (by total article count including reprints).
+            page (Optional[int]): The specific page of results to retrieve in the paginated response. Starts at 0.
+            size (Optional[int]): The number of articles to return per page in the paginated response.
             var_from (Optional[datetime]): 'from' filter, will search stories created after the specified date, the date could be passed as ISO or 'yyyy-mm-dd'. Add time in ISO format, ie. 2023-03-01T00:00:00
             to (Optional[datetime]): 'to' filter, will search stories created before the specified date, the date could be passed as ISO or 'yyyy-mm-dd'. Add time in ISO format, ie. 2023-03-01T23:59:59
-            topic (Optional[List[str]]): Filter by topics. Each topic is some kind of entity that the article is about. Examples of topics: Markets, Joe Biden, Green Energy, Climate Change, Cryptocurrency, etc. If multiple parameters are passed, they will be applied as OR operations.
-            category (Optional[List[str]]): Filter by categories. Categories are general themes that the article is about. Examples of categories: Tech, Politics, etc. If multiple parameters are passed, they will be applied as OR operations. Use 'none' to search uncategorized articles. More ➜
-            taxonomy (Optional[List[str]]): Filters by Google Content Categories. This field will accept 1 or more categories, must pass the full name of the category. Example: taxonomy=/Finance/Banking/Other, /Finance/Investing/Funds
-            source (Optional[List[str]]): Filter stories by sources that wrote articles belonging to this story. At least 1 article is required for story to match. Multiple parameters could be passed.
-            source_group (Optional[List[str]]): Filter stories by sources that wrote articles belonging to this story. Source groups are expanded into a list of sources. At least 1 article by the source is required for story to match. Multiple params could be passed.
+            initialized_from (Optional[datetime]): Filter for stories created after this date. Alternative parameter for filtering by story creation date.
+            initialized_to (Optional[datetime]): Filter for stories created before this date. Alternative parameter for filtering by story creation date.
+            updated_from (Optional[datetime]): Filter for stories that received new articles after this date. Useful for tracking developing news events or evolving storylines.
+            updated_to (Optional[datetime]): Filter for stories that received new articles before this date. Useful for tracking developing news events or evolving storylines.
+            topic (Optional[List[str]]): Filter stories by specific topics such as Markets, Crime, Cryptocurrency, or College Sports. Topics are more granular than categories, and stories can include multiple topics based on their constituent articles. Use the /topics endpoint for a complete list of available topics. Multiple values create an OR filter.
+            category (Optional[List[str]]): Filter stories by broad content categories such as Politics, Tech, Sports, Business, or Finance. Use 'none' to find uncategorized stories. Categories are derived from the articles within each story. Multiple values create an OR filter.
+            taxonomy (Optional[List[str]]): Filter stories by Google Content Categories. Must pass the full hierarchical path of the category. Example: taxonomy=/Finance/Banking/Other,/Finance/Investing/Funds. Stories are categorized based on their constituent articles. Multiple values create an OR filter.
+            source (Optional[List[str]]): Filter stories that contain articles from specific publisher domains or subdomains. Supports wildcards (* and ?) for pattern matching (e.g., *.cnn.com). A story will match if it contains at least one article from any of the specified sources. Multiple values create an OR filter.
+            source_group (Optional[List[str]]): Filter stories that contain articles from publishers in Perigon's curated bundles (e.g., top100, top25crypto). A story will match if it contains at least one article from any publisher in the specified bundles. Multiple values create an OR filter.
             min_unique_sources (Optional[int]): Specifies the minimum number of unique sources required for a story to appear in results. Higher values return more significant stories covered by multiple publications. Default is 3.
-            person_wikidata_id (Optional[List[str]]): List of person Wikidata IDs for filtering. Filter is applied on topPeople field.
-            person_name (Optional[str]): List of people names. Filtering is applied on topPeople field.
-            company_id (Optional[List[str]]): List of company IDs for filtering. Filtering is applied to topCompanies field.
-            company_name (Optional[str]): List of company names for filtering. Filtering is applied on topCompanies field.
-            company_domain (Optional[List[str]]): List of company domains for filtering. Filtering is applied on topCompanies field.
-            company_symbol (Optional[List[str]]): List of company tickers for filtering. Filtering is applied on topCompanies field.
+            person_wikidata_id (Optional[List[str]]): Filter stories by Wikidata IDs of top mentioned people. Returns stories where these individuals appear prominently. Refer to the /people endpoint for a complete list of tracked individuals.
+            person_name (Optional[str]): Filter stories by exact name matches of top mentioned people. Does not support Boolean or complex logic. For available person entities, consult the /people endpoint.
+            company_id (Optional[List[str]]): Filter stories by identifiers of top mentioned companies. Returns stories where these companies appear prominently. For a complete list of tracked companies, refer to the /companies endpoint.
+            company_name (Optional[str]): Filter stories by names of top mentioned companies. Performs an exact match on company names in the topCompanies field.
+            company_domain (Optional[List[str]]): Filter stories by domains of top mentioned companies (e.g., apple.com). Returns stories where companies with these domains appear prominently. For available company entities, consult the /companies endpoint.
+            company_symbol (Optional[List[str]]): Filter stories by stock symbols of top mentioned companies. Returns stories where companies with these symbols appear prominently. For available company entities and their symbols, consult the /companies endpoint.
             country (Optional[List[str]]): Country code to filter by country. If multiple parameters are passed, they will be applied as OR operations.
             state (Optional[List[str]]): Filter local news by state. Applies only to local news, when this param is passed non-local news will not be returned. If multiple parameters are passed, they will be applied as OR operations.
             city (Optional[List[str]]): Filter local news by city. Applies only to local news, when this param is passed non-local news will not be returned. If multiple parameters are passed, they will be applied as OR operations.
             area (Optional[List[str]]): Filter local news by area. Applies only to local news, when this param is passed non-local news will not be returned. If multiple parameters are passed, they will be applied as OR operations.
             min_cluster_size (Optional[int]): Filter by minimum cluster size. Minimum cluster size filter applies to number of unique articles.
             max_cluster_size (Optional[int]): Filter by maximum cluster size. Maximum cluster size filter applies to number of unique articles in the cluster.
-            name_exists (Optional[bool]): Returns stories with name assigned. Defaults to true.
-            positive_sentiment_from (Optional[float]): Filters results with a sentiment score greater than or equal to the specified value, indicating positive sentiment. See the Article Data section in Docs for an explanation of scores.
-            positive_sentiment_to (Optional[float]): Filters results with a sentiment score less than or equal to the specified value, indicating positive sentiment. See the Article Data section in Docs for an explanation of scores.
-            neutral_sentiment_from (Optional[float]): Filters results with a sentiment score greater than or equal to the specified value, indicating neutral sentiment. Explanation of sentimental values can be found in Docs under the Article Data section.
-            neutral_sentiment_to (Optional[float]): Filters results with a sentiment score less than or equal to the specified value, indicating neutral sentiment. See the Article Data section in Docs for an explanation of scores.
-            negative_sentiment_from (Optional[float]): Filters results with a sentiment score greater than or equal to the specified value, indicating negative sentiment. See the Article Data section in Docs for an explanation of scores.
-            negative_sentiment_to (Optional[float]): Filters results with a sentiment score less than or equal to the specified value, indicating negative sentiment. See the Article Data section in Docs for an explanation of scores.
-            initialized_from (Optional[datetime]): 'initializedFrom' filter, will search stories that became available after provided date
-            initialized_to (Optional[datetime]): 'initializedTo' filter, will search stories that became available before provided date
-            updated_from (Optional[datetime]): Will return stories with 'updatedAt' >= 'updatedFrom'.
-            updated_to (Optional[datetime]): Will return stories with 'updatedAt' <= 'updatedTo'.
+            name_exists (Optional[bool]): Filter to only include stories that have been assigned names. Defaults to true. Note that stories only receive names after they contain at least 5 unique articles.
+            positive_sentiment_from (Optional[float]): Filter articles with an aggregate positive sentiment score greater than or equal to the specified value. Scores range from 0 to 1, with higher values indicating stronger positive tone.
+            positive_sentiment_to (Optional[float]): Filter articles with an aggregate positive sentiment score less than or equal to the specified value. Scores range from 0 to 1, with higher values indicating stronger positive tone.
+            neutral_sentiment_from (Optional[float]): Filter articles with an aggregate neutral sentiment score greater than or equal to the specified value. Scores range from 0 to 1, with higher values indicating stronger neutral tone.
+            neutral_sentiment_to (Optional[float]): Filter articles with an aggregate neutral sentiment score less than or equal to the specified value. Scores range from 0 to 1, with higher values indicating stronger neutral tone.
+            negative_sentiment_from (Optional[float]): Filter stories with an aggregate negative sentiment score greater than or equal to the specified value. Scores range from 0 to 1, with higher values indicating stronger negative tone.
+            negative_sentiment_to (Optional[float]): Filter articles with an aggregate negative sentiment score less than or equal to the specified value. Scores range from 0 to 1, with higher values indicating stronger negative tone.
             show_story_page_info (Optional[bool]): Parameter show_story_page_info
             show_num_results (Optional[bool]): Show total number of results. By default set to false, will cap result count at 10000.
             show_duplicates (Optional[bool]): Stories are deduplicated by default. If a story is deduplicated, all future articles are merged into the original story. duplicateOf field contains the original cluster Id. When showDuplicates=true, all stories are shown.
-            exclude_cluster_id (Optional[List[str]]): Excludes specific stories from the results by their unique identifiers. Use this parameter to filter out unwanted or previously seen stories.
 
         Returns:
             StorySearchResult: The response
@@ -1774,6 +1774,8 @@ class V1Api:
             params["name"] = name
         if cluster_id is not None:
             params["clusterId"] = cluster_id
+        if exclude_cluster_id is not None:
+            params["excludeClusterId"] = exclude_cluster_id
         if sort_by is not None:
             params["sortBy"] = sort_by
         if page is not None:
@@ -1784,6 +1786,14 @@ class V1Api:
             params["from"] = var_from
         if to is not None:
             params["to"] = to
+        if initialized_from is not None:
+            params["initializedFrom"] = initialized_from
+        if initialized_to is not None:
+            params["initializedTo"] = initialized_to
+        if updated_from is not None:
+            params["updatedFrom"] = updated_from
+        if updated_to is not None:
+            params["updatedTo"] = updated_to
         if topic is not None:
             params["topic"] = topic
         if category is not None:
@@ -1834,22 +1844,12 @@ class V1Api:
             params["negativeSentimentFrom"] = negative_sentiment_from
         if negative_sentiment_to is not None:
             params["negativeSentimentTo"] = negative_sentiment_to
-        if initialized_from is not None:
-            params["initializedFrom"] = initialized_from
-        if initialized_to is not None:
-            params["initializedTo"] = initialized_to
-        if updated_from is not None:
-            params["updatedFrom"] = updated_from
-        if updated_to is not None:
-            params["updatedTo"] = updated_to
         if show_story_page_info is not None:
             params["showStoryPageInfo"] = show_story_page_info
         if show_num_results is not None:
             params["showNumResults"] = show_num_results
         if show_duplicates is not None:
             params["showDuplicates"] = show_duplicates
-        if exclude_cluster_id is not None:
-            params["excludeClusterId"] = exclude_cluster_id
         params = _normalise_query(params)
 
         resp = await self.api_client.request_async("GET", path, params=params)
@@ -1946,45 +1946,45 @@ class V1Api:
 
         Args:
             summary_body (SummaryBody): Parameter summary_body (required)
-            q (Optional[str]): Search query, each article will be scored and ranked against it. Articles are searched on the title, description, and content fields.
-            title (Optional[str]): Search article headlines/title field. Semantic similar to q parameter.
-            desc (Optional[str]): Search query on the description field. Semantic similar to q parameter.
-            content (Optional[str]): Search query on the article's body of content field. Semantic similar to q parameter.
-            url (Optional[str]): Search query on the url field. Semantic similar to q parameter. E.g. could be used for querying certain website sections, e.g. source=cnn.com&url=travel.
-            article_id (Optional[List[str]]): Article ID will search for a news article by the ID of the article. If several parameters are passed, all matched articles will be returned.
-            cluster_id (Optional[List[str]]): Search for related content using a cluster ID. Passing a cluster ID will filter results to only the content found within the cluster.
-            sort_by (Optional[AllEndpointSortBy]): 'relevance' to sort by relevance to the query, 'date' to sort by the publication date (desc), 'pubDate' is a synonym to 'date', 'addDate' to sort by 'addDate' field (desc), 'refreshDate' to sort by 'refreshDate' field (desc). Defaults to 'relevance'
-            page (Optional[int]): The page number to retrieve.
-            size (Optional[int]): The number of items per page.
-            var_from (Optional[datetime]): 'from' filter, will search articles published after the specified date, the date could be passed as ISO or 'yyyy-mm-dd'. Add time in ISO format, ie. 2023-03-01T00:00:00
-            to (Optional[datetime]): 'to' filter, will search articles published before the specified date, the date could be passed as ISO or 'yyyy-mm-dd'. Add time in ISO format, ie. 2022-02-01T23:59:59
-            add_date_from (Optional[datetime]): 'addDateFrom' filter, will search articles added after the specified date, the date could be passed as ISO or 'yyyy-mm-dd'. Add time in ISO format, ie. 2022-02-01T00:00:00
-            add_date_to (Optional[datetime]): 'addDateTo' filter, will search articles added before the specified date, the date could be passed as ISO or 'yyyy-mm-dd'. Add time in ISO format, ie. 2022-02-01T23:59:59
-            refresh_date_from (Optional[datetime]): Will search articles that were refreshed after the specified date. The date could be passed as ISO or 'yyyy-mm-dd'. Add time in ISO format, ie. 2022-02-01T00:00:00
-            refresh_date_to (Optional[datetime]): Will search articles that were refreshed before the specified date. The date could be passed as ISO or 'yyyy-mm-dd'. Add time in ISO format, ie. 2022-02-01T23:59:59
-            medium (Optional[List[str]]): Medium will filter out news articles medium, which could be 'Video' or 'Article'. If several parameters are passed, all matched articles will be returned.
-            source (Optional[List[str]]): Publisher's domain can include a subdomain. If multiple parameters are passed, they will be applied as OR operations. Wildcards (* and ?) are suported (e.g. *.cnn.com).
-            source_group (Optional[List[str]]): One of the supported source groups. Find Source Groups in the guided part of our documentation...
-            exclude_source_group (Optional[List[str]]): A list of built-in source group names to exclude from the results. The Perigon API categorizes sources into groups (for example, “top10” or “top100”) based on type or popularity. Using this filter allows you to remove articles coming from any source that belongs to one or more of the specified groups.
-            exclude_source (Optional[List[str]]): The domain of the website, which should be excluded from the search. Multiple parameters could be provided. Wildcards (* and ?) are suported (e.g. *.cnn.com).
+            q (Optional[str]): Primary search query for filtering articles based on their title, description, and content. Supports Boolean operators (AND, OR, NOT), exact phrases with quotes, and wildcards (* and ?) for flexible searching.
+            title (Optional[str]): Search specifically within article headlines/titles. Supports Boolean operators, exact phrases with quotes, and wildcards for matching title variations.
+            desc (Optional[str]): Search within article description fields. Supports Boolean expressions, exact phrase matching with quotes, and wildcards for flexible pattern matching.
+            content (Optional[str]): Search within the full article body content. Supports Boolean logic, exact phrase matching with quotes, and wildcards for comprehensive content searching.
+            url (Optional[str]): Search within article URLs to find content from specific website sections or domains. Supports wildcards (* and ?) for partial URL matching.
+            article_id (Optional[List[str]]): Retrieve specific news articles by their unique article identifiers. Multiple IDs can be provided to return a collection of specific articles.
+            cluster_id (Optional[List[str]]): Filter results to only show content within a specific related content cluster. Returns articles grouped together as part of Perigon Stories based on topic relevance.
+            sort_by (Optional[AllEndpointSortBy]): Determines the article sorting order. Options include relevance (default), date/pubDate (newest publication date first), reverseDate (oldest publication date first), addDate (newest ingestion date first), reverseAddDate (oldest ingestion date first), and refreshDate (most recently updated in system first, often identical to addDate).
+            page (Optional[int]): The specific page of results to retrieve in the paginated response. Starts at 0.
+            size (Optional[int]): The number of articles to return per page in the paginated response.
+            var_from (Optional[datetime]): Filter for articles published after this date. Accepts ISO 8601 format (e.g., 2023-03-01T00:00:00) or yyyy-mm-dd format.
+            to (Optional[datetime]): Filter for articles published before this date. Accepts ISO 8601 format (e.g., 2022-02-01T23:59:59) or yyyy-mm-dd format.
+            add_date_from (Optional[datetime]): Filter for articles added to Perigon's system after this date. Accepts ISO 8601 format (e.g., 2022-02-01T00:00:00) or yyyy-mm-dd format.
+            add_date_to (Optional[datetime]): Filter for articles added to Perigon's system before this date. Accepts ISO 8601 format (e.g., 2022-02-01T23:59:59) or yyyy-mm-dd format.
+            refresh_date_from (Optional[datetime]): Filter for articles refreshed/updated in Perigon's system after this date. In most cases yields similar results to addDateFrom but can differ for updated content. Accepts ISO 8601 format (e.g., 2022-02-01T00:00:00) or yyyy-mm-dd format.
+            refresh_date_to (Optional[datetime]): Filter for articles refreshed/updated in Perigon's system before this date. In most cases yields similar results to addDateTo but can differ for updated content. Accepts ISO 8601 format (e.g., 2022-02-01T23:59:59) or yyyy-mm-dd format.
+            medium (Optional[List[str]]): Filter articles by their primary medium type. Accepts Article for written content or Video for video-based stories. Multiple values create an OR filter.
+            source (Optional[List[str]]): Filter articles by specific publisher domains or subdomains. Supports wildcards (* and ?) for pattern matching (e.g., *.cnn.com). Multiple values create an OR filter.
+            source_group (Optional[List[str]]): Filter articles using Perigon's curated publisher bundles (e.g., top100, top25crypto). Multiple values create an OR filter to include articles from any of the specified bundles.
+            exclude_source_group (Optional[List[str]]): Exclude articles from specified Perigon source groups. Multiple values create an AND-exclude filter, removing content from publishers in any of the specified bundles (e.g., top10, top100).
+            exclude_source (Optional[List[str]]): Exclude articles from specific publisher domains or subdomains. Supports wildcards (* and ?) for pattern matching (e.g., *.cnn.com). Multiple values create an AND-exclude filter.
             paywall (Optional[bool]): Filter to show only results where the source has a paywall (true) or does not have a paywall (false).
-            byline (Optional[List[str]]): Author names to filter by. Article author bylines are used as a source field. If multiple parameters are passed, they will be applied as OR operations.
-            author (Optional[List[str]]): A list of author names to include. Only articles written by any of the specified authors are returned. This is ideal when you wish to focus on content from particular voices or experts.
-            exclude_author (Optional[List[str]]):  A list of author names to exclude from the search results. Any article written by an author whose name matches one in this list will be omitted, which helps to avoid content from certain individuals.
-            journalist_id (Optional[List[str]]): Filter by journalist ID. Journalist IDs are unique journalist identifiers which can be found through the Journalist API, or in the matchedAuthors field.
-            exclude_journalist_id (Optional[List[str]]): A list of journalist (or reporter) identifiers to exclude. If an article is written by a journalist whose ID matches any in this list, it will not be part of the result set.
-            language (Optional[List[str]]): Language code to filter by language. If multiple parameters are passed, they will be applied as OR operations.
-            exclude_language (Optional[List[str]]):  A list of languages to be excluded. Any article published in one of the languages provided in this filter will not be returned. This is useful when you are interested only in news published in specific languages.
-            search_translation (Optional[bool]): Expand a query to search the translation, translatedTitle, and translatedDescription fields for non-English articles.
-            label (Optional[List[str]]): Labels to filter by, could be 'Opinion', 'Paid-news', 'Non-news', etc. If multiple parameters are passed, they will be applied as OR operations.
-            exclude_label (Optional[List[str]]): Exclude results that include specific labels (Opinion, Non-news, Paid News, etc.). You can filter multiple by repeating the parameter.
-            category (Optional[List[str]]): Filter by categories. Categories are general themes that the article is about. Examples of categories: Tech, Politics, etc. If multiple parameters are passed, they will be applied as OR operations. Use 'none' to search uncategorized articles.
-            exclude_category (Optional[List[str]]): A list of article categories to be omitted. If an article is tagged with any category present in this list (such as “Polotics”, “Tech”, “Sports”, etc.), it will not appear in the search results.
-            topic (Optional[List[str]]): Filters results to include only articles with the specified topics. Topics are more specific classifications than categories, with an article potentially having multiple topics assigned. Perigon uses both human and machine curation to maintain an evolving list of available topics. Common examples include 'Markets', 'Crime', 'Cryptocurrency', 'Social Issues', 'College Sports', etc. See the Topics page in Docs for a complete list of available topics.
-            exclude_topic (Optional[List[str]]): Filter by excluding topics. Each topic is some kind of entity that the article is about. Examples of topics: Markets, Joe Biden, Green Energy, Climate Change, Cryptocurrency, etc. If multiple parameters are passed, they will be applied as OR operations.
-            link_to (Optional[str]): Returns only articles that point to specified links (as determined by the 'links' field in the article response).
-            show_reprints (Optional[bool]): Whether to return reprints in the response or not. Reprints are usually wired articles from sources like AP or Reuters that are reprinted in multiple sources at the same time. By default, this parameter is 'true'.
-            reprint_group_id (Optional[str]): Shows all articles belonging to the same reprint group. A reprint group includes one original article (the first one processed by the API) and all its known reprints.
+            byline (Optional[List[str]]): Filter articles by author bylines. Works as an exact match for each author name provided. Multiple values create an OR filter to find articles by any of the specified authors.
+            author (Optional[List[str]]): Filter articles by specific author names. Works as an exact match for each name. Multiple values create an OR filter to find articles by any of the specified authors.
+            exclude_author (Optional[List[str]]): Exclude articles written by specific authors. Any article with an author name matching an entry in this list will be omitted from results. Multiple values create an AND-exclude filter.
+            journalist_id (Optional[List[str]]): Filter by unique journalist identifiers which can be found through the Journalist API or in the matchedAuthors field. Multiple values create an OR filter.
+            exclude_journalist_id (Optional[List[str]]): Exclude articles written by specific journalists identified by their unique IDs. Multiple values create an AND-exclude filter.
+            language (Optional[List[str]]): Filter articles by their language using ISO-639 two-letter codes (e.g., en, es, fr). Multiple values create an OR filter.
+            exclude_language (Optional[List[str]]): Exclude articles in specific languages using ISO-639 two-letter codes. Multiple values create an AND-exclude filter.
+            search_translation (Optional[bool]): Expand search to include translated content fields for non-English articles. When true, searches translated title, description, and content fields.
+            label (Optional[List[str]]): Filter articles by editorial labels such as Opinion, Paid-news, Non-news, Fact Check, or Press Release. Multiple values create an OR filter.
+            exclude_label (Optional[List[str]]): Exclude articles with specific editorial labels. Multiple values create an AND-exclude filter, removing all content with any of these labels.
+            category (Optional[List[str]]): Filter by broad content categories such as Politics, Tech, Sports, Business, or Finance. Use 'none' to find uncategorized articles. Multiple values create an OR filter.
+            exclude_category (Optional[List[str]]): Exclude articles with specific categories. Multiple values create an AND-exclude filter, removing all content with any of these categories.
+            topic (Optional[List[str]]): Filter by specific topics such as Markets, Crime, Cryptocurrency, or College Sports. Topics are more granular than categories, and articles can have multiple topics. Use the /topics endpoint for a complete list of available topics. Multiple values create an OR filter.
+            exclude_topic (Optional[List[str]]): Exclude articles with specific topics. Multiple values create an AND-exclude filter, removing all content with any of these topics.
+            link_to (Optional[str]): Returns only articles that contain links to the specified URL pattern. Matches against the 'links' field in article responses.
+            show_reprints (Optional[bool]): Controls whether to include reprinted content in results. When true (default), shows syndicated articles from wire services like AP or Reuters that appear on multiple sites.
+            reprint_group_id (Optional[str]): Returns all articles in a specific reprint group, including the original article and all its known reprints. Use when you want to see all versions of the same content.
             city (Optional[List[str]]): Filters articles where a specified city plays a central role in the content, beyond mere mentions, to ensure the results are deeply relevant to the urban area in question. If multiple parameters are passed, they will be applied as OR operations.
             exclude_city (Optional[List[str]]): A list of cities to exclude from the results. Articles that are associated with any of the specified cities will be filtered out.
             area (Optional[List[str]]): Filters articles where a specified area, such as a neighborhood, borough, or district, plays a central role in the content, beyond mere mentions, to ensure the results are deeply relevant to the area in question. If multiple parameters are passed, they will be applied as OR operations.
@@ -2006,25 +2006,25 @@ class V1Api:
             source_lat (Optional[float]): Latitude of the center point to search articles created by local publications.
             source_lon (Optional[float]): Latitude of the center point to search articles created by local publications.
             source_max_distance (Optional[float]): Maximum distance from starting point to search articles created by local publications.
-            person_wikidata_id (Optional[List[str]]): List of person Wikidata IDs for filtering.
-            exclude_person_wikidata_id (Optional[List[str]]): A list of Wikidata identifiers for individuals. Articles mentioning persons with any of these Wikidata IDs will be filtered out. This is particularly helpful when using a unique identifier to prevent ambiguity in names.
-            person_name (Optional[List[str]]): List of person names for exact matches. Boolean and complex logic is not supported on this paramter.
-            exclude_person_name (Optional[List[str]]): A list of person names that, when associated with the content, cause the article to be excluded. This filter removes articles related to any individuals whose names match those on the list.
-            company_id (Optional[List[str]]): List of company IDs to filter by.
-            exclude_company_id (Optional[List[str]]): A list of company identifiers. Articles associated with companies that have any of these unique IDs will be filtered out from the returned results, ensuring that certain companies or corporate entities are not included.
-            company_name (Optional[str]): Search by company name.
-            company_domain (Optional[List[str]]): Search by company domains for filtering. E.g. companyDomain=apple.com.
-            exclude_company_domain (Optional[List[str]]): A list of company domains to exclude. If an article is related to a company that uses one of the specified domains (for instance, “example.com”), it will not be returned in the results.
-            company_symbol (Optional[List[str]]): Search by company symbols.
+            person_wikidata_id (Optional[List[str]]): Filter articles by Wikidata IDs of mentioned people. Refer to the /people endpoint for a complete list of tracked individuals.
+            exclude_person_wikidata_id (Optional[List[str]]): Exclude articles mentioning people with specific Wikidata IDs. Creates an AND-exclude filter to remove content about these individuals. Uses precise identifiers to avoid name ambiguity.
+            person_name (Optional[List[str]]): Filter articles by exact person name matches. Does not support Boolean or complex logic. For available person entities, consult the /people endpoint.
+            exclude_person_name (Optional[List[str]]): Exclude articles mentioning specific people by name. Creates an AND-exclude filter to remove content about these individuals.
+            company_id (Optional[List[str]]): Filter articles by company identifiers. For a complete list of tracked companies, refer to the /companies endpoint.
+            exclude_company_id (Optional[List[str]]): Exclude articles mentioning companies with specific identifiers. Creates an AND-exclude filter to remove content about these corporate entities.
+            company_name (Optional[str]): Filter articles by company name mentions. Performs an exact match on company names.
+            company_domain (Optional[List[str]]): Filter articles by company domains (e.g., apple.com). For available company entities, consult the /companies endpoint.
+            exclude_company_domain (Optional[List[str]]): Exclude articles related to companies with specific domains. Creates an AND-exclude filter to remove content about these companies.
+            company_symbol (Optional[List[str]]): Filter articles by company stock symbols. For available company entities and their symbols, consult the /companies endpoint.
             exclude_company_symbol (Optional[List[str]]): A list of stock symbols (ticker symbols) that identify companies to be excluded. Articles related to companies using any of these symbols will be omitted, which is useful for targeting or avoiding specific public companies.
             show_num_results (Optional[bool]): Whether to show the total number of all matched articles. Default value is false which makes queries a bit more efficient but also counts up to 10000 articles.
-            positive_sentiment_from (Optional[float]): Filters results with a sentiment score greater than or equal to the specified value, indicating positive sentiment. See the Article Data section in Docs for an explanation of scores.
-            positive_sentiment_to (Optional[float]): Filters results with a sentiment score less than or equal to the specified value, indicating positive sentiment. See the Article Data section in Docs for an explanation of scores.
-            neutral_sentiment_from (Optional[float]): Filters results with a sentiment score greater than or equal to the specified value, indicating neutral sentiment. Explanation of sentimental values can be found in Docs under the Article Data section.
-            neutral_sentiment_to (Optional[float]): Filters results with a sentiment score less than or equal to the specified value, indicating neutral sentiment. See the Article Data section in Docs for an explanation of scores.
-            negative_sentiment_from (Optional[float]): Filters results with a sentiment score greater than or equal to the specified value, indicating negative sentiment. See the Article Data section in Docs for an explanation of scores.
-            negative_sentiment_to (Optional[float]): Filters results with a sentiment score less than or equal to the specified value, indicating negative sentiment. See the Article Data section in Docs for an explanation of scores.
-            taxonomy (Optional[List[str]]): Filters by Google Content Categories. This field will accept 1 or more categories, must pass the full name of the category. Example: taxonomy=/Finance/Banking/Other, /Finance/Investing/Funds
+            positive_sentiment_from (Optional[float]): Filter articles with a positive sentiment score greater than or equal to the specified value. Scores range from 0 to 1, with higher values indicating stronger positive tone.
+            positive_sentiment_to (Optional[float]): Filter articles with a positive sentiment score less than or equal to the specified value. Scores range from 0 to 1, with higher values indicating stronger positive tone.
+            neutral_sentiment_from (Optional[float]): Filter articles with a neutral sentiment score greater than or equal to the specified value. Scores range from 0 to 1, with higher values indicating stronger neutral tone.
+            neutral_sentiment_to (Optional[float]): Filter articles with a neutral sentiment score less than or equal to the specified value. Scores range from 0 to 1, with higher values indicating stronger neutral tone.
+            negative_sentiment_from (Optional[float]): Filter articles with a negative sentiment score greater than or equal to the specified value. Scores range from 0 to 1, with higher values indicating stronger negative tone.
+            negative_sentiment_to (Optional[float]): Filter articles with a negative sentiment score less than or equal to the specified value. Scores range from 0 to 1, with higher values indicating stronger negative tone.
+            taxonomy (Optional[List[str]]): Filters by Google Content Categories. This field will accept 1 or more categories, must pass the full name of the category. Example: taxonomy=/Finance/Banking/Other, /Finance/Investing/Funds. [Full list](https://cloud.google.com/natural-language/docs/categories)
             prefix_taxonomy (Optional[str]): Filters by Google Content Categories. This field will filter by the category prefix only. Example: prefixTaxonomy=/Finance
 
         Returns:
@@ -2293,45 +2293,45 @@ class V1Api:
 
         Args:
             summary_body (SummaryBody): Parameter summary_body (required)
-            q (Optional[str]): Search query, each article will be scored and ranked against it. Articles are searched on the title, description, and content fields.
-            title (Optional[str]): Search article headlines/title field. Semantic similar to q parameter.
-            desc (Optional[str]): Search query on the description field. Semantic similar to q parameter.
-            content (Optional[str]): Search query on the article's body of content field. Semantic similar to q parameter.
-            url (Optional[str]): Search query on the url field. Semantic similar to q parameter. E.g. could be used for querying certain website sections, e.g. source=cnn.com&url=travel.
-            article_id (Optional[List[str]]): Article ID will search for a news article by the ID of the article. If several parameters are passed, all matched articles will be returned.
-            cluster_id (Optional[List[str]]): Search for related content using a cluster ID. Passing a cluster ID will filter results to only the content found within the cluster.
-            sort_by (Optional[AllEndpointSortBy]): 'relevance' to sort by relevance to the query, 'date' to sort by the publication date (desc), 'pubDate' is a synonym to 'date', 'addDate' to sort by 'addDate' field (desc), 'refreshDate' to sort by 'refreshDate' field (desc). Defaults to 'relevance'
-            page (Optional[int]): The page number to retrieve.
-            size (Optional[int]): The number of items per page.
-            var_from (Optional[datetime]): 'from' filter, will search articles published after the specified date, the date could be passed as ISO or 'yyyy-mm-dd'. Add time in ISO format, ie. 2023-03-01T00:00:00
-            to (Optional[datetime]): 'to' filter, will search articles published before the specified date, the date could be passed as ISO or 'yyyy-mm-dd'. Add time in ISO format, ie. 2022-02-01T23:59:59
-            add_date_from (Optional[datetime]): 'addDateFrom' filter, will search articles added after the specified date, the date could be passed as ISO or 'yyyy-mm-dd'. Add time in ISO format, ie. 2022-02-01T00:00:00
-            add_date_to (Optional[datetime]): 'addDateTo' filter, will search articles added before the specified date, the date could be passed as ISO or 'yyyy-mm-dd'. Add time in ISO format, ie. 2022-02-01T23:59:59
-            refresh_date_from (Optional[datetime]): Will search articles that were refreshed after the specified date. The date could be passed as ISO or 'yyyy-mm-dd'. Add time in ISO format, ie. 2022-02-01T00:00:00
-            refresh_date_to (Optional[datetime]): Will search articles that were refreshed before the specified date. The date could be passed as ISO or 'yyyy-mm-dd'. Add time in ISO format, ie. 2022-02-01T23:59:59
-            medium (Optional[List[str]]): Medium will filter out news articles medium, which could be 'Video' or 'Article'. If several parameters are passed, all matched articles will be returned.
-            source (Optional[List[str]]): Publisher's domain can include a subdomain. If multiple parameters are passed, they will be applied as OR operations. Wildcards (* and ?) are suported (e.g. *.cnn.com).
-            source_group (Optional[List[str]]): One of the supported source groups. Find Source Groups in the guided part of our documentation...
-            exclude_source_group (Optional[List[str]]): A list of built-in source group names to exclude from the results. The Perigon API categorizes sources into groups (for example, “top10” or “top100”) based on type or popularity. Using this filter allows you to remove articles coming from any source that belongs to one or more of the specified groups.
-            exclude_source (Optional[List[str]]): The domain of the website, which should be excluded from the search. Multiple parameters could be provided. Wildcards (* and ?) are suported (e.g. *.cnn.com).
+            q (Optional[str]): Primary search query for filtering articles based on their title, description, and content. Supports Boolean operators (AND, OR, NOT), exact phrases with quotes, and wildcards (* and ?) for flexible searching.
+            title (Optional[str]): Search specifically within article headlines/titles. Supports Boolean operators, exact phrases with quotes, and wildcards for matching title variations.
+            desc (Optional[str]): Search within article description fields. Supports Boolean expressions, exact phrase matching with quotes, and wildcards for flexible pattern matching.
+            content (Optional[str]): Search within the full article body content. Supports Boolean logic, exact phrase matching with quotes, and wildcards for comprehensive content searching.
+            url (Optional[str]): Search within article URLs to find content from specific website sections or domains. Supports wildcards (* and ?) for partial URL matching.
+            article_id (Optional[List[str]]): Retrieve specific news articles by their unique article identifiers. Multiple IDs can be provided to return a collection of specific articles.
+            cluster_id (Optional[List[str]]): Filter results to only show content within a specific related content cluster. Returns articles grouped together as part of Perigon Stories based on topic relevance.
+            sort_by (Optional[AllEndpointSortBy]): Determines the article sorting order. Options include relevance (default), date/pubDate (newest publication date first), reverseDate (oldest publication date first), addDate (newest ingestion date first), reverseAddDate (oldest ingestion date first), and refreshDate (most recently updated in system first, often identical to addDate).
+            page (Optional[int]): The specific page of results to retrieve in the paginated response. Starts at 0.
+            size (Optional[int]): The number of articles to return per page in the paginated response.
+            var_from (Optional[datetime]): Filter for articles published after this date. Accepts ISO 8601 format (e.g., 2023-03-01T00:00:00) or yyyy-mm-dd format.
+            to (Optional[datetime]): Filter for articles published before this date. Accepts ISO 8601 format (e.g., 2022-02-01T23:59:59) or yyyy-mm-dd format.
+            add_date_from (Optional[datetime]): Filter for articles added to Perigon's system after this date. Accepts ISO 8601 format (e.g., 2022-02-01T00:00:00) or yyyy-mm-dd format.
+            add_date_to (Optional[datetime]): Filter for articles added to Perigon's system before this date. Accepts ISO 8601 format (e.g., 2022-02-01T23:59:59) or yyyy-mm-dd format.
+            refresh_date_from (Optional[datetime]): Filter for articles refreshed/updated in Perigon's system after this date. In most cases yields similar results to addDateFrom but can differ for updated content. Accepts ISO 8601 format (e.g., 2022-02-01T00:00:00) or yyyy-mm-dd format.
+            refresh_date_to (Optional[datetime]): Filter for articles refreshed/updated in Perigon's system before this date. In most cases yields similar results to addDateTo but can differ for updated content. Accepts ISO 8601 format (e.g., 2022-02-01T23:59:59) or yyyy-mm-dd format.
+            medium (Optional[List[str]]): Filter articles by their primary medium type. Accepts Article for written content or Video for video-based stories. Multiple values create an OR filter.
+            source (Optional[List[str]]): Filter articles by specific publisher domains or subdomains. Supports wildcards (* and ?) for pattern matching (e.g., *.cnn.com). Multiple values create an OR filter.
+            source_group (Optional[List[str]]): Filter articles using Perigon's curated publisher bundles (e.g., top100, top25crypto). Multiple values create an OR filter to include articles from any of the specified bundles.
+            exclude_source_group (Optional[List[str]]): Exclude articles from specified Perigon source groups. Multiple values create an AND-exclude filter, removing content from publishers in any of the specified bundles (e.g., top10, top100).
+            exclude_source (Optional[List[str]]): Exclude articles from specific publisher domains or subdomains. Supports wildcards (* and ?) for pattern matching (e.g., *.cnn.com). Multiple values create an AND-exclude filter.
             paywall (Optional[bool]): Filter to show only results where the source has a paywall (true) or does not have a paywall (false).
-            byline (Optional[List[str]]): Author names to filter by. Article author bylines are used as a source field. If multiple parameters are passed, they will be applied as OR operations.
-            author (Optional[List[str]]): A list of author names to include. Only articles written by any of the specified authors are returned. This is ideal when you wish to focus on content from particular voices or experts.
-            exclude_author (Optional[List[str]]):  A list of author names to exclude from the search results. Any article written by an author whose name matches one in this list will be omitted, which helps to avoid content from certain individuals.
-            journalist_id (Optional[List[str]]): Filter by journalist ID. Journalist IDs are unique journalist identifiers which can be found through the Journalist API, or in the matchedAuthors field.
-            exclude_journalist_id (Optional[List[str]]): A list of journalist (or reporter) identifiers to exclude. If an article is written by a journalist whose ID matches any in this list, it will not be part of the result set.
-            language (Optional[List[str]]): Language code to filter by language. If multiple parameters are passed, they will be applied as OR operations.
-            exclude_language (Optional[List[str]]):  A list of languages to be excluded. Any article published in one of the languages provided in this filter will not be returned. This is useful when you are interested only in news published in specific languages.
-            search_translation (Optional[bool]): Expand a query to search the translation, translatedTitle, and translatedDescription fields for non-English articles.
-            label (Optional[List[str]]): Labels to filter by, could be 'Opinion', 'Paid-news', 'Non-news', etc. If multiple parameters are passed, they will be applied as OR operations.
-            exclude_label (Optional[List[str]]): Exclude results that include specific labels (Opinion, Non-news, Paid News, etc.). You can filter multiple by repeating the parameter.
-            category (Optional[List[str]]): Filter by categories. Categories are general themes that the article is about. Examples of categories: Tech, Politics, etc. If multiple parameters are passed, they will be applied as OR operations. Use 'none' to search uncategorized articles.
-            exclude_category (Optional[List[str]]): A list of article categories to be omitted. If an article is tagged with any category present in this list (such as “Polotics”, “Tech”, “Sports”, etc.), it will not appear in the search results.
-            topic (Optional[List[str]]): Filters results to include only articles with the specified topics. Topics are more specific classifications than categories, with an article potentially having multiple topics assigned. Perigon uses both human and machine curation to maintain an evolving list of available topics. Common examples include 'Markets', 'Crime', 'Cryptocurrency', 'Social Issues', 'College Sports', etc. See the Topics page in Docs for a complete list of available topics.
-            exclude_topic (Optional[List[str]]): Filter by excluding topics. Each topic is some kind of entity that the article is about. Examples of topics: Markets, Joe Biden, Green Energy, Climate Change, Cryptocurrency, etc. If multiple parameters are passed, they will be applied as OR operations.
-            link_to (Optional[str]): Returns only articles that point to specified links (as determined by the 'links' field in the article response).
-            show_reprints (Optional[bool]): Whether to return reprints in the response or not. Reprints are usually wired articles from sources like AP or Reuters that are reprinted in multiple sources at the same time. By default, this parameter is 'true'.
-            reprint_group_id (Optional[str]): Shows all articles belonging to the same reprint group. A reprint group includes one original article (the first one processed by the API) and all its known reprints.
+            byline (Optional[List[str]]): Filter articles by author bylines. Works as an exact match for each author name provided. Multiple values create an OR filter to find articles by any of the specified authors.
+            author (Optional[List[str]]): Filter articles by specific author names. Works as an exact match for each name. Multiple values create an OR filter to find articles by any of the specified authors.
+            exclude_author (Optional[List[str]]): Exclude articles written by specific authors. Any article with an author name matching an entry in this list will be omitted from results. Multiple values create an AND-exclude filter.
+            journalist_id (Optional[List[str]]): Filter by unique journalist identifiers which can be found through the Journalist API or in the matchedAuthors field. Multiple values create an OR filter.
+            exclude_journalist_id (Optional[List[str]]): Exclude articles written by specific journalists identified by their unique IDs. Multiple values create an AND-exclude filter.
+            language (Optional[List[str]]): Filter articles by their language using ISO-639 two-letter codes (e.g., en, es, fr). Multiple values create an OR filter.
+            exclude_language (Optional[List[str]]): Exclude articles in specific languages using ISO-639 two-letter codes. Multiple values create an AND-exclude filter.
+            search_translation (Optional[bool]): Expand search to include translated content fields for non-English articles. When true, searches translated title, description, and content fields.
+            label (Optional[List[str]]): Filter articles by editorial labels such as Opinion, Paid-news, Non-news, Fact Check, or Press Release. Multiple values create an OR filter.
+            exclude_label (Optional[List[str]]): Exclude articles with specific editorial labels. Multiple values create an AND-exclude filter, removing all content with any of these labels.
+            category (Optional[List[str]]): Filter by broad content categories such as Politics, Tech, Sports, Business, or Finance. Use 'none' to find uncategorized articles. Multiple values create an OR filter.
+            exclude_category (Optional[List[str]]): Exclude articles with specific categories. Multiple values create an AND-exclude filter, removing all content with any of these categories.
+            topic (Optional[List[str]]): Filter by specific topics such as Markets, Crime, Cryptocurrency, or College Sports. Topics are more granular than categories, and articles can have multiple topics. Use the /topics endpoint for a complete list of available topics. Multiple values create an OR filter.
+            exclude_topic (Optional[List[str]]): Exclude articles with specific topics. Multiple values create an AND-exclude filter, removing all content with any of these topics.
+            link_to (Optional[str]): Returns only articles that contain links to the specified URL pattern. Matches against the 'links' field in article responses.
+            show_reprints (Optional[bool]): Controls whether to include reprinted content in results. When true (default), shows syndicated articles from wire services like AP or Reuters that appear on multiple sites.
+            reprint_group_id (Optional[str]): Returns all articles in a specific reprint group, including the original article and all its known reprints. Use when you want to see all versions of the same content.
             city (Optional[List[str]]): Filters articles where a specified city plays a central role in the content, beyond mere mentions, to ensure the results are deeply relevant to the urban area in question. If multiple parameters are passed, they will be applied as OR operations.
             exclude_city (Optional[List[str]]): A list of cities to exclude from the results. Articles that are associated with any of the specified cities will be filtered out.
             area (Optional[List[str]]): Filters articles where a specified area, such as a neighborhood, borough, or district, plays a central role in the content, beyond mere mentions, to ensure the results are deeply relevant to the area in question. If multiple parameters are passed, they will be applied as OR operations.
@@ -2353,25 +2353,25 @@ class V1Api:
             source_lat (Optional[float]): Latitude of the center point to search articles created by local publications.
             source_lon (Optional[float]): Latitude of the center point to search articles created by local publications.
             source_max_distance (Optional[float]): Maximum distance from starting point to search articles created by local publications.
-            person_wikidata_id (Optional[List[str]]): List of person Wikidata IDs for filtering.
-            exclude_person_wikidata_id (Optional[List[str]]): A list of Wikidata identifiers for individuals. Articles mentioning persons with any of these Wikidata IDs will be filtered out. This is particularly helpful when using a unique identifier to prevent ambiguity in names.
-            person_name (Optional[List[str]]): List of person names for exact matches. Boolean and complex logic is not supported on this paramter.
-            exclude_person_name (Optional[List[str]]): A list of person names that, when associated with the content, cause the article to be excluded. This filter removes articles related to any individuals whose names match those on the list.
-            company_id (Optional[List[str]]): List of company IDs to filter by.
-            exclude_company_id (Optional[List[str]]): A list of company identifiers. Articles associated with companies that have any of these unique IDs will be filtered out from the returned results, ensuring that certain companies or corporate entities are not included.
-            company_name (Optional[str]): Search by company name.
-            company_domain (Optional[List[str]]): Search by company domains for filtering. E.g. companyDomain=apple.com.
-            exclude_company_domain (Optional[List[str]]): A list of company domains to exclude. If an article is related to a company that uses one of the specified domains (for instance, “example.com”), it will not be returned in the results.
-            company_symbol (Optional[List[str]]): Search by company symbols.
+            person_wikidata_id (Optional[List[str]]): Filter articles by Wikidata IDs of mentioned people. Refer to the /people endpoint for a complete list of tracked individuals.
+            exclude_person_wikidata_id (Optional[List[str]]): Exclude articles mentioning people with specific Wikidata IDs. Creates an AND-exclude filter to remove content about these individuals. Uses precise identifiers to avoid name ambiguity.
+            person_name (Optional[List[str]]): Filter articles by exact person name matches. Does not support Boolean or complex logic. For available person entities, consult the /people endpoint.
+            exclude_person_name (Optional[List[str]]): Exclude articles mentioning specific people by name. Creates an AND-exclude filter to remove content about these individuals.
+            company_id (Optional[List[str]]): Filter articles by company identifiers. For a complete list of tracked companies, refer to the /companies endpoint.
+            exclude_company_id (Optional[List[str]]): Exclude articles mentioning companies with specific identifiers. Creates an AND-exclude filter to remove content about these corporate entities.
+            company_name (Optional[str]): Filter articles by company name mentions. Performs an exact match on company names.
+            company_domain (Optional[List[str]]): Filter articles by company domains (e.g., apple.com). For available company entities, consult the /companies endpoint.
+            exclude_company_domain (Optional[List[str]]): Exclude articles related to companies with specific domains. Creates an AND-exclude filter to remove content about these companies.
+            company_symbol (Optional[List[str]]): Filter articles by company stock symbols. For available company entities and their symbols, consult the /companies endpoint.
             exclude_company_symbol (Optional[List[str]]): A list of stock symbols (ticker symbols) that identify companies to be excluded. Articles related to companies using any of these symbols will be omitted, which is useful for targeting or avoiding specific public companies.
             show_num_results (Optional[bool]): Whether to show the total number of all matched articles. Default value is false which makes queries a bit more efficient but also counts up to 10000 articles.
-            positive_sentiment_from (Optional[float]): Filters results with a sentiment score greater than or equal to the specified value, indicating positive sentiment. See the Article Data section in Docs for an explanation of scores.
-            positive_sentiment_to (Optional[float]): Filters results with a sentiment score less than or equal to the specified value, indicating positive sentiment. See the Article Data section in Docs for an explanation of scores.
-            neutral_sentiment_from (Optional[float]): Filters results with a sentiment score greater than or equal to the specified value, indicating neutral sentiment. Explanation of sentimental values can be found in Docs under the Article Data section.
-            neutral_sentiment_to (Optional[float]): Filters results with a sentiment score less than or equal to the specified value, indicating neutral sentiment. See the Article Data section in Docs for an explanation of scores.
-            negative_sentiment_from (Optional[float]): Filters results with a sentiment score greater than or equal to the specified value, indicating negative sentiment. See the Article Data section in Docs for an explanation of scores.
-            negative_sentiment_to (Optional[float]): Filters results with a sentiment score less than or equal to the specified value, indicating negative sentiment. See the Article Data section in Docs for an explanation of scores.
-            taxonomy (Optional[List[str]]): Filters by Google Content Categories. This field will accept 1 or more categories, must pass the full name of the category. Example: taxonomy=/Finance/Banking/Other, /Finance/Investing/Funds
+            positive_sentiment_from (Optional[float]): Filter articles with a positive sentiment score greater than or equal to the specified value. Scores range from 0 to 1, with higher values indicating stronger positive tone.
+            positive_sentiment_to (Optional[float]): Filter articles with a positive sentiment score less than or equal to the specified value. Scores range from 0 to 1, with higher values indicating stronger positive tone.
+            neutral_sentiment_from (Optional[float]): Filter articles with a neutral sentiment score greater than or equal to the specified value. Scores range from 0 to 1, with higher values indicating stronger neutral tone.
+            neutral_sentiment_to (Optional[float]): Filter articles with a neutral sentiment score less than or equal to the specified value. Scores range from 0 to 1, with higher values indicating stronger neutral tone.
+            negative_sentiment_from (Optional[float]): Filter articles with a negative sentiment score greater than or equal to the specified value. Scores range from 0 to 1, with higher values indicating stronger negative tone.
+            negative_sentiment_to (Optional[float]): Filter articles with a negative sentiment score less than or equal to the specified value. Scores range from 0 to 1, with higher values indicating stronger negative tone.
+            taxonomy (Optional[List[str]]): Filters by Google Content Categories. This field will accept 1 or more categories, must pass the full name of the category. Example: taxonomy=/Finance/Banking/Other, /Finance/Investing/Funds. [Full list](https://cloud.google.com/natural-language/docs/categories)
             prefix_taxonomy (Optional[str]): Filters by Google Content Categories. This field will filter by the category prefix only. Example: prefixTaxonomy=/Finance
 
         Returns:
@@ -2562,11 +2562,11 @@ class V1Api:
         Search through all available Topics that exist within the Perigon Database.
 
         Args:
-            name (Optional[str]): Search by name.
-            category (Optional[str]): Search by category.
-            subcategory (Optional[str]): Search by subcategory.
-            page (Optional[int]): The page number to retrieve.
-            size (Optional[int]): The number of items per page.
+            name (Optional[str]): Search for topics by exact name or partial text match. Does not support wildcards. Examples include Markets, Cryptocurrency, Climate Change, etc.
+            category (Optional[str]): Filter topics by broad article categories such as Politics, Tech, Sports, Business, Finance, Entertainment, etc.
+            subcategory (Optional[str]): Filter topics by their specific subcategory. Subcategories provide more granular classification beyond the main category, such as TV or Event.
+            page (Optional[int]): The specific page of results to retrieve in the paginated response. Starts at 0.
+            size (Optional[int]): The number of topics to return per page in the paginated response.
 
         Returns:
             TopicSearchResult: The response
@@ -2605,11 +2605,11 @@ class V1Api:
         Async variant of search_topics. Search through all available Topics that exist within the Perigon Database.
 
         Args:
-            name (Optional[str]): Search by name.
-            category (Optional[str]): Search by category.
-            subcategory (Optional[str]): Search by subcategory.
-            page (Optional[int]): The page number to retrieve.
-            size (Optional[int]): The number of items per page.
+            name (Optional[str]): Search for topics by exact name or partial text match. Does not support wildcards. Examples include Markets, Cryptocurrency, Climate Change, etc.
+            category (Optional[str]): Filter topics by broad article categories such as Politics, Tech, Sports, Business, Finance, Entertainment, etc.
+            subcategory (Optional[str]): Filter topics by their specific subcategory. Subcategories provide more granular classification beyond the main category, such as TV or Event.
+            page (Optional[int]): The specific page of results to retrieve in the paginated response. Starts at 0.
+            size (Optional[int]): The number of topics to return per page in the paginated response.
 
         Returns:
             TopicSearchResult: The response
