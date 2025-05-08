@@ -36,7 +36,7 @@ jobs:
         id: package_info
         run: |
           # Extract package name from pyproject.toml
-          PACKAGE_NAME=$(poetry version -s)
+          PACKAGE_NAME=$(poetry version -n | awk '{print $1}')
           echo "Package name: $PACKAGE_NAME"
 
           # Check if manual version override was provided
@@ -45,7 +45,7 @@ jobs:
             echo "Using manually specified version: $VERSION"
           else
             # Try to get the current version from PyPI
-            PYPI_VERSION=$(pip install $PACKAGE_NAME==0.0.0 2>&1 | grep -oP "(?<=\(from versions: ).*(?=\))" | tr ',' '\n' | sort -V | tail -n 1 || echo "0.0.0")
+            PYPI_VERSION=$(pip index versions $PACKAGE_NAME 2>/dev/null | grep -A1 "Available versions:" | head -1 | tr -d '[:space:]' | sed 's/Availableversions://g' | sed 's/%//g')           
             echo "Current PyPI version: $PYPI_VERSION"
             
             # If PyPI version is less than 1.0.0, start at 1.0.0
