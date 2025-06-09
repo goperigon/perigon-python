@@ -232,6 +232,8 @@ articles, journalist = asyncio.run(main())
 ## Usage Examples
 We have put together basic and advanced examples of accessing and using the Perigon API using the python SDK inside the **examples/** folder.
 
+---
+
 ## 🪪 License
 
 MIT © Perigon
