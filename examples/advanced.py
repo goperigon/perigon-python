@@ -15,9 +15,10 @@ Before running this example:
 3. Run: python examples/advanced.py
 """
 
-import os
 import asyncio
+import os
 from datetime import datetime, timedelta, timezone
+
 from perigon import ApiClient, V1Api
 from perigon.models import ArticleSearchParams, SummaryBody
 

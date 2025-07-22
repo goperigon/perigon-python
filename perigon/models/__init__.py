@@ -19,7 +19,13 @@ from perigon.models.all_endpoint_sort_by import AllEndpointSortBy
 from perigon.models.article import Article
 from perigon.models.article_search_filter import ArticleSearchFilter
 from perigon.models.article_search_params import ArticleSearchParams
+from perigon.models.articles_vector_search_result import ArticlesVectorSearchResult
 from perigon.models.auth_exception import AuthException
+from perigon.models.auth_exception_cause import AuthExceptionCause
+from perigon.models.auth_exception_cause_stack_trace_inner import (
+    AuthExceptionCauseStackTraceInner,
+)
+from perigon.models.auth_exception_suppressed_inner import AuthExceptionSuppressedInner
 from perigon.models.category_holder import CategoryHolder
 from perigon.models.category_with_score_holder import CategoryWithScoreHolder
 from perigon.models.company import Company
@@ -52,7 +58,8 @@ from perigon.models.place import Place
 from perigon.models.query_search_result import QuerySearchResult
 from perigon.models.question import Question
 from perigon.models.record_stat_holder import RecordStatHolder
-from perigon.models.scored_article import ScoredArticle
+from perigon.models.scored_data_article import ScoredDataArticle
+from perigon.models.scored_data_wiki_data import ScoredDataWikiData
 from perigon.models.sentiment_holder import SentimentHolder
 from perigon.models.sort_by import SortBy
 from perigon.models.source import Source
@@ -65,22 +72,19 @@ from perigon.models.summary_body import SummaryBody
 from perigon.models.summary_search_result import SummarySearchResult
 from perigon.models.symbol_holder import SymbolHolder
 from perigon.models.too_many_requests_exception import TooManyRequestsException
-from perigon.models.too_many_requests_exception_cause import (
-    TooManyRequestsExceptionCause,
-)
-from perigon.models.too_many_requests_exception_cause_stack_trace_inner import (
-    TooManyRequestsExceptionCauseStackTraceInner,
-)
-from perigon.models.too_many_requests_exception_suppressed_inner import (
-    TooManyRequestsExceptionSuppressedInner,
-)
 from perigon.models.topic_dto import TopicDto
 from perigon.models.topic_holder import TopicHolder
 from perigon.models.topic_labels import TopicLabels
 from perigon.models.topic_search_result import TopicSearchResult
-from perigon.models.vector_search_result import VectorSearchResult
 from perigon.models.web_resources import WebResources
+from perigon.models.wiki_data import WikiData
+from perigon.models.wiki_page import WikiPage
+from perigon.models.wiki_page_section_holder import WikiPageSectionHolder
 from perigon.models.wikidata_date_holder import WikidataDateHolder
 from perigon.models.wikidata_label_holder import WikidataLabelHolder
 from perigon.models.wikidata_political_party_holder import WikidataPoliticalPartyHolder
 from perigon.models.wikidata_position_holder import WikidataPositionHolder
+from perigon.models.wikipedia_search_filter import WikipediaSearchFilter
+from perigon.models.wikipedia_search_params import WikipediaSearchParams
+from perigon.models.wikipedia_search_result import WikipediaSearchResult
+from perigon.models.wikipedia_vector_search_result import WikipediaVectorSearchResult

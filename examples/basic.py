@@ -12,6 +12,7 @@ Before running this example:
 """
 
 import os
+
 from perigon import ApiClient, V1Api
 
 

@@ -8,6 +8,7 @@ from typing_extensions import Annotated
 from perigon.api_client import ApiClient
 from perigon.models.all_endpoint_sort_by import AllEndpointSortBy
 from perigon.models.article_search_params import ArticleSearchParams
+from perigon.models.articles_vector_search_result import ArticlesVectorSearchResult
 from perigon.models.company_search_result import CompanySearchResult
 from perigon.models.journalist import Journalist
 from perigon.models.journalist_search_result import JournalistSearchResult
@@ -19,11 +20,13 @@ from perigon.models.story_search_result import StorySearchResult
 from perigon.models.summary_body import SummaryBody
 from perigon.models.summary_search_result import SummarySearchResult
 from perigon.models.topic_search_result import TopicSearchResult
-from perigon.models.vector_search_result import VectorSearchResult
+from perigon.models.wikipedia_search_params import WikipediaSearchParams
+from perigon.models.wikipedia_search_result import WikipediaSearchResult
+from perigon.models.wikipedia_vector_search_result import WikipediaVectorSearchResult
 
 # Define API paths
 PATH_GET_JOURNALIST_BY_ID = "/v1/journalists/{id}"
-PATH_SEARCH_ARTICLES = "/v1/all"
+PATH_SEARCH_ARTICLES = "/v1/articles/all"
 PATH_SEARCH_COMPANIES = "/v1/companies/all"
 PATH_SEARCH_JOURNALISTS = "/v1/journalists/all"
 PATH_SEARCH_PEOPLE = "/v1/people/all"
@@ -31,7 +34,9 @@ PATH_SEARCH_SOURCES = "/v1/sources/all"
 PATH_SEARCH_STORIES = "/v1/stories/all"
 PATH_SEARCH_SUMMARIZER = "/v1/summarize"
 PATH_SEARCH_TOPICS = "/v1/topics/all"
+PATH_SEARCH_WIKIPEDIA = "/v1/wikipedia/all"
 PATH_VECTOR_SEARCH_ARTICLES = "/v1/vector/news/all"
+PATH_VECTOR_SEARCH_WIKIPEDIA = "/v1/vector/wikipedia/all"
 
 
 def _normalise_query(params: Mapping[str, Any]) -> Dict[str, Any]:
@@ -213,6 +218,12 @@ class V1Api:
         negative_sentiment_to: Optional[float] = None,
         taxonomy: Optional[List[str]] = None,
         prefix_taxonomy: Optional[str] = None,
+        show_highlighting: Optional[bool] = None,
+        highlight_fragment_size: Optional[int] = None,
+        highlight_num_fragments: Optional[int] = None,
+        highlight_pre_tag: Optional[str] = None,
+        highlight_post_tag: Optional[str] = None,
+        highlight_q: Optional[str] = None,
     ) -> QuerySearchResult:
         """
         Search and filter all news articles available via the Perigon API. The result includes a list of individual articles that were matched to your specific criteria.
@@ -263,7 +274,7 @@ class V1Api:
             state (Optional[List[str]]): Filters articles where a specified state plays a central role in the content, beyond mere mentions, to ensure the results are deeply relevant to the state in question. If multiple parameters are passed, they will be applied as OR operations.
             exclude_state (Optional[List[str]]): A list of states to exclude. Articles that include, or are associated with, any of the states provided here will be filtered out. This is especially useful if you want to ignore news tied to certain geographical areas (e.g., US states).
             county (Optional[List[str]]): A list of counties to include (or specify) in the search results. This field filters the returned articles based on the county associated with the event or news. Only articles tagged with one of these counties will be included.
-            exclude_county (Optional[List[str]]): Excludes articles from specific counties or administrative divisions in the vector search results. Accepts either a single county name or a list of county names. County names should match the format used in article metadata (e.g., 'Los Angeles County', 'Cook County'). This parameter allows for more granular geographic filter
+            exclude_county (Optional[List[str]]): Excludes articles from specific counties or administrative divisions in the search results. Accepts either a single county name or a list of county names. County names should match the format used in article metadata (e.g., 'Los Angeles County', 'Cook County'). This parameter allows for more granular geographic filter
             locations_country (Optional[List[str]]): Filters articles where a specified country plays a central role in the content, beyond mere mentions, to ensure the results are deeply relevant to the country in question. If multiple parameters are passed, they will be applied as OR operations.
             country (Optional[List[str]]): Country code to filter by country. If multiple parameters are passed, they will be applied as OR operations.
             exclude_locations_country (Optional[List[str]]): Excludes articles where a specified country plays a central role in the content, ensuring results are not deeply relevant to the country in question. If multiple parameters are passed, they will be applied as AND operations, excluding articles relevant to any of the specified countries.
@@ -298,6 +309,12 @@ class V1Api:
             negative_sentiment_to (Optional[float]): Filter articles with a negative sentiment score less than or equal to the specified value. Scores range from 0 to 1, with higher values indicating stronger negative tone.
             taxonomy (Optional[List[str]]): Filters by Google Content Categories. This field will accept 1 or more categories, must pass the full name of the category. Example: taxonomy=/Finance/Banking/Other, /Finance/Investing/Funds. [Full list](https://cloud.google.com/natural-language/docs/categories)
             prefix_taxonomy (Optional[str]): Filters by Google Content Categories. This field will filter by the category prefix only. Example: prefixTaxonomy=/Finance
+            show_highlighting (Optional[bool]): When set to true, enables text highlighting in search results.
+            highlight_fragment_size (Optional[int]): Specifies the size in characters of each highlighted text fragment. Defaults to 100 if not specified.
+            highlight_num_fragments (Optional[int]): Controls the maximum number of highlighted fragments to return per field.
+            highlight_pre_tag (Optional[str]): Defines the HTML tag that appears before highlighted text. Defaults to '<em>' if not specified.
+            highlight_post_tag (Optional[str]): Defines the HTML tag that appears after highlighted text. Defaults to '</em>' if not specified.
+            highlight_q (Optional[str]): Specifies a separate query for highlighting, allowing highlights based on terms different from the main search query. Example: main query 'q=climate change' with 'highlightQ=renewable OR solar' will highlight terms 'renewable' and 'solar' in results about climate change.
 
         Returns:
             QuerySearchResult: The response
@@ -467,6 +484,18 @@ class V1Api:
             params["taxonomy"] = taxonomy
         if prefix_taxonomy is not None:
             params["prefixTaxonomy"] = prefix_taxonomy
+        if show_highlighting is not None:
+            params["showHighlighting"] = show_highlighting
+        if highlight_fragment_size is not None:
+            params["highlightFragmentSize"] = highlight_fragment_size
+        if highlight_num_fragments is not None:
+            params["highlightNumFragments"] = highlight_num_fragments
+        if highlight_pre_tag is not None:
+            params["highlightPreTag"] = highlight_pre_tag
+        if highlight_post_tag is not None:
+            params["highlightPostTag"] = highlight_post_tag
+        if highlight_q is not None:
+            params["highlightQ"] = highlight_q
         params = _normalise_query(params)
 
         resp = self.api_client.request("GET", path, params=params)
@@ -556,6 +585,12 @@ class V1Api:
         negative_sentiment_to: Optional[float] = None,
         taxonomy: Optional[List[str]] = None,
         prefix_taxonomy: Optional[str] = None,
+        show_highlighting: Optional[bool] = None,
+        highlight_fragment_size: Optional[int] = None,
+        highlight_num_fragments: Optional[int] = None,
+        highlight_pre_tag: Optional[str] = None,
+        highlight_post_tag: Optional[str] = None,
+        highlight_q: Optional[str] = None,
     ) -> QuerySearchResult:
         """
         Async variant of search_articles. Search and filter all news articles available via the Perigon API. The result includes a list of individual articles that were matched to your specific criteria.
@@ -606,7 +641,7 @@ class V1Api:
             state (Optional[List[str]]): Filters articles where a specified state plays a central role in the content, beyond mere mentions, to ensure the results are deeply relevant to the state in question. If multiple parameters are passed, they will be applied as OR operations.
             exclude_state (Optional[List[str]]): A list of states to exclude. Articles that include, or are associated with, any of the states provided here will be filtered out. This is especially useful if you want to ignore news tied to certain geographical areas (e.g., US states).
             county (Optional[List[str]]): A list of counties to include (or specify) in the search results. This field filters the returned articles based on the county associated with the event or news. Only articles tagged with one of these counties will be included.
-            exclude_county (Optional[List[str]]): Excludes articles from specific counties or administrative divisions in the vector search results. Accepts either a single county name or a list of county names. County names should match the format used in article metadata (e.g., 'Los Angeles County', 'Cook County'). This parameter allows for more granular geographic filter
+            exclude_county (Optional[List[str]]): Excludes articles from specific counties or administrative divisions in the search results. Accepts either a single county name or a list of county names. County names should match the format used in article metadata (e.g., 'Los Angeles County', 'Cook County'). This parameter allows for more granular geographic filter
             locations_country (Optional[List[str]]): Filters articles where a specified country plays a central role in the content, beyond mere mentions, to ensure the results are deeply relevant to the country in question. If multiple parameters are passed, they will be applied as OR operations.
             country (Optional[List[str]]): Country code to filter by country. If multiple parameters are passed, they will be applied as OR operations.
             exclude_locations_country (Optional[List[str]]): Excludes articles where a specified country plays a central role in the content, ensuring results are not deeply relevant to the country in question. If multiple parameters are passed, they will be applied as AND operations, excluding articles relevant to any of the specified countries.
@@ -641,6 +676,12 @@ class V1Api:
             negative_sentiment_to (Optional[float]): Filter articles with a negative sentiment score less than or equal to the specified value. Scores range from 0 to 1, with higher values indicating stronger negative tone.
             taxonomy (Optional[List[str]]): Filters by Google Content Categories. This field will accept 1 or more categories, must pass the full name of the category. Example: taxonomy=/Finance/Banking/Other, /Finance/Investing/Funds. [Full list](https://cloud.google.com/natural-language/docs/categories)
             prefix_taxonomy (Optional[str]): Filters by Google Content Categories. This field will filter by the category prefix only. Example: prefixTaxonomy=/Finance
+            show_highlighting (Optional[bool]): When set to true, enables text highlighting in search results.
+            highlight_fragment_size (Optional[int]): Specifies the size in characters of each highlighted text fragment. Defaults to 100 if not specified.
+            highlight_num_fragments (Optional[int]): Controls the maximum number of highlighted fragments to return per field.
+            highlight_pre_tag (Optional[str]): Defines the HTML tag that appears before highlighted text. Defaults to '<em>' if not specified.
+            highlight_post_tag (Optional[str]): Defines the HTML tag that appears after highlighted text. Defaults to '</em>' if not specified.
+            highlight_q (Optional[str]): Specifies a separate query for highlighting, allowing highlights based on terms different from the main search query. Example: main query 'q=climate change' with 'highlightQ=renewable OR solar' will highlight terms 'renewable' and 'solar' in results about climate change.
 
         Returns:
             QuerySearchResult: The response
@@ -809,6 +850,18 @@ class V1Api:
             params["taxonomy"] = taxonomy
         if prefix_taxonomy is not None:
             params["prefixTaxonomy"] = prefix_taxonomy
+        if show_highlighting is not None:
+            params["showHighlighting"] = show_highlighting
+        if highlight_fragment_size is not None:
+            params["highlightFragmentSize"] = highlight_fragment_size
+        if highlight_num_fragments is not None:
+            params["highlightNumFragments"] = highlight_num_fragments
+        if highlight_pre_tag is not None:
+            params["highlightPreTag"] = highlight_pre_tag
+        if highlight_post_tag is not None:
+            params["highlightPostTag"] = highlight_post_tag
+        if highlight_q is not None:
+            params["highlightQ"] = highlight_q
         params = _normalise_query(params)
 
         resp = await self.api_client.request_async("GET", path, params=params)
@@ -1527,6 +1580,12 @@ class V1Api:
         show_story_page_info: Optional[bool] = None,
         show_num_results: Optional[bool] = None,
         show_duplicates: Optional[bool] = None,
+        show_highlighting: Optional[bool] = None,
+        highlight_fragment_size: Optional[int] = None,
+        highlight_num_fragments: Optional[int] = None,
+        highlight_pre_tag: Optional[str] = None,
+        highlight_post_tag: Optional[str] = None,
+        highlight_q: Optional[str] = None,
     ) -> StorySearchResult:
         """
         Search and filter all news stories available via the Perigon API. Each story aggregates key information across related articles, including AI-generated names, summaries, and key points.
@@ -1573,6 +1632,12 @@ class V1Api:
             show_story_page_info (Optional[bool]): Parameter show_story_page_info
             show_num_results (Optional[bool]): Show total number of results. By default set to false, will cap result count at 10000.
             show_duplicates (Optional[bool]): Stories are deduplicated by default. If a story is deduplicated, all future articles are merged into the original story. duplicateOf field contains the original cluster Id. When showDuplicates=true, all stories are shown.
+            show_highlighting (Optional[bool]): When set to true, enables text highlighting in search results.
+            highlight_fragment_size (Optional[int]): Specifies the size in characters of each highlighted text fragment. Defaults to 100 if not specified.
+            highlight_num_fragments (Optional[int]): Controls the maximum number of highlighted fragments to return per field.
+            highlight_pre_tag (Optional[str]): Defines the HTML tag that appears before highlighted text. Defaults to '<em>' if not specified.
+            highlight_post_tag (Optional[str]): Defines the HTML tag that appears after highlighted text. Defaults to '</em>' if not specified.
+            highlight_q (Optional[str]): Specifies a separate query for highlighting, allowing highlights based on terms different from the main search query. Example: main query 'q=climate change' with 'highlightQ=renewable OR solar' will highlight terms 'renewable' and 'solar' in results about climate change.
 
         Returns:
             StorySearchResult: The response
@@ -1664,6 +1729,18 @@ class V1Api:
             params["showNumResults"] = show_num_results
         if show_duplicates is not None:
             params["showDuplicates"] = show_duplicates
+        if show_highlighting is not None:
+            params["showHighlighting"] = show_highlighting
+        if highlight_fragment_size is not None:
+            params["highlightFragmentSize"] = highlight_fragment_size
+        if highlight_num_fragments is not None:
+            params["highlightNumFragments"] = highlight_num_fragments
+        if highlight_pre_tag is not None:
+            params["highlightPreTag"] = highlight_pre_tag
+        if highlight_post_tag is not None:
+            params["highlightPostTag"] = highlight_post_tag
+        if highlight_q is not None:
+            params["highlightQ"] = highlight_q
         params = _normalise_query(params)
 
         resp = self.api_client.request("GET", path, params=params)
@@ -1714,6 +1791,12 @@ class V1Api:
         show_story_page_info: Optional[bool] = None,
         show_num_results: Optional[bool] = None,
         show_duplicates: Optional[bool] = None,
+        show_highlighting: Optional[bool] = None,
+        highlight_fragment_size: Optional[int] = None,
+        highlight_num_fragments: Optional[int] = None,
+        highlight_pre_tag: Optional[str] = None,
+        highlight_post_tag: Optional[str] = None,
+        highlight_q: Optional[str] = None,
     ) -> StorySearchResult:
         """
         Async variant of search_stories. Search and filter all news stories available via the Perigon API. Each story aggregates key information across related articles, including AI-generated names, summaries, and key points.
@@ -1760,6 +1843,12 @@ class V1Api:
             show_story_page_info (Optional[bool]): Parameter show_story_page_info
             show_num_results (Optional[bool]): Show total number of results. By default set to false, will cap result count at 10000.
             show_duplicates (Optional[bool]): Stories are deduplicated by default. If a story is deduplicated, all future articles are merged into the original story. duplicateOf field contains the original cluster Id. When showDuplicates=true, all stories are shown.
+            show_highlighting (Optional[bool]): When set to true, enables text highlighting in search results.
+            highlight_fragment_size (Optional[int]): Specifies the size in characters of each highlighted text fragment. Defaults to 100 if not specified.
+            highlight_num_fragments (Optional[int]): Controls the maximum number of highlighted fragments to return per field.
+            highlight_pre_tag (Optional[str]): Defines the HTML tag that appears before highlighted text. Defaults to '<em>' if not specified.
+            highlight_post_tag (Optional[str]): Defines the HTML tag that appears after highlighted text. Defaults to '</em>' if not specified.
+            highlight_q (Optional[str]): Specifies a separate query for highlighting, allowing highlights based on terms different from the main search query. Example: main query 'q=climate change' with 'highlightQ=renewable OR solar' will highlight terms 'renewable' and 'solar' in results about climate change.
 
         Returns:
             StorySearchResult: The response
@@ -1850,6 +1939,18 @@ class V1Api:
             params["showNumResults"] = show_num_results
         if show_duplicates is not None:
             params["showDuplicates"] = show_duplicates
+        if show_highlighting is not None:
+            params["showHighlighting"] = show_highlighting
+        if highlight_fragment_size is not None:
+            params["highlightFragmentSize"] = highlight_fragment_size
+        if highlight_num_fragments is not None:
+            params["highlightNumFragments"] = highlight_num_fragments
+        if highlight_pre_tag is not None:
+            params["highlightPreTag"] = highlight_pre_tag
+        if highlight_post_tag is not None:
+            params["highlightPostTag"] = highlight_post_tag
+        if highlight_q is not None:
+            params["highlightQ"] = highlight_q
         params = _normalise_query(params)
 
         resp = await self.api_client.request_async("GET", path, params=params)
@@ -1940,6 +2041,12 @@ class V1Api:
         negative_sentiment_to: Optional[float] = None,
         taxonomy: Optional[List[str]] = None,
         prefix_taxonomy: Optional[str] = None,
+        show_highlighting: Optional[bool] = None,
+        highlight_fragment_size: Optional[int] = None,
+        highlight_num_fragments: Optional[int] = None,
+        highlight_pre_tag: Optional[str] = None,
+        highlight_post_tag: Optional[str] = None,
+        highlight_q: Optional[str] = None,
     ) -> SummarySearchResult:
         """
         Produce a single, concise summary over the full corpus of articles matching your filters, using your prompt to guide which insights to highlight.
@@ -1991,7 +2098,7 @@ class V1Api:
             state (Optional[List[str]]): Filters articles where a specified state plays a central role in the content, beyond mere mentions, to ensure the results are deeply relevant to the state in question. If multiple parameters are passed, they will be applied as OR operations.
             exclude_state (Optional[List[str]]): A list of states to exclude. Articles that include, or are associated with, any of the states provided here will be filtered out. This is especially useful if you want to ignore news tied to certain geographical areas (e.g., US states).
             county (Optional[List[str]]): A list of counties to include (or specify) in the search results. This field filters the returned articles based on the county associated with the event or news. Only articles tagged with one of these counties will be included.
-            exclude_county (Optional[List[str]]): Excludes articles from specific counties or administrative divisions in the vector search results. Accepts either a single county name or a list of county names. County names should match the format used in article metadata (e.g., 'Los Angeles County', 'Cook County'). This parameter allows for more granular geographic filter
+            exclude_county (Optional[List[str]]): Excludes articles from specific counties or administrative divisions in the search results. Accepts either a single county name or a list of county names. County names should match the format used in article metadata (e.g., 'Los Angeles County', 'Cook County'). This parameter allows for more granular geographic filter
             locations_country (Optional[List[str]]): Filters articles where a specified country plays a central role in the content, beyond mere mentions, to ensure the results are deeply relevant to the country in question. If multiple parameters are passed, they will be applied as OR operations.
             country (Optional[List[str]]): Country code to filter by country. If multiple parameters are passed, they will be applied as OR operations.
             exclude_locations_country (Optional[List[str]]): Excludes articles where a specified country plays a central role in the content, ensuring results are not deeply relevant to the country in question. If multiple parameters are passed, they will be applied as AND operations, excluding articles relevant to any of the specified countries.
@@ -2026,6 +2133,12 @@ class V1Api:
             negative_sentiment_to (Optional[float]): Filter articles with a negative sentiment score less than or equal to the specified value. Scores range from 0 to 1, with higher values indicating stronger negative tone.
             taxonomy (Optional[List[str]]): Filters by Google Content Categories. This field will accept 1 or more categories, must pass the full name of the category. Example: taxonomy=/Finance/Banking/Other, /Finance/Investing/Funds. [Full list](https://cloud.google.com/natural-language/docs/categories)
             prefix_taxonomy (Optional[str]): Filters by Google Content Categories. This field will filter by the category prefix only. Example: prefixTaxonomy=/Finance
+            show_highlighting (Optional[bool]): When set to true, enables text highlighting in search results.
+            highlight_fragment_size (Optional[int]): Specifies the size in characters of each highlighted text fragment. Defaults to 100 if not specified.
+            highlight_num_fragments (Optional[int]): Controls the maximum number of highlighted fragments to return per field.
+            highlight_pre_tag (Optional[str]): Defines the HTML tag that appears before highlighted text. Defaults to '<em>' if not specified.
+            highlight_post_tag (Optional[str]): Defines the HTML tag that appears after highlighted text. Defaults to '</em>' if not specified.
+            highlight_q (Optional[str]): Specifies a separate query for highlighting, allowing highlights based on terms different from the main search query. Example: main query 'q=climate change' with 'highlightQ=renewable OR solar' will highlight terms 'renewable' and 'solar' in results about climate change.
 
         Returns:
             SummarySearchResult: The response
@@ -2195,6 +2308,18 @@ class V1Api:
             params["taxonomy"] = taxonomy
         if prefix_taxonomy is not None:
             params["prefixTaxonomy"] = prefix_taxonomy
+        if show_highlighting is not None:
+            params["showHighlighting"] = show_highlighting
+        if highlight_fragment_size is not None:
+            params["highlightFragmentSize"] = highlight_fragment_size
+        if highlight_num_fragments is not None:
+            params["highlightNumFragments"] = highlight_num_fragments
+        if highlight_pre_tag is not None:
+            params["highlightPreTag"] = highlight_pre_tag
+        if highlight_post_tag is not None:
+            params["highlightPostTag"] = highlight_post_tag
+        if highlight_q is not None:
+            params["highlightQ"] = highlight_q
         params = _normalise_query(params)
 
         resp = self.api_client.request(
@@ -2287,6 +2412,12 @@ class V1Api:
         negative_sentiment_to: Optional[float] = None,
         taxonomy: Optional[List[str]] = None,
         prefix_taxonomy: Optional[str] = None,
+        show_highlighting: Optional[bool] = None,
+        highlight_fragment_size: Optional[int] = None,
+        highlight_num_fragments: Optional[int] = None,
+        highlight_pre_tag: Optional[str] = None,
+        highlight_post_tag: Optional[str] = None,
+        highlight_q: Optional[str] = None,
     ) -> SummarySearchResult:
         """
         Async variant of search_summarizer. Produce a single, concise summary over the full corpus of articles matching your filters, using your prompt to guide which insights to highlight.
@@ -2338,7 +2469,7 @@ class V1Api:
             state (Optional[List[str]]): Filters articles where a specified state plays a central role in the content, beyond mere mentions, to ensure the results are deeply relevant to the state in question. If multiple parameters are passed, they will be applied as OR operations.
             exclude_state (Optional[List[str]]): A list of states to exclude. Articles that include, or are associated with, any of the states provided here will be filtered out. This is especially useful if you want to ignore news tied to certain geographical areas (e.g., US states).
             county (Optional[List[str]]): A list of counties to include (or specify) in the search results. This field filters the returned articles based on the county associated with the event or news. Only articles tagged with one of these counties will be included.
-            exclude_county (Optional[List[str]]): Excludes articles from specific counties or administrative divisions in the vector search results. Accepts either a single county name or a list of county names. County names should match the format used in article metadata (e.g., 'Los Angeles County', 'Cook County'). This parameter allows for more granular geographic filter
+            exclude_county (Optional[List[str]]): Excludes articles from specific counties or administrative divisions in the search results. Accepts either a single county name or a list of county names. County names should match the format used in article metadata (e.g., 'Los Angeles County', 'Cook County'). This parameter allows for more granular geographic filter
             locations_country (Optional[List[str]]): Filters articles where a specified country plays a central role in the content, beyond mere mentions, to ensure the results are deeply relevant to the country in question. If multiple parameters are passed, they will be applied as OR operations.
             country (Optional[List[str]]): Country code to filter by country. If multiple parameters are passed, they will be applied as OR operations.
             exclude_locations_country (Optional[List[str]]): Excludes articles where a specified country plays a central role in the content, ensuring results are not deeply relevant to the country in question. If multiple parameters are passed, they will be applied as AND operations, excluding articles relevant to any of the specified countries.
@@ -2373,6 +2504,12 @@ class V1Api:
             negative_sentiment_to (Optional[float]): Filter articles with a negative sentiment score less than or equal to the specified value. Scores range from 0 to 1, with higher values indicating stronger negative tone.
             taxonomy (Optional[List[str]]): Filters by Google Content Categories. This field will accept 1 or more categories, must pass the full name of the category. Example: taxonomy=/Finance/Banking/Other, /Finance/Investing/Funds. [Full list](https://cloud.google.com/natural-language/docs/categories)
             prefix_taxonomy (Optional[str]): Filters by Google Content Categories. This field will filter by the category prefix only. Example: prefixTaxonomy=/Finance
+            show_highlighting (Optional[bool]): When set to true, enables text highlighting in search results.
+            highlight_fragment_size (Optional[int]): Specifies the size in characters of each highlighted text fragment. Defaults to 100 if not specified.
+            highlight_num_fragments (Optional[int]): Controls the maximum number of highlighted fragments to return per field.
+            highlight_pre_tag (Optional[str]): Defines the HTML tag that appears before highlighted text. Defaults to '<em>' if not specified.
+            highlight_post_tag (Optional[str]): Defines the HTML tag that appears after highlighted text. Defaults to '</em>' if not specified.
+            highlight_q (Optional[str]): Specifies a separate query for highlighting, allowing highlights based on terms different from the main search query. Example: main query 'q=climate change' with 'highlightQ=renewable OR solar' will highlight terms 'renewable' and 'solar' in results about climate change.
 
         Returns:
             SummarySearchResult: The response
@@ -2541,6 +2678,18 @@ class V1Api:
             params["taxonomy"] = taxonomy
         if prefix_taxonomy is not None:
             params["prefixTaxonomy"] = prefix_taxonomy
+        if show_highlighting is not None:
+            params["showHighlighting"] = show_highlighting
+        if highlight_fragment_size is not None:
+            params["highlightFragmentSize"] = highlight_fragment_size
+        if highlight_num_fragments is not None:
+            params["highlightNumFragments"] = highlight_num_fragments
+        if highlight_pre_tag is not None:
+            params["highlightPreTag"] = highlight_pre_tag
+        if highlight_post_tag is not None:
+            params["highlightPostTag"] = highlight_post_tag
+        if highlight_q is not None:
+            params["highlightQ"] = highlight_q
         params = _normalise_query(params)
 
         resp = await self.api_client.request_async(
@@ -2634,10 +2783,263 @@ class V1Api:
         resp.raise_for_status()
         return TopicSearchResult.model_validate(resp.json())
 
+    # ----------------- search_wikipedia (sync) ----------------- #
+    def search_wikipedia(
+        self,
+        q: Optional[str] = None,
+        title: Optional[str] = None,
+        summary: Optional[str] = None,
+        text: Optional[str] = None,
+        reference: Optional[str] = None,
+        id: Optional[List[str]] = None,
+        wiki_page_id: Optional[List[int]] = None,
+        wiki_revision_id: Optional[List[int]] = None,
+        wiki_code: Optional[List[str]] = None,
+        wiki_namespace: Optional[List[int]] = None,
+        wikidata_id: Optional[List[str]] = None,
+        wikidata_instance_of_id: Optional[List[str]] = None,
+        wikidata_instance_of_label: Optional[List[str]] = None,
+        category: Optional[List[str]] = None,
+        section_id: Optional[List[str]] = None,
+        wiki_revision_from: Optional[datetime] = None,
+        wiki_revision_to: Optional[datetime] = None,
+        scraped_at_from: Optional[datetime] = None,
+        scraped_at_to: Optional[datetime] = None,
+        pageviews_from: Optional[int] = None,
+        pageviews_to: Optional[int] = None,
+        with_pageviews: Optional[bool] = None,
+        show_num_results: Optional[bool] = None,
+        page: Optional[int] = None,
+        size: Optional[int] = None,
+        sort_by: Optional[SortBy] = None,
+    ) -> WikipediaSearchResult:
+        """
+        Search and filter all Wikipedia pages available via the Perigon API. The result includes a list of individual pages that were matched to your specific criteria.
+
+        Args:
+            q (Optional[str]): Primary search query for filtering pages based on their title, summary, and content. Supports Boolean operators (AND, OR, NOT), exact phrases with quotes, and wildcards (* and ?) for flexible searching.
+            title (Optional[str]): Search specifically within page titles. Supports Boolean operators, exact phrases with quotes, and wildcards for matching title variations.
+            summary (Optional[str]): Search specifically within page summary. Supports Boolean operators, exact phrases with quotes, and wildcards for matching title variations.
+            text (Optional[str]): Search specifically within the page's content (across all sections). Supports Boolean operators, exact phrases with quotes, and wildcards for matching title variations.
+            reference (Optional[str]): Search specifically across page's references. Supports Boolean operators, exact phrases with quotes, and wildcards for matching title variations.
+            id (Optional[List[str]]): Retrieve specific pages by their unique Perigon identifiers. Multiple IDs can be provided to return a collection of specific pages.
+            wiki_page_id (Optional[List[int]]): Retrieve specific pages by their Wikipedia identifiers. These are unique only in a combination with `wikiCode` parameter. Multiple IDs can be provided to return a collection of specific pages.
+            wiki_revision_id (Optional[List[int]]): Retrieve specific pages by their Wikipedia revision identifiers. These are unique only in a combination with `wikiCode` parameter. Multiple IDs can be provided to return a collection of specific pages. This ID changes each time a page is edited.
+            wiki_code (Optional[List[str]]): Retrieve pages only from specified wiki projects. Currently, the only accepted value is `enwiki`.
+            wiki_namespace (Optional[List[int]]): Retrieve pages only from specified wiki namespace. Currently, only the main namespace (0) is available.
+            wikidata_id (Optional[List[str]]): Retrieve pages by the ids corresponding to their Wikidata entities.
+            wikidata_instance_of_id (Optional[List[str]]): Retrieve all pages whose Wikidata entities are instances of these provided ids.
+            wikidata_instance_of_label (Optional[List[str]]): Retrieve all pages whose Wikidata entities are instances of these ids (provided as labels).
+            category (Optional[List[str]]): Retrieve all pages for specified categories.
+            section_id (Optional[List[str]]): Retrieve pages containing provided section ids. Each section ID is unique.
+            wiki_revision_from (Optional[datetime]): Retrieve pages modified after this date. Accepts ISO 8601 format (e.g., 2023-03-01T00:00:00) or yyyy-mm-dd format.
+            wiki_revision_to (Optional[datetime]): Retrieve pages modified before this date. Accepts ISO 8601 format (e.g., 2023-03-01T00:00:00) or yyyy-mm-dd format.
+            scraped_at_from (Optional[datetime]): Retrieve pages scraped after this date. Accepts ISO 8601 format (e.g., 2023-03-01T00:00:00) or yyyy-mm-dd format.
+            scraped_at_to (Optional[datetime]): Retrieve pages scraped before this date. Accepts ISO 8601 format (e.g., 2023-03-01T00:00:00) or yyyy-mm-dd format.
+            pageviews_from (Optional[int]): Retrieve pages with the average number of views per day higher than the provided value.
+            pageviews_to (Optional[int]): Retrieve pages with the average number of views per day lower than the provided value.
+            with_pageviews (Optional[bool]): Retrieve pages that have any viewership statistics available for them. If `false` (the default) - return all pages.
+            show_num_results (Optional[bool]): Whether to show the total number of all matched pages. Default value is false which makes queries a bit more efficient but also counts up to 10000 pages.
+            page (Optional[int]): The specific page of results to retrieve in the paginated response. Starts at 0.
+            size (Optional[int]): The number of articles to return per page in the paginated response.
+            sort_by (Optional[SortBy]): Determines the Wikipedia page sorting order. Options include relevance (default), revisionTsDesc (recently edited first), revisionTsAsc (recently edited last), pageViewsDesc (highest viewership first), pageViewsAsc (highest viewership last), scrapedAtDesc (recently scraped first), scrapedAtAsc (recently scraped last).
+
+        Returns:
+            WikipediaSearchResult: The response
+        """
+        # Get path template from class attribute
+        path = PATH_SEARCH_WIKIPEDIA
+
+        # --- build query dict on the fly ---
+        params: Dict[str, Any] = {}
+        if q is not None:
+            params["q"] = q
+        if title is not None:
+            params["title"] = title
+        if summary is not None:
+            params["summary"] = summary
+        if text is not None:
+            params["text"] = text
+        if reference is not None:
+            params["reference"] = reference
+        if id is not None:
+            params["id"] = id
+        if wiki_page_id is not None:
+            params["wikiPageId"] = wiki_page_id
+        if wiki_revision_id is not None:
+            params["wikiRevisionId"] = wiki_revision_id
+        if wiki_code is not None:
+            params["wikiCode"] = wiki_code
+        if wiki_namespace is not None:
+            params["wikiNamespace"] = wiki_namespace
+        if wikidata_id is not None:
+            params["wikidataId"] = wikidata_id
+        if wikidata_instance_of_id is not None:
+            params["wikidataInstanceOfId"] = wikidata_instance_of_id
+        if wikidata_instance_of_label is not None:
+            params["wikidataInstanceOfLabel"] = wikidata_instance_of_label
+        if category is not None:
+            params["category"] = category
+        if section_id is not None:
+            params["sectionId"] = section_id
+        if wiki_revision_from is not None:
+            params["wikiRevisionFrom"] = wiki_revision_from
+        if wiki_revision_to is not None:
+            params["wikiRevisionTo"] = wiki_revision_to
+        if scraped_at_from is not None:
+            params["scrapedAtFrom"] = scraped_at_from
+        if scraped_at_to is not None:
+            params["scrapedAtTo"] = scraped_at_to
+        if pageviews_from is not None:
+            params["pageviewsFrom"] = pageviews_from
+        if pageviews_to is not None:
+            params["pageviewsTo"] = pageviews_to
+        if with_pageviews is not None:
+            params["withPageviews"] = with_pageviews
+        if show_num_results is not None:
+            params["showNumResults"] = show_num_results
+        if page is not None:
+            params["page"] = page
+        if size is not None:
+            params["size"] = size
+        if sort_by is not None:
+            params["sortBy"] = sort_by
+        params = _normalise_query(params)
+
+        resp = self.api_client.request("GET", path, params=params)
+        resp.raise_for_status()
+        return WikipediaSearchResult.model_validate(resp.json())
+
+    # ----------------- search_wikipedia (async) ----------------- #
+    async def search_wikipedia_async(
+        self,
+        q: Optional[str] = None,
+        title: Optional[str] = None,
+        summary: Optional[str] = None,
+        text: Optional[str] = None,
+        reference: Optional[str] = None,
+        id: Optional[List[str]] = None,
+        wiki_page_id: Optional[List[int]] = None,
+        wiki_revision_id: Optional[List[int]] = None,
+        wiki_code: Optional[List[str]] = None,
+        wiki_namespace: Optional[List[int]] = None,
+        wikidata_id: Optional[List[str]] = None,
+        wikidata_instance_of_id: Optional[List[str]] = None,
+        wikidata_instance_of_label: Optional[List[str]] = None,
+        category: Optional[List[str]] = None,
+        section_id: Optional[List[str]] = None,
+        wiki_revision_from: Optional[datetime] = None,
+        wiki_revision_to: Optional[datetime] = None,
+        scraped_at_from: Optional[datetime] = None,
+        scraped_at_to: Optional[datetime] = None,
+        pageviews_from: Optional[int] = None,
+        pageviews_to: Optional[int] = None,
+        with_pageviews: Optional[bool] = None,
+        show_num_results: Optional[bool] = None,
+        page: Optional[int] = None,
+        size: Optional[int] = None,
+        sort_by: Optional[SortBy] = None,
+    ) -> WikipediaSearchResult:
+        """
+        Async variant of search_wikipedia. Search and filter all Wikipedia pages available via the Perigon API. The result includes a list of individual pages that were matched to your specific criteria.
+
+        Args:
+            q (Optional[str]): Primary search query for filtering pages based on their title, summary, and content. Supports Boolean operators (AND, OR, NOT), exact phrases with quotes, and wildcards (* and ?) for flexible searching.
+            title (Optional[str]): Search specifically within page titles. Supports Boolean operators, exact phrases with quotes, and wildcards for matching title variations.
+            summary (Optional[str]): Search specifically within page summary. Supports Boolean operators, exact phrases with quotes, and wildcards for matching title variations.
+            text (Optional[str]): Search specifically within the page's content (across all sections). Supports Boolean operators, exact phrases with quotes, and wildcards for matching title variations.
+            reference (Optional[str]): Search specifically across page's references. Supports Boolean operators, exact phrases with quotes, and wildcards for matching title variations.
+            id (Optional[List[str]]): Retrieve specific pages by their unique Perigon identifiers. Multiple IDs can be provided to return a collection of specific pages.
+            wiki_page_id (Optional[List[int]]): Retrieve specific pages by their Wikipedia identifiers. These are unique only in a combination with `wikiCode` parameter. Multiple IDs can be provided to return a collection of specific pages.
+            wiki_revision_id (Optional[List[int]]): Retrieve specific pages by their Wikipedia revision identifiers. These are unique only in a combination with `wikiCode` parameter. Multiple IDs can be provided to return a collection of specific pages. This ID changes each time a page is edited.
+            wiki_code (Optional[List[str]]): Retrieve pages only from specified wiki projects. Currently, the only accepted value is `enwiki`.
+            wiki_namespace (Optional[List[int]]): Retrieve pages only from specified wiki namespace. Currently, only the main namespace (0) is available.
+            wikidata_id (Optional[List[str]]): Retrieve pages by the ids corresponding to their Wikidata entities.
+            wikidata_instance_of_id (Optional[List[str]]): Retrieve all pages whose Wikidata entities are instances of these provided ids.
+            wikidata_instance_of_label (Optional[List[str]]): Retrieve all pages whose Wikidata entities are instances of these ids (provided as labels).
+            category (Optional[List[str]]): Retrieve all pages for specified categories.
+            section_id (Optional[List[str]]): Retrieve pages containing provided section ids. Each section ID is unique.
+            wiki_revision_from (Optional[datetime]): Retrieve pages modified after this date. Accepts ISO 8601 format (e.g., 2023-03-01T00:00:00) or yyyy-mm-dd format.
+            wiki_revision_to (Optional[datetime]): Retrieve pages modified before this date. Accepts ISO 8601 format (e.g., 2023-03-01T00:00:00) or yyyy-mm-dd format.
+            scraped_at_from (Optional[datetime]): Retrieve pages scraped after this date. Accepts ISO 8601 format (e.g., 2023-03-01T00:00:00) or yyyy-mm-dd format.
+            scraped_at_to (Optional[datetime]): Retrieve pages scraped before this date. Accepts ISO 8601 format (e.g., 2023-03-01T00:00:00) or yyyy-mm-dd format.
+            pageviews_from (Optional[int]): Retrieve pages with the average number of views per day higher than the provided value.
+            pageviews_to (Optional[int]): Retrieve pages with the average number of views per day lower than the provided value.
+            with_pageviews (Optional[bool]): Retrieve pages that have any viewership statistics available for them. If `false` (the default) - return all pages.
+            show_num_results (Optional[bool]): Whether to show the total number of all matched pages. Default value is false which makes queries a bit more efficient but also counts up to 10000 pages.
+            page (Optional[int]): The specific page of results to retrieve in the paginated response. Starts at 0.
+            size (Optional[int]): The number of articles to return per page in the paginated response.
+            sort_by (Optional[SortBy]): Determines the Wikipedia page sorting order. Options include relevance (default), revisionTsDesc (recently edited first), revisionTsAsc (recently edited last), pageViewsDesc (highest viewership first), pageViewsAsc (highest viewership last), scrapedAtDesc (recently scraped first), scrapedAtAsc (recently scraped last).
+
+        Returns:
+            WikipediaSearchResult: The response
+        """
+        # Get path template from class attribute
+        path = PATH_SEARCH_WIKIPEDIA
+
+        params: Dict[str, Any] = {}
+        if q is not None:
+            params["q"] = q
+        if title is not None:
+            params["title"] = title
+        if summary is not None:
+            params["summary"] = summary
+        if text is not None:
+            params["text"] = text
+        if reference is not None:
+            params["reference"] = reference
+        if id is not None:
+            params["id"] = id
+        if wiki_page_id is not None:
+            params["wikiPageId"] = wiki_page_id
+        if wiki_revision_id is not None:
+            params["wikiRevisionId"] = wiki_revision_id
+        if wiki_code is not None:
+            params["wikiCode"] = wiki_code
+        if wiki_namespace is not None:
+            params["wikiNamespace"] = wiki_namespace
+        if wikidata_id is not None:
+            params["wikidataId"] = wikidata_id
+        if wikidata_instance_of_id is not None:
+            params["wikidataInstanceOfId"] = wikidata_instance_of_id
+        if wikidata_instance_of_label is not None:
+            params["wikidataInstanceOfLabel"] = wikidata_instance_of_label
+        if category is not None:
+            params["category"] = category
+        if section_id is not None:
+            params["sectionId"] = section_id
+        if wiki_revision_from is not None:
+            params["wikiRevisionFrom"] = wiki_revision_from
+        if wiki_revision_to is not None:
+            params["wikiRevisionTo"] = wiki_revision_to
+        if scraped_at_from is not None:
+            params["scrapedAtFrom"] = scraped_at_from
+        if scraped_at_to is not None:
+            params["scrapedAtTo"] = scraped_at_to
+        if pageviews_from is not None:
+            params["pageviewsFrom"] = pageviews_from
+        if pageviews_to is not None:
+            params["pageviewsTo"] = pageviews_to
+        if with_pageviews is not None:
+            params["withPageviews"] = with_pageviews
+        if show_num_results is not None:
+            params["showNumResults"] = show_num_results
+        if page is not None:
+            params["page"] = page
+        if size is not None:
+            params["size"] = size
+        if sort_by is not None:
+            params["sortBy"] = sort_by
+        params = _normalise_query(params)
+
+        resp = await self.api_client.request_async("GET", path, params=params)
+        resp.raise_for_status()
+        return WikipediaSearchResult.model_validate(resp.json())
+
     # ----------------- vector_search_articles (sync) ----------------- #
     def vector_search_articles(
         self, article_search_params: ArticleSearchParams
-    ) -> VectorSearchResult:
+    ) -> ArticlesVectorSearchResult:
         """
         Perform a natural language search over news articles from the past 6 months using semantic relevance. The result includes a list of articles most closely matched to your query intent.
 
@@ -2645,7 +3047,7 @@ class V1Api:
             article_search_params (ArticleSearchParams): Parameter article_search_params (required)
 
         Returns:
-            VectorSearchResult: The response
+            ArticlesVectorSearchResult: The response
         """
         # Get path template from class attribute
         path = PATH_VECTOR_SEARCH_ARTICLES
@@ -2661,12 +3063,12 @@ class V1Api:
             json=article_search_params.model_dump(by_alias=True),
         )
         resp.raise_for_status()
-        return VectorSearchResult.model_validate(resp.json())
+        return ArticlesVectorSearchResult.model_validate(resp.json())
 
     # ----------------- vector_search_articles (async) ----------------- #
     async def vector_search_articles_async(
         self, article_search_params: ArticleSearchParams
-    ) -> VectorSearchResult:
+    ) -> ArticlesVectorSearchResult:
         """
         Async variant of vector_search_articles. Perform a natural language search over news articles from the past 6 months using semantic relevance. The result includes a list of articles most closely matched to your query intent.
 
@@ -2674,7 +3076,7 @@ class V1Api:
             article_search_params (ArticleSearchParams): Parameter article_search_params (required)
 
         Returns:
-            VectorSearchResult: The response
+            ArticlesVectorSearchResult: The response
         """
         # Get path template from class attribute
         path = PATH_VECTOR_SEARCH_ARTICLES
@@ -2689,4 +3091,61 @@ class V1Api:
             json=article_search_params.model_dump(by_alias=True),
         )
         resp.raise_for_status()
-        return VectorSearchResult.model_validate(resp.json())
+        return ArticlesVectorSearchResult.model_validate(resp.json())
+
+    # ----------------- vector_search_wikipedia (sync) ----------------- #
+    def vector_search_wikipedia(
+        self, wikipedia_search_params: WikipediaSearchParams
+    ) -> WikipediaVectorSearchResult:
+        """
+        Perform a natural language search over Wikipedia pages using semantic relevance. The result includes a list of page sections most closely matched to your query intent.
+
+        Args:
+            wikipedia_search_params (WikipediaSearchParams): Parameter wikipedia_search_params (required)
+
+        Returns:
+            WikipediaVectorSearchResult: The response
+        """
+        # Get path template from class attribute
+        path = PATH_VECTOR_SEARCH_WIKIPEDIA
+
+        # --- build query dict on the fly ---
+        params: Dict[str, Any] = {}
+        params = _normalise_query(params)
+
+        resp = self.api_client.request(
+            "POST",
+            path,
+            params=params,
+            json=wikipedia_search_params.model_dump(by_alias=True),
+        )
+        resp.raise_for_status()
+        return WikipediaVectorSearchResult.model_validate(resp.json())
+
+    # ----------------- vector_search_wikipedia (async) ----------------- #
+    async def vector_search_wikipedia_async(
+        self, wikipedia_search_params: WikipediaSearchParams
+    ) -> WikipediaVectorSearchResult:
+        """
+        Async variant of vector_search_wikipedia. Perform a natural language search over Wikipedia pages using semantic relevance. The result includes a list of page sections most closely matched to your query intent.
+
+        Args:
+            wikipedia_search_params (WikipediaSearchParams): Parameter wikipedia_search_params (required)
+
+        Returns:
+            WikipediaVectorSearchResult: The response
+        """
+        # Get path template from class attribute
+        path = PATH_VECTOR_SEARCH_WIKIPEDIA
+
+        params: Dict[str, Any] = {}
+        params = _normalise_query(params)
+
+        resp = await self.api_client.request_async(
+            "POST",
+            path,
+            params=params,
+            json=wikipedia_search_params.model_dump(by_alias=True),
+        )
+        resp.raise_for_status()
+        return WikipediaVectorSearchResult.model_validate(resp.json())
