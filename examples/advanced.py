@@ -15,11 +15,12 @@ Before running this example:
 3. Run: python examples/advanced.py
 """
 
-import os
 import asyncio
+import os
 from datetime import datetime, timedelta, timezone
+
 from perigon import ApiClient, V1Api
-from perigon.models import ArticleSearchParams, SummaryBody
+from perigon.models import ArticleSearchParams, SummaryBody, WikipediaSearchParams
 
 
 def main():
@@ -151,7 +152,56 @@ def main():
     except Exception as e:
         print(f"   ❌ Error exploring topics: {e}")
 
-    # Example 6: Demonstrate async usage
+    # Example 6: Vector-based Wikipedia Search
+    print("\n🧠 Example 6: Vector-based Wikipedia Search")
+    print(
+        "Using semantic search to find Wikipedia pages related to artificial intelligence...\n"
+    )
+
+    try:
+        vector_wikipedia_result = api.vector_search_wikipedia(
+            wikipedia_search_params=WikipediaSearchParams(
+                prompt="artificial intelligence and neural networks in computing",
+                size=3,
+                pageviews_from=100,  # Only pages with significant viewership
+            )
+        )
+
+        print(
+            f"Found {len(vector_wikipedia_result.results)} semantically related Wikipedia pages:"
+        )
+        for i, result in enumerate(vector_wikipedia_result.results, 1):
+            page = result.data
+            print(f"  {i}. {page.wiki_title or 'Untitled' if page else 'Untitled'}")
+            print(
+                f"     Relevance Score: {(result.score * 100):.1f}%"
+                if result.score
+                else "     Relevance Score: N/A"
+            )
+            print(f"     URL: {page.url if page and hasattr(page, 'url') else 'N/A'}")
+
+            summary = "No summary available"
+            if page and hasattr(page, "content") and page.content:
+                summary = (
+                    page.content[:200] + "..."
+                    if len(page.content) > 200
+                    else page.content
+                )
+            elif page and hasattr(page, "summary") and page.summary:
+                summary = (
+                    page.summary[:200] + "..."
+                    if len(page.summary) > 200
+                    else page.summary
+                )
+            print(f"     Summary: {summary}")
+
+            print(f"     Views per day: {page.pageviews or 'N/A' if page else 'N/A'}")
+            print(f"     Wikidata ID: {page.wikidata_id or 'N/A' if page else 'N/A'}\n")
+
+    except Exception as e:
+        print(f"   ❌ Error in vector Wikipedia search: {e}")
+
+    # Example 7: Demonstrate async usage
     print("\n🔄 Running async operations...")
     asyncio.run(async_example(api))
 

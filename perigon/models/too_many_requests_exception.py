@@ -23,15 +23,11 @@ from typing import Any, ClassVar, Dict, List, Optional, Set
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing_extensions import Self
 
-from perigon.models.too_many_requests_exception_cause import (
-    TooManyRequestsExceptionCause,
+from perigon.models.auth_exception_cause import AuthExceptionCause
+from perigon.models.auth_exception_cause_stack_trace_inner import (
+    AuthExceptionCauseStackTraceInner,
 )
-from perigon.models.too_many_requests_exception_cause_stack_trace_inner import (
-    TooManyRequestsExceptionCauseStackTraceInner,
-)
-from perigon.models.too_many_requests_exception_suppressed_inner import (
-    TooManyRequestsExceptionSuppressedInner,
-)
+from perigon.models.auth_exception_suppressed_inner import AuthExceptionSuppressedInner
 
 
 class TooManyRequestsException(BaseModel):
@@ -39,13 +35,13 @@ class TooManyRequestsException(BaseModel):
     TooManyRequestsException
     """  # noqa: E501
 
-    cause: Optional[TooManyRequestsExceptionCause] = None
-    stack_trace: Optional[List[TooManyRequestsExceptionCauseStackTraceInner]] = Field(
+    cause: Optional[AuthExceptionCause] = None
+    stack_trace: Optional[List[AuthExceptionCauseStackTraceInner]] = Field(
         default=None, alias="stackTrace"
     )
     status: Optional[StrictStr] = None
     message: Optional[StrictStr] = None
-    suppressed: Optional[List[TooManyRequestsExceptionSuppressedInner]] = None
+    suppressed: Optional[List[AuthExceptionSuppressedInner]] = None
     localized_message: Optional[StrictStr] = Field(
         default=None, alias="localizedMessage"
     )
@@ -242,13 +238,13 @@ class TooManyRequestsException(BaseModel):
         _obj = cls.model_validate(
             {
                 "cause": (
-                    TooManyRequestsExceptionCause.from_dict(obj["cause"])
+                    AuthExceptionCause.from_dict(obj["cause"])
                     if obj.get("cause") is not None
                     else None
                 ),
                 "stackTrace": (
                     [
-                        TooManyRequestsExceptionCauseStackTraceInner.from_dict(_item)
+                        AuthExceptionCauseStackTraceInner.from_dict(_item)
                         for _item in obj["stackTrace"]
                     ]
                     if obj.get("stackTrace") is not None
@@ -258,7 +254,7 @@ class TooManyRequestsException(BaseModel):
                 "message": obj.get("message"),
                 "suppressed": (
                     [
-                        TooManyRequestsExceptionSuppressedInner.from_dict(_item)
+                        AuthExceptionSuppressedInner.from_dict(_item)
                         for _item in obj["suppressed"]
                     ]
                     if obj.get("suppressed") is not None
