@@ -192,6 +192,42 @@ print(summary)
 topics = api.search_topics(size=10)
 ```
 
+### Wikipedia – search and filter pages (`/v1/wikipedia`)<br>
+
+**Docs →** [https://docs.perigon.io/docs/wikipedia](https://docs.perigon.io/docs/wikipedia)
+
+```python
+# Search Wikipedia pages
+wikipedia_result = api.search_wikipedia(
+    q="machine learning",
+    size=3,
+    sort_by="relevance"
+)
+
+# Filter by specific criteria
+wikipedia_result = api.search_wikipedia(
+    q="artificial intelligence",
+    pageviews_from=100,  # Only popular pages
+    wiki_revision_from="2024-01-01"  # Recently updated
+)
+```
+
+### Wikipedia vector search – semantic retrieval (`/v1/vector/wikipedia`)<br>
+
+**Docs →** [https://docs.perigon.io/docs/vector-wikipedia](https://docs.perigon.io/docs/vector-wikipedia)
+
+```python
+from perigon.models.wikipedia_search_params import WikipediaSearchParams
+
+results = api.vector_search_wikipedia(
+    wikipedia_search_params=WikipediaSearchParams(
+        prompt="artificial intelligence and neural networks in computing",
+        size=3,
+        pageviews_from=100
+    )
+)
+```
+
 | Action | Code Example |
 | --- | --- |
 | Filter by source | `api.search_articles(source=["nytimes.com"])` |
@@ -200,6 +236,8 @@ topics = api.search_topics(size=10)
 | Summarize any query | `api.search_summarizer(summary_body=SummaryBody(prompt="Key points"), q="renewable energy", size=20)` |
 | Semantic / vector search | `api.vector_search_articles(article_search_params=ArticleSearchParams(prompt="advancements in AI", size=5))` |
 | Retrieve available taxonomic topics | `api.search_topics(size=10)` |
+| Search Wikipedia pages | `api.search_wikipedia(q="machine learning", size=3, sort_by="relevance")` |
+| Wikipedia semantic search | `api.vector_search_wikipedia(wikipedia_search_params=WikipediaSearchParams(prompt="artificial intelligence", size=3))` |
 
 ---
 
