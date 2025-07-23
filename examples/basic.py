@@ -12,6 +12,7 @@ Before running this example:
 """
 
 import os
+from datetime import datetime
 
 from perigon import ApiClient, V1Api
 
@@ -82,6 +83,44 @@ def main():
 
     except Exception as e:
         print(f"   ❌ Error searching journalists: {e}")
+
+    # Example 4: Wikipedia Search
+    print("📚 Example 4: Wikipedia Search")
+    print('Searching Wikipedia pages about "machine learning"...\n')
+
+    try:
+        wikipedia_result = api.search_wikipedia(
+            q="machine learning",
+            size=3,
+            sort_by="relevance",
+        )
+
+        print(f"Found {wikipedia_result.num_results} Wikipedia pages:")
+        for i, page in enumerate(wikipedia_result.results, 1):
+            print(f"  {i}. {page.wiki_title or 'Untitled'}")
+            print(f"     URL: {page.url or 'N/A'}")
+            summary = page.summary if page.summary else "No summary available"
+            if len(summary) > 150:
+                summary = summary[:150] + "..."
+            print(f"     Summary: {summary}")
+            print(f"     Views per day: {page.pageviews or 'N/A'}")
+
+            # Format the revision timestamp if available
+            last_modified = "Unknown"
+            if page.wiki_revision_ts:
+                try:
+                    # Parse ISO timestamp and format as date
+                    dt = datetime.fromisoformat(
+                        page.wiki_revision_ts.replace("Z", "+00:00")
+                    )
+                    last_modified = dt.strftime("%m/%d/%Y")
+                except:
+                    last_modified = page.wiki_revision_ts
+
+            print(f"     Last modified: {last_modified}\n")
+
+    except Exception as e:
+        print(f"   ❌ Error searching Wikipedia: {e}")
 
     print("✅ Basic example completed!")
 
