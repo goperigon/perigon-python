@@ -2,7 +2,6 @@
 README.md
 perigon/__init__.py
 perigon/api/__init__.py
-perigon/api/supplemental_endpoints_api.py
 perigon/api/v1_api.py
 perigon/api_client.py
 perigon/api_response.py
@@ -13,10 +12,6 @@ perigon/models/article.py
 perigon/models/article_search_filter.py
 perigon/models/article_search_params.py
 perigon/models/articles_vector_search_result.py
-perigon/models/auth_exception.py
-perigon/models/auth_exception_cause.py
-perigon/models/auth_exception_cause_stack_trace_inner.py
-perigon/models/auth_exception_suppressed_inner.py
 perigon/models/category_holder.py
 perigon/models/category_with_score_holder.py
 perigon/models/company.py
@@ -26,11 +21,10 @@ perigon/models/company_search_result.py
 perigon/models/coordinate.py
 perigon/models/coordinate_filter.py
 perigon/models/entity_holder.py
+perigon/models/error_response.py
 perigon/models/event_type_holder.py
 perigon/models/id_name_holder.py
-perigon/models/illegal_parameter_exception.py
 perigon/models/image_holder.py
-perigon/models/internal_error_exception.py
 perigon/models/journalist.py
 perigon/models/journalist_search_result.py
 perigon/models/key_point.py
@@ -40,7 +34,6 @@ perigon/models/location_count.py
 perigon/models/location_holder.py
 perigon/models/name_count.py
 perigon/models/news_cluster.py
-perigon/models/not_found_exception.py
 perigon/models/people_search_result.py
 perigon/models/person.py
 perigon/models/person_count.py
@@ -58,11 +51,13 @@ perigon/models/source_holder.py
 perigon/models/source_location.py
 perigon/models/source_search_result.py
 perigon/models/source_top_stat_holder.py
+perigon/models/stat_result.py
+perigon/models/story_history_record.py
+perigon/models/story_history_result.py
 perigon/models/story_search_result.py
 perigon/models/summary_body.py
 perigon/models/summary_search_result.py
 perigon/models/symbol_holder.py
-perigon/models/too_many_requests_exception.py
 perigon/models/topic_dto.py
 perigon/models/topic_holder.py
 perigon/models/topic_labels.py

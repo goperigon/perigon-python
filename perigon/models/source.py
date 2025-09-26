@@ -226,6 +226,11 @@ class Source(BaseModel):
         if self.paywall is None and "paywall" in self.model_fields_set:
             _dict["paywall"] = None
 
+        # set to None if location (nullable) is None
+        # and model_fields_set contains the field
+        if self.location is None and "location" in self.model_fields_set:
+            _dict["location"] = None
+
         # set to None if top_categories (nullable) is None
         # and model_fields_set contains the field
         if self.top_categories is None and "top_categories" in self.model_fields_set:
@@ -284,6 +289,21 @@ class Source(BaseModel):
         # and model_fields_set contains the field
         if self.global_rank is None and "global_rank" in self.model_fields_set:
             _dict["globalRank"] = None
+
+        # set to None if logo_large (nullable) is None
+        # and model_fields_set contains the field
+        if self.logo_large is None and "logo_large" in self.model_fields_set:
+            _dict["logoLarge"] = None
+
+        # set to None if logo_fav_icon (nullable) is None
+        # and model_fields_set contains the field
+        if self.logo_fav_icon is None and "logo_fav_icon" in self.model_fields_set:
+            _dict["logoFavIcon"] = None
+
+        # set to None if logo_square (nullable) is None
+        # and model_fields_set contains the field
+        if self.logo_square is None and "logo_square" in self.model_fields_set:
+            _dict["logoSquare"] = None
 
         return _dict
 

@@ -302,6 +302,11 @@ class Company(BaseModel):
         if self.revenue is None and "revenue" in self.model_fields_set:
             _dict["revenue"] = None
 
+        # set to None if web_resources (nullable) is None
+        # and model_fields_set contains the field
+        if self.web_resources is None and "web_resources" in self.model_fields_set:
+            _dict["webResources"] = None
+
         return _dict
 
     @classmethod

@@ -338,6 +338,11 @@ class NewsCluster(BaseModel):
         ):
             _dict["summaryReferences"] = None
 
+        # set to None if image_source (nullable) is None
+        # and model_fields_set contains the field
+        if self.image_source is None and "image_source" in self.model_fields_set:
+            _dict["imageSource"] = None
+
         # set to None if image_url (nullable) is None
         # and model_fields_set contains the field
         if self.image_url is None and "image_url" in self.model_fields_set:
@@ -365,6 +370,11 @@ class NewsCluster(BaseModel):
             and "selected_articles" in self.model_fields_set
         ):
             _dict["selectedArticles"] = None
+
+        # set to None if sentiment (nullable) is None
+        # and model_fields_set contains the field
+        if self.sentiment is None and "sentiment" in self.model_fields_set:
+            _dict["sentiment"] = None
 
         # set to None if unique_count (nullable) is None
         # and model_fields_set contains the field

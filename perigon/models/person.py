@@ -162,6 +162,21 @@ class Person(BaseModel):
         if self.name is None and "name" in self.model_fields_set:
             _dict["name"] = None
 
+        # set to None if gender (nullable) is None
+        # and model_fields_set contains the field
+        if self.gender is None and "gender" in self.model_fields_set:
+            _dict["gender"] = None
+
+        # set to None if date_of_birth (nullable) is None
+        # and model_fields_set contains the field
+        if self.date_of_birth is None and "date_of_birth" in self.model_fields_set:
+            _dict["dateOfBirth"] = None
+
+        # set to None if date_of_death (nullable) is None
+        # and model_fields_set contains the field
+        if self.date_of_death is None and "date_of_death" in self.model_fields_set:
+            _dict["dateOfDeath"] = None
+
         # set to None if description (nullable) is None
         # and model_fields_set contains the field
         if self.description is None and "description" in self.model_fields_set:
@@ -186,6 +201,11 @@ class Person(BaseModel):
         # and model_fields_set contains the field
         if self.political_party is None and "political_party" in self.model_fields_set:
             _dict["politicalParty"] = None
+
+        # set to None if image (nullable) is None
+        # and model_fields_set contains the field
+        if self.image is None and "image" in self.model_fields_set:
+            _dict["image"] = None
 
         # set to None if abstract (nullable) is None
         # and model_fields_set contains the field

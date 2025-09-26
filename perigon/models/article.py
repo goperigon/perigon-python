@@ -68,6 +68,9 @@ class Article(BaseModel):
     title: Optional[StrictStr] = None
     description: Optional[StrictStr] = None
     content: Optional[StrictStr] = None
+    en_content_word_count: Optional[StrictInt] = Field(
+        default=None, alias="enContentWordCount"
+    )
     medium: Optional[StrictStr] = None
     links: Optional[List[StrictStr]] = None
     labels: Optional[List[LabelHolder]] = None
@@ -120,6 +123,7 @@ class Article(BaseModel):
         "title",
         "description",
         "content",
+        "enContentWordCount",
         "medium",
         "links",
         "labels",
@@ -307,6 +311,11 @@ class Article(BaseModel):
         if self.cluster_id is None and "cluster_id" in self.model_fields_set:
             _dict["clusterId"] = None
 
+        # set to None if source (nullable) is None
+        # and model_fields_set contains the field
+        if self.source is None and "source" in self.model_fields_set:
+            _dict["source"] = None
+
         # set to None if image_url (nullable) is None
         # and model_fields_set contains the field
         if self.image_url is None and "image_url" in self.model_fields_set:
@@ -356,6 +365,14 @@ class Article(BaseModel):
         # and model_fields_set contains the field
         if self.content is None and "content" in self.model_fields_set:
             _dict["content"] = None
+
+        # set to None if en_content_word_count (nullable) is None
+        # and model_fields_set contains the field
+        if (
+            self.en_content_word_count is None
+            and "en_content_word_count" in self.model_fields_set
+        ):
+            _dict["enContentWordCount"] = None
 
         # set to None if medium (nullable) is None
         # and model_fields_set contains the field
@@ -421,6 +438,11 @@ class Article(BaseModel):
         # and model_fields_set contains the field
         if self.companies is None and "companies" in self.model_fields_set:
             _dict["companies"] = None
+
+        # set to None if sentiment (nullable) is None
+        # and model_fields_set contains the field
+        if self.sentiment is None and "sentiment" in self.model_fields_set:
+            _dict["sentiment"] = None
 
         # set to None if summary (nullable) is None
         # and model_fields_set contains the field
@@ -489,6 +511,11 @@ class Article(BaseModel):
         if self.people is None and "people" in self.model_fields_set:
             _dict["people"] = None
 
+        # set to None if cluster (nullable) is None
+        # and model_fields_set contains the field
+        if self.cluster is None and "cluster" in self.model_fields_set:
+            _dict["cluster"] = None
+
         # set to None if journalists (nullable) is None
         # and model_fields_set contains the field
         if self.journalists is None and "journalists" in self.model_fields_set:
@@ -531,6 +558,7 @@ class Article(BaseModel):
                 "title": obj.get("title"),
                 "description": obj.get("description"),
                 "content": obj.get("content"),
+                "enContentWordCount": obj.get("enContentWordCount"),
                 "medium": obj.get("medium"),
                 "links": obj.get("links"),
                 "labels": (

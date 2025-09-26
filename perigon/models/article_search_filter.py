@@ -484,6 +484,19 @@ class ArticleSearchFilter(BaseModel):
         if self.source_city is None and "source_city" in self.model_fields_set:
             _dict["sourceCity"] = None
 
+        # set to None if coordinates (nullable) is None
+        # and model_fields_set contains the field
+        if self.coordinates is None and "coordinates" in self.model_fields_set:
+            _dict["coordinates"] = None
+
+        # set to None if source_coordinates (nullable) is None
+        # and model_fields_set contains the field
+        if (
+            self.source_coordinates is None
+            and "source_coordinates" in self.model_fields_set
+        ):
+            _dict["sourceCoordinates"] = None
+
         # set to None if company_id (nullable) is None
         # and model_fields_set contains the field
         if self.company_id is None and "company_id" in self.model_fields_set:

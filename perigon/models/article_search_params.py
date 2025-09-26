@@ -43,19 +43,19 @@ class ArticleSearchParams(BaseModel):
     )
     pub_date_to: Optional[datetime] = Field(
         default=None,
-        description="'pubDateFrom' filter, will search articles published before the specified date, the date could be passed as ISO or 'yyyy-mm-dd'. Date time in ISO format, ie. 2024-01-01T00:00:00",
+        description="'pubDateTo' filter, will search articles published before the specified date, the date could be passed as ISO or 'yyyy-mm-dd'. Date time in ISO format, ie. 2024-01-01T00:00:00",
         alias="pubDateTo",
     )
     show_reprints: Optional[StrictBool] = Field(
-        default=None,
+        default=True,
         description="Whether to return reprints in the response or not. Reprints are usually wired articles from sources like AP or Reuters that are reprinted in multiple sources at the same time. By default, this parameter is 'true'.",
         alias="showReprints",
     )
     size: Optional[Annotated[int, Field(le=100, strict=True, ge=1)]] = Field(
-        default=None, description="The number of items per page."
+        default=10, description="The number of items per page."
     )
     page: Optional[Annotated[int, Field(le=10000, strict=True, ge=0)]] = Field(
-        default=None, description="The page number to retrieve."
+        default=0, description="The page number to retrieve."
     )
     __properties: ClassVar[List[str]] = [
         "prompt",
@@ -107,6 +107,11 @@ class ArticleSearchParams(BaseModel):
         # override the default output from pydantic by calling `to_dict()` of filter
         if self.filter:
             _dict["filter"] = self.filter.to_dict()
+        # set to None if filter (nullable) is None
+        # and model_fields_set contains the field
+        if self.filter is None and "filter" in self.model_fields_set:
+            _dict["filter"] = None
+
         # set to None if pub_date_from (nullable) is None
         # and model_fields_set contains the field
         if self.pub_date_from is None and "pub_date_from" in self.model_fields_set:
@@ -153,9 +158,13 @@ class ArticleSearchParams(BaseModel):
                 ),
                 "pubDateFrom": obj.get("pubDateFrom"),
                 "pubDateTo": obj.get("pubDateTo"),
-                "showReprints": obj.get("showReprints"),
-                "size": obj.get("size"),
-                "page": obj.get("page"),
+                "showReprints": (
+                    obj.get("showReprints")
+                    if obj.get("showReprints") is not None
+                    else True
+                ),
+                "size": obj.get("size") if obj.get("size") is not None else 10,
+                "page": obj.get("page") if obj.get("page") is not None else 0,
             }
         )
         return _obj
