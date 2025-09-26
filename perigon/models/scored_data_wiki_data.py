@@ -80,6 +80,11 @@ class ScoredDataWikiData(BaseModel):
         if self.score is None and "score" in self.model_fields_set:
             _dict["score"] = None
 
+        # set to None if data (nullable) is None
+        # and model_fields_set contains the field
+        if self.data is None and "data" in self.model_fields_set:
+            _dict["data"] = None
+
         return _dict
 
     @classmethod

@@ -20,21 +20,18 @@ import pprint
 import re  # noqa: F401
 from typing import Any, ClassVar, Dict, List, Optional, Set
 
-from pydantic import BaseModel, ConfigDict, StrictBool, StrictStr
+from pydantic import BaseModel, ConfigDict, StrictInt
 from typing_extensions import Self
 
-from perigon.models.source_location import SourceLocation
 
-
-class SourceHolder(BaseModel):
+class StatResult(BaseModel):
     """
-    SourceHolder
+    StatResult
     """  # noqa: E501
 
-    domain: Optional[StrictStr] = None
-    paywall: Optional[StrictBool] = None
-    location: Optional[SourceLocation] = None
-    __properties: ClassVar[List[str]] = ["domain", "paywall", "location"]
+    status: Optional[StrictInt] = None
+    results: Optional[List[Dict[str, Any]]] = None
+    __properties: ClassVar[List[str]] = ["status", "results"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -53,7 +50,7 @@ class SourceHolder(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of SourceHolder from a JSON string"""
+        """Create an instance of StatResult from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -73,29 +70,21 @@ class SourceHolder(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of location
-        if self.location:
-            _dict["location"] = self.location.to_dict()
-        # set to None if domain (nullable) is None
+        # set to None if status (nullable) is None
         # and model_fields_set contains the field
-        if self.domain is None and "domain" in self.model_fields_set:
-            _dict["domain"] = None
+        if self.status is None and "status" in self.model_fields_set:
+            _dict["status"] = None
 
-        # set to None if paywall (nullable) is None
+        # set to None if results (nullable) is None
         # and model_fields_set contains the field
-        if self.paywall is None and "paywall" in self.model_fields_set:
-            _dict["paywall"] = None
-
-        # set to None if location (nullable) is None
-        # and model_fields_set contains the field
-        if self.location is None and "location" in self.model_fields_set:
-            _dict["location"] = None
+        if self.results is None and "results" in self.model_fields_set:
+            _dict["results"] = None
 
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of SourceHolder from a dict"""
+        """Create an instance of StatResult from a dict"""
         if obj is None:
             return None
 
@@ -103,14 +92,6 @@ class SourceHolder(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate(
-            {
-                "domain": obj.get("domain"),
-                "paywall": obj.get("paywall"),
-                "location": (
-                    SourceLocation.from_dict(obj["location"])
-                    if obj.get("location") is not None
-                    else None
-                ),
-            }
+            {"status": obj.get("status"), "results": obj.get("results")}
         )
         return _obj

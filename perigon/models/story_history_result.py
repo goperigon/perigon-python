@@ -20,21 +20,21 @@ import pprint
 import re  # noqa: F401
 from typing import Any, ClassVar, Dict, List, Optional, Set
 
-from pydantic import BaseModel, ConfigDict, StrictBool, StrictStr
+from pydantic import BaseModel, ConfigDict, Field, StrictInt
 from typing_extensions import Self
 
-from perigon.models.source_location import SourceLocation
+from perigon.models.story_history_record import StoryHistoryRecord
 
 
-class SourceHolder(BaseModel):
+class StoryHistoryResult(BaseModel):
     """
-    SourceHolder
+    Story history result
     """  # noqa: E501
 
-    domain: Optional[StrictStr] = None
-    paywall: Optional[StrictBool] = None
-    location: Optional[SourceLocation] = None
-    __properties: ClassVar[List[str]] = ["domain", "paywall", "location"]
+    status: StrictInt
+    num_results: StrictInt = Field(alias="numResults")
+    results: List[StoryHistoryRecord]
+    __properties: ClassVar[List[str]] = ["status", "numResults", "results"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -53,7 +53,7 @@ class SourceHolder(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of SourceHolder from a JSON string"""
+        """Create an instance of StoryHistoryResult from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -73,29 +73,18 @@ class SourceHolder(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of location
-        if self.location:
-            _dict["location"] = self.location.to_dict()
-        # set to None if domain (nullable) is None
-        # and model_fields_set contains the field
-        if self.domain is None and "domain" in self.model_fields_set:
-            _dict["domain"] = None
-
-        # set to None if paywall (nullable) is None
-        # and model_fields_set contains the field
-        if self.paywall is None and "paywall" in self.model_fields_set:
-            _dict["paywall"] = None
-
-        # set to None if location (nullable) is None
-        # and model_fields_set contains the field
-        if self.location is None and "location" in self.model_fields_set:
-            _dict["location"] = None
-
+        # override the default output from pydantic by calling `to_dict()` of each item in results (list)
+        _items = []
+        if self.results:
+            for _item_results in self.results:
+                if _item_results:
+                    _items.append(_item_results.to_dict())
+            _dict["results"] = _items
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of SourceHolder from a dict"""
+        """Create an instance of StoryHistoryResult from a dict"""
         if obj is None:
             return None
 
@@ -104,11 +93,11 @@ class SourceHolder(BaseModel):
 
         _obj = cls.model_validate(
             {
-                "domain": obj.get("domain"),
-                "paywall": obj.get("paywall"),
-                "location": (
-                    SourceLocation.from_dict(obj["location"])
-                    if obj.get("location") is not None
+                "status": obj.get("status"),
+                "numResults": obj.get("numResults"),
+                "results": (
+                    [StoryHistoryRecord.from_dict(_item) for _item in obj["results"]]
+                    if obj.get("results") is not None
                     else None
                 ),
             }

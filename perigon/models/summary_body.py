@@ -47,8 +47,8 @@ class SummaryBody(BaseModel):
         description="The maximum number of articles that should be returned in the response. This can be used to return fewer than maxArticleCount results.",
         alias="returnedArticleCount",
     )
-    summarize_fields: Optional[StrictStr] = Field(
-        default=["TITLE", "CONTENT", "SUMMARY"],
+    summarize_fields: Optional[List[StrictStr]] = Field(
+        default=None,
         description="Which article fields to include when generating the summary. Up to three values from TITLE, CONTENT, SUMMARY.",
         alias="summarizeFields",
     )
@@ -101,10 +101,11 @@ class SummaryBody(BaseModel):
         if value is None:
             return value
 
-        if value not in set(["TITLE", "CONTENT", "SUMMARY"]):
-            raise ValueError(
-                "must be one of enum values ('TITLE', 'CONTENT', 'SUMMARY')"
-            )
+        for i in value:
+            if i not in set(["TITLE", "CONTENT", "SUMMARY"]):
+                raise ValueError(
+                    "each list item must be one of ('TITLE', 'CONTENT', 'SUMMARY')"
+                )
         return value
 
     @field_validator("method")
@@ -258,11 +259,7 @@ class SummaryBody(BaseModel):
                     if obj.get("returnedArticleCount") is not None
                     else 10
                 ),
-                "summarizeFields": (
-                    obj.get("summarizeFields")
-                    if obj.get("summarizeFields") is not None
-                    else ["TITLE", "CONTENT", "SUMMARY"]
-                ),
+                "summarizeFields": obj.get("summarizeFields"),
                 "method": (
                     obj.get("method") if obj.get("method") is not None else "ARTICLES"
                 ),

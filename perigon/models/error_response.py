@@ -20,21 +20,19 @@ import pprint
 import re  # noqa: F401
 from typing import Any, ClassVar, Dict, List, Optional, Set
 
-from pydantic import BaseModel, ConfigDict, StrictBool, StrictStr
+from pydantic import BaseModel, ConfigDict, StrictInt, StrictStr
 from typing_extensions import Self
 
-from perigon.models.source_location import SourceLocation
 
-
-class SourceHolder(BaseModel):
+class ErrorResponse(BaseModel):
     """
-    SourceHolder
+    ErrorResponse
     """  # noqa: E501
 
-    domain: Optional[StrictStr] = None
-    paywall: Optional[StrictBool] = None
-    location: Optional[SourceLocation] = None
-    __properties: ClassVar[List[str]] = ["domain", "paywall", "location"]
+    status: Optional[StrictInt] = None
+    message: Optional[StrictStr] = None
+    timestamp: Optional[StrictInt] = None
+    __properties: ClassVar[List[str]] = ["status", "message", "timestamp"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -53,7 +51,7 @@ class SourceHolder(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of SourceHolder from a JSON string"""
+        """Create an instance of ErrorResponse from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -73,29 +71,26 @@ class SourceHolder(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of location
-        if self.location:
-            _dict["location"] = self.location.to_dict()
-        # set to None if domain (nullable) is None
+        # set to None if status (nullable) is None
         # and model_fields_set contains the field
-        if self.domain is None and "domain" in self.model_fields_set:
-            _dict["domain"] = None
+        if self.status is None and "status" in self.model_fields_set:
+            _dict["status"] = None
 
-        # set to None if paywall (nullable) is None
+        # set to None if message (nullable) is None
         # and model_fields_set contains the field
-        if self.paywall is None and "paywall" in self.model_fields_set:
-            _dict["paywall"] = None
+        if self.message is None and "message" in self.model_fields_set:
+            _dict["message"] = None
 
-        # set to None if location (nullable) is None
+        # set to None if timestamp (nullable) is None
         # and model_fields_set contains the field
-        if self.location is None and "location" in self.model_fields_set:
-            _dict["location"] = None
+        if self.timestamp is None and "timestamp" in self.model_fields_set:
+            _dict["timestamp"] = None
 
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of SourceHolder from a dict"""
+        """Create an instance of ErrorResponse from a dict"""
         if obj is None:
             return None
 
@@ -104,13 +99,9 @@ class SourceHolder(BaseModel):
 
         _obj = cls.model_validate(
             {
-                "domain": obj.get("domain"),
-                "paywall": obj.get("paywall"),
-                "location": (
-                    SourceLocation.from_dict(obj["location"])
-                    if obj.get("location") is not None
-                    else None
-                ),
+                "status": obj.get("status"),
+                "message": obj.get("message"),
+                "timestamp": obj.get("timestamp"),
             }
         )
         return _obj

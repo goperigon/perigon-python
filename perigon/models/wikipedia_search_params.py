@@ -57,10 +57,10 @@ class WikipediaSearchParams(BaseModel):
         alias="pageviewsTo",
     )
     size: Optional[Annotated[int, Field(le=100, strict=True, ge=1)]] = Field(
-        default=None, description="The number of items per page."
+        default=10, description="The number of items per page."
     )
     page: Optional[Annotated[int, Field(le=10000, strict=True, ge=0)]] = Field(
-        default=None, description="The page number to retrieve."
+        default=0, description="The page number to retrieve."
     )
     __properties: ClassVar[List[str]] = [
         "prompt",
@@ -113,6 +113,11 @@ class WikipediaSearchParams(BaseModel):
         # override the default output from pydantic by calling `to_dict()` of filter
         if self.filter:
             _dict["filter"] = self.filter.to_dict()
+        # set to None if filter (nullable) is None
+        # and model_fields_set contains the field
+        if self.filter is None and "filter" in self.model_fields_set:
+            _dict["filter"] = None
+
         # set to None if wiki_revision_from (nullable) is None
         # and model_fields_set contains the field
         if (
@@ -172,8 +177,8 @@ class WikipediaSearchParams(BaseModel):
                 "wikiRevisionTo": obj.get("wikiRevisionTo"),
                 "pageviewsFrom": obj.get("pageviewsFrom"),
                 "pageviewsTo": obj.get("pageviewsTo"),
-                "size": obj.get("size"),
-                "page": obj.get("page"),
+                "size": obj.get("size") if obj.get("size") is not None else 10,
+                "page": obj.get("page") if obj.get("page") is not None else 0,
             }
         )
         return _obj

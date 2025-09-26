@@ -174,6 +174,11 @@ class Place(BaseModel):
         if self.neighbourhood is None and "neighbourhood" in self.model_fields_set:
             _dict["neighbourhood"] = None
 
+        # set to None if coordinates (nullable) is None
+        # and model_fields_set contains the field
+        if self.coordinates is None and "coordinates" in self.model_fields_set:
+            _dict["coordinates"] = None
+
         return _dict
 
     @classmethod

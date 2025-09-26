@@ -108,7 +108,7 @@ articles, journalist = asyncio.run(fetch_data())
 
 ### Articles – search and filter news (`/v1/all`)<br>
 
-**Docs →** <https://dev.perigon.io/reference?endpoint=11>
+**Docs →** [https://docs.perigon.io/docs/overview](https://docs.perigon.io/docs/overview)
 
 ```python
 # Simple query
@@ -127,7 +127,7 @@ articles = api.search_articles(source=["nytimes.com"])
 
 ### Companies – fetch structured company data (`/v1/companies`)<br>
 
-**Docs →** <https://dev.perigon.io/reference?endpoint=2>
+**Docs →** [https://docs.perigon.io/docs/company-data](https://docs.perigon.io/docs/company-data)
 
 ```python
 results = api.search_companies(name="Apple", size=5)
@@ -135,7 +135,7 @@ results = api.search_companies(name="Apple", size=5)
 
 ### Journalists – search and detail look‑up (`/v1/journalists`)<br>
 
-**Docs →** <https://dev.perigon.io/reference?endpoint=2>
+**Docs →** [https://docs.perigon.io/docs/journalist-data](https://docs.perigon.io/docs/journalist-data)
 
 ```python
 # Search for journalists
@@ -147,7 +147,7 @@ journalist = api.get_journalist_by_id(id=results.journalists[0].id)
 
 ### Stories – discover related article clusters (`/v1/stories`)<br>
 
-**Docs →** <https://dev.perigon.io/reference?endpoint=7>
+**Docs →** [https://docs.perigon.io/docs/stories-overview](https://docs.perigon.io/docs/stories-overview)
 
 ```python
 stories = api.search_stories(q="climate change", size=5)
@@ -155,7 +155,7 @@ stories = api.search_stories(q="climate change", size=5)
 
 ### Vector search – semantic retrieval (`/v1/vector`)<br>
 
-**Docs →** <https://dev.perigon.io/reference?endpoint=10>
+**Docs →** [https://docs.perigon.io/docs/vector-endpoint](https://docs.perigon.io/docs/vector-endpoint)
 
 ```python
 from perigon.models.article_search_params import ArticleSearchParams
@@ -170,7 +170,7 @@ results = api.vector_search_articles(
 
 ### Summarizer – generate an instant summary (`/v1/summarizer`)<br>
 
-**Docs →** <https://dev.perigon.io/reference?endpoint=8>
+**Docs →** [https://docs.perigon.io/docs/search-summarizer](https://docs.perigon.io/docs/search-summarizer)
 
 ```python
 from perigon.models.summary_body import SummaryBody
@@ -186,7 +186,7 @@ print(summary)
 
 ### Topics – explore taxonomy (`/v1/topics`)<br>
 
-**Docs →** <https://dev.perigon.io/reference?endpoint=9>
+**Docs →** [https://docs.perigon.io/docs/topics](https://docs.perigon.io/docs/topics)
 
 ```python
 topics = api.search_topics(size=10)
@@ -194,7 +194,7 @@ topics = api.search_topics(size=10)
 
 ### Wikipedia – search and filter pages (`/v1/wikipedia`)<br>
 
-**Docs →** <https://dev.perigon.io/reference?endpoint=13>
+**Docs →** [https://docs.perigon.io/docs/wikipedia](https://docs.perigon.io/docs/wikipedia)
 
 ```python
 # Search Wikipedia pages
@@ -213,7 +213,7 @@ wikipedia_result = api.search_wikipedia(
 
 ### Wikipedia vector search – semantic retrieval (`/v1/vector/wikipedia`)<br>
 
-**Docs →** <https://dev.perigon.io/reference?endpoint=12>
+**Docs →** [https://docs.perigon.io/docs/vector-wikipedia](https://docs.perigon.io/docs/vector-wikipedia)
 
 ```python
 from perigon.models.wikipedia_search_params import WikipediaSearchParams
