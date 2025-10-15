@@ -146,7 +146,7 @@ def test_vector_search(api: V1Api):
 
 def test_summarizer(api: V1Api):
     # Use gpt-4o-mini which is more stable and widely supported
-    summary_body = SummaryBody(model="gpt-4o-mini")
+    summary_body = SummaryBody()
     result = api.search_summarizer(
         summary_body=summary_body,
         q="AI",
