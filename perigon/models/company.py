@@ -65,6 +65,9 @@ class Company(BaseModel):
     symbols: Optional[List[SymbolHolder]] = None
     naics: Optional[StrictStr] = None
     sic: Optional[StrictStr] = None
+    cusip: Optional[StrictStr] = None
+    cik: Optional[StrictStr] = None
+    isin: Optional[StrictStr] = None
     year_founded: Optional[StrictInt] = Field(default=None, alias="yearFounded")
     revenue: Optional[StrictStr] = None
     web_resources: Optional[WebResources] = Field(default=None, alias="webResources")
@@ -96,6 +99,9 @@ class Company(BaseModel):
         "symbols",
         "naics",
         "sic",
+        "cusip",
+        "cik",
+        "isin",
         "yearFounded",
         "revenue",
         "webResources",
@@ -292,6 +298,21 @@ class Company(BaseModel):
         if self.sic is None and "sic" in self.model_fields_set:
             _dict["sic"] = None
 
+        # set to None if cusip (nullable) is None
+        # and model_fields_set contains the field
+        if self.cusip is None and "cusip" in self.model_fields_set:
+            _dict["cusip"] = None
+
+        # set to None if cik (nullable) is None
+        # and model_fields_set contains the field
+        if self.cik is None and "cik" in self.model_fields_set:
+            _dict["cik"] = None
+
+        # set to None if isin (nullable) is None
+        # and model_fields_set contains the field
+        if self.isin is None and "isin" in self.model_fields_set:
+            _dict["isin"] = None
+
         # set to None if year_founded (nullable) is None
         # and model_fields_set contains the field
         if self.year_founded is None and "year_founded" in self.model_fields_set:
@@ -351,6 +372,9 @@ class Company(BaseModel):
                 ),
                 "naics": obj.get("naics"),
                 "sic": obj.get("sic"),
+                "cusip": obj.get("cusip"),
+                "cik": obj.get("cik"),
+                "isin": obj.get("isin"),
                 "yearFounded": obj.get("yearFounded"),
                 "revenue": obj.get("revenue"),
                 "webResources": (
