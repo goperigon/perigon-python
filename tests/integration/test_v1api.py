@@ -150,7 +150,6 @@ def test_summarizer(api: V1Api):
     result = api.search_summarizer(
         summary_body=summary_body,
         q="AI",
-        size=10,
     )
     assert result.summary and len(result.results) > 0
 
