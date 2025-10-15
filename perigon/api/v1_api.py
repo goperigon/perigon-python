@@ -3304,10 +3304,7 @@ class V1Api:
         params = _normalise_query(params)
 
         resp = await self.api_client.request_async(
-            "POST",
-            path,
-            params=params,
-            json=summary_body.model_dump(by_alias=True, exclude_none=True),
+            "POST", path, params=params, json=summary_body.model_dump(by_alias=True)
         )
         resp.raise_for_status()
         return SummarySearchResult.model_validate(resp.json())

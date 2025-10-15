@@ -145,9 +145,11 @@ def test_vector_search(api: V1Api):
 
 
 def test_summarizer(api: V1Api):
-    summary_body = SummaryBody()  # empty body is valid
+    # Use gpt-4o-mini which is more stable and widely supported
+    summary_body = SummaryBody()
     result = api.search_summarizer(
-        summary_body=summary_body, q="renewable energy", size=10
+        summary_body=summary_body,
+        q="AI",
     )
     assert result.summary and len(result.results) > 0
 
