@@ -132,11 +132,11 @@ class SummaryBody(BaseModel):
                 "gpt-4.1-mini",
                 "gpt-4.1-nano",
                 "llama-3.3-70b-versatile",
-                "deepseek-r1-distill-llama-70b",
+                "openai/gpt-oss-120b",
             ]
         ):
             raise ValueError(
-                "must be one of enum values ('gpt-4o', 'gpt-4o-mini', 'gpt-4.1', 'gpt-4.1-mini', 'gpt-4.1-nano', 'llama-3.3-70b-versatile', 'deepseek-r1-distill-llama-70b')"
+                "must be one of enum values ('gpt-4o', 'gpt-4o-mini', 'gpt-4.1', 'gpt-4.1-mini', 'gpt-4.1-nano', 'llama-3.3-70b-versatile', 'openai/gpt-oss-120b')"
             )
         return value
 
