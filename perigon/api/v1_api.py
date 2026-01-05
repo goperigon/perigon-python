@@ -747,9 +747,13 @@ class V1Api:
         lon: Optional[float] = None,
         max_distance: Optional[float] = None,
         source_city: Optional[List[str]] = None,
+        exclude_source_city: Optional[List[str]] = None,
         source_county: Optional[List[str]] = None,
+        exclude_source_county: Optional[List[str]] = None,
         source_country: Optional[List[str]] = None,
+        exclude_source_country: Optional[List[str]] = None,
         source_state: Optional[List[str]] = None,
+        exclude_source_state: Optional[List[str]] = None,
         source_lat: Optional[float] = None,
         source_lon: Optional[float] = None,
         source_max_distance: Optional[float] = None,
@@ -841,9 +845,13 @@ class V1Api:
             lon (Optional[float]): Float. Longitude of the center point to search places
             max_distance (Optional[float]): Float. Maximum distance (in km) from starting point to search articles by tagged places
             source_city (Optional[List[str]]): String Array. Find articles published by sources that are located within a given city.
+            exclude_source_city (Optional[List[str]]): String Array. Excludes articles published by sources that are located within the specified cities.
             source_county (Optional[List[str]]): String Array. Find articles published by sources that are located within a given county.
+            exclude_source_county (Optional[List[str]]): String Array. Excludes articles published by sources that are located within the specified counties.
             source_country (Optional[List[str]]): String Array. Find articles published by sources that are located within a given country. Must be 2 character country code (i.e. us, gb, etc).
+            exclude_source_country (Optional[List[str]]): String Array. Excludes articles published by sources that are located within the specified countries. Must be 2 character country codes (e.g., us, gb).
             source_state (Optional[List[str]]): String Array. Find articles published by sources that are located within a given state.
+            exclude_source_state (Optional[List[str]]): String Array. Excludes articles published by sources that are located within the specified states.
             source_lat (Optional[float]): Float. Latitude of the center point to search articles created by local publications.
             source_lon (Optional[float]): Float. Latitude of the center point to search articles created by local publications.
             source_max_distance (Optional[float]): Float. Maximum distance from starting point to search articles created by local publications.
@@ -996,12 +1004,20 @@ class V1Api:
             params["maxDistance"] = max_distance
         if source_city is not None:
             params["sourceCity"] = source_city
+        if exclude_source_city is not None:
+            params["excludeSourceCity"] = exclude_source_city
         if source_county is not None:
             params["sourceCounty"] = source_county
+        if exclude_source_county is not None:
+            params["excludeSourceCounty"] = exclude_source_county
         if source_country is not None:
             params["sourceCountry"] = source_country
+        if exclude_source_country is not None:
+            params["excludeSourceCountry"] = exclude_source_country
         if source_state is not None:
             params["sourceState"] = source_state
+        if exclude_source_state is not None:
+            params["excludeSourceState"] = exclude_source_state
         if source_lat is not None:
             params["sourceLat"] = source_lat
         if source_lon is not None:
@@ -1126,9 +1142,13 @@ class V1Api:
         lon: Optional[float] = None,
         max_distance: Optional[float] = None,
         source_city: Optional[List[str]] = None,
+        exclude_source_city: Optional[List[str]] = None,
         source_county: Optional[List[str]] = None,
+        exclude_source_county: Optional[List[str]] = None,
         source_country: Optional[List[str]] = None,
+        exclude_source_country: Optional[List[str]] = None,
         source_state: Optional[List[str]] = None,
+        exclude_source_state: Optional[List[str]] = None,
         source_lat: Optional[float] = None,
         source_lon: Optional[float] = None,
         source_max_distance: Optional[float] = None,
@@ -1220,9 +1240,13 @@ class V1Api:
             lon (Optional[float]): Float. Longitude of the center point to search places
             max_distance (Optional[float]): Float. Maximum distance (in km) from starting point to search articles by tagged places
             source_city (Optional[List[str]]): String Array. Find articles published by sources that are located within a given city.
+            exclude_source_city (Optional[List[str]]): String Array. Excludes articles published by sources that are located within the specified cities.
             source_county (Optional[List[str]]): String Array. Find articles published by sources that are located within a given county.
+            exclude_source_county (Optional[List[str]]): String Array. Excludes articles published by sources that are located within the specified counties.
             source_country (Optional[List[str]]): String Array. Find articles published by sources that are located within a given country. Must be 2 character country code (i.e. us, gb, etc).
+            exclude_source_country (Optional[List[str]]): String Array. Excludes articles published by sources that are located within the specified countries. Must be 2 character country codes (e.g., us, gb).
             source_state (Optional[List[str]]): String Array. Find articles published by sources that are located within a given state.
+            exclude_source_state (Optional[List[str]]): String Array. Excludes articles published by sources that are located within the specified states.
             source_lat (Optional[float]): Float. Latitude of the center point to search articles created by local publications.
             source_lon (Optional[float]): Float. Latitude of the center point to search articles created by local publications.
             source_max_distance (Optional[float]): Float. Maximum distance from starting point to search articles created by local publications.
@@ -1374,12 +1398,20 @@ class V1Api:
             params["maxDistance"] = max_distance
         if source_city is not None:
             params["sourceCity"] = source_city
+        if exclude_source_city is not None:
+            params["excludeSourceCity"] = exclude_source_city
         if source_county is not None:
             params["sourceCounty"] = source_county
+        if exclude_source_county is not None:
+            params["excludeSourceCounty"] = exclude_source_county
         if source_country is not None:
             params["sourceCountry"] = source_country
+        if exclude_source_country is not None:
+            params["excludeSourceCountry"] = exclude_source_country
         if source_state is not None:
             params["sourceState"] = source_state
+        if exclude_source_state is not None:
+            params["excludeSourceState"] = exclude_source_state
         if source_lat is not None:
             params["sourceLat"] = source_lat
         if source_lon is not None:
@@ -1904,7 +1936,7 @@ class V1Api:
         show_num_results: Optional[bool] = None,
     ) -> SourceSearchResult:
         """
-        Search and filter the 142,000+ media sources available via the Perigon API. The result includes a list of individual media sources that were matched to your specific criteria.
+        Search and filter the 200,000+ media sources available via the Perigon API. The result includes a list of individual media sources that were matched to your specific criteria.
 
         Args:
             domain (Optional[List[str]]): String Array. Filter by specific publisher domains or subdomains. Supports wildcards (* and ?) for pattern matching (e.g., *.cnn.com, us?.nytimes.com). Multiple values create an OR filter.
@@ -2023,7 +2055,7 @@ class V1Api:
         show_num_results: Optional[bool] = None,
     ) -> SourceSearchResult:
         """
-        Async variant of search_sources. Search and filter the 142,000+ media sources available via the Perigon API. The result includes a list of individual media sources that were matched to your specific criteria.
+        Async variant of search_sources. Search and filter the 200,000+ media sources available via the Perigon API. The result includes a list of individual media sources that were matched to your specific criteria.
 
         Args:
             domain (Optional[List[str]]): String Array. Filter by specific publisher domains or subdomains. Supports wildcards (* and ?) for pattern matching (e.g., *.cnn.com, us?.nytimes.com). Multiple values create an OR filter.
@@ -2602,9 +2634,13 @@ class V1Api:
         lon: Optional[float] = None,
         max_distance: Optional[float] = None,
         source_city: Optional[List[str]] = None,
+        exclude_source_city: Optional[List[str]] = None,
         source_county: Optional[List[str]] = None,
+        exclude_source_county: Optional[List[str]] = None,
         source_country: Optional[List[str]] = None,
+        exclude_source_country: Optional[List[str]] = None,
         source_state: Optional[List[str]] = None,
+        exclude_source_state: Optional[List[str]] = None,
         source_lat: Optional[float] = None,
         source_lon: Optional[float] = None,
         source_max_distance: Optional[float] = None,
@@ -2697,9 +2733,13 @@ class V1Api:
             lon (Optional[float]): Float. Longitude of the center point to search places
             max_distance (Optional[float]): Float. Maximum distance (in km) from starting point to search articles by tagged places
             source_city (Optional[List[str]]): String Array. Find articles published by sources that are located within a given city.
+            exclude_source_city (Optional[List[str]]): String Array. Excludes articles published by sources that are located within the specified cities.
             source_county (Optional[List[str]]): String Array. Find articles published by sources that are located within a given county.
+            exclude_source_county (Optional[List[str]]): String Array. Excludes articles published by sources that are located within the specified counties.
             source_country (Optional[List[str]]): String Array. Find articles published by sources that are located within a given country. Must be 2 character country code (i.e. us, gb, etc).
+            exclude_source_country (Optional[List[str]]): String Array. Excludes articles published by sources that are located within the specified countries. Must be 2 character country codes (e.g., us, gb).
             source_state (Optional[List[str]]): String Array. Find articles published by sources that are located within a given state.
+            exclude_source_state (Optional[List[str]]): String Array. Excludes articles published by sources that are located within the specified states.
             source_lat (Optional[float]): Float. Latitude of the center point to search articles created by local publications.
             source_lon (Optional[float]): Float. Latitude of the center point to search articles created by local publications.
             source_max_distance (Optional[float]): Float. Maximum distance from starting point to search articles created by local publications.
@@ -2852,12 +2892,20 @@ class V1Api:
             params["maxDistance"] = max_distance
         if source_city is not None:
             params["sourceCity"] = source_city
+        if exclude_source_city is not None:
+            params["excludeSourceCity"] = exclude_source_city
         if source_county is not None:
             params["sourceCounty"] = source_county
+        if exclude_source_county is not None:
+            params["excludeSourceCounty"] = exclude_source_county
         if source_country is not None:
             params["sourceCountry"] = source_country
+        if exclude_source_country is not None:
+            params["excludeSourceCountry"] = exclude_source_country
         if source_state is not None:
             params["sourceState"] = source_state
+        if exclude_source_state is not None:
+            params["excludeSourceState"] = exclude_source_state
         if source_lat is not None:
             params["sourceLat"] = source_lat
         if source_lon is not None:
@@ -2988,9 +3036,13 @@ class V1Api:
         lon: Optional[float] = None,
         max_distance: Optional[float] = None,
         source_city: Optional[List[str]] = None,
+        exclude_source_city: Optional[List[str]] = None,
         source_county: Optional[List[str]] = None,
+        exclude_source_county: Optional[List[str]] = None,
         source_country: Optional[List[str]] = None,
+        exclude_source_country: Optional[List[str]] = None,
         source_state: Optional[List[str]] = None,
+        exclude_source_state: Optional[List[str]] = None,
         source_lat: Optional[float] = None,
         source_lon: Optional[float] = None,
         source_max_distance: Optional[float] = None,
@@ -3083,9 +3135,13 @@ class V1Api:
             lon (Optional[float]): Float. Longitude of the center point to search places
             max_distance (Optional[float]): Float. Maximum distance (in km) from starting point to search articles by tagged places
             source_city (Optional[List[str]]): String Array. Find articles published by sources that are located within a given city.
+            exclude_source_city (Optional[List[str]]): String Array. Excludes articles published by sources that are located within the specified cities.
             source_county (Optional[List[str]]): String Array. Find articles published by sources that are located within a given county.
+            exclude_source_county (Optional[List[str]]): String Array. Excludes articles published by sources that are located within the specified counties.
             source_country (Optional[List[str]]): String Array. Find articles published by sources that are located within a given country. Must be 2 character country code (i.e. us, gb, etc).
+            exclude_source_country (Optional[List[str]]): String Array. Excludes articles published by sources that are located within the specified countries. Must be 2 character country codes (e.g., us, gb).
             source_state (Optional[List[str]]): String Array. Find articles published by sources that are located within a given state.
+            exclude_source_state (Optional[List[str]]): String Array. Excludes articles published by sources that are located within the specified states.
             source_lat (Optional[float]): Float. Latitude of the center point to search articles created by local publications.
             source_lon (Optional[float]): Float. Latitude of the center point to search articles created by local publications.
             source_max_distance (Optional[float]): Float. Maximum distance from starting point to search articles created by local publications.
@@ -3237,12 +3293,20 @@ class V1Api:
             params["maxDistance"] = max_distance
         if source_city is not None:
             params["sourceCity"] = source_city
+        if exclude_source_city is not None:
+            params["excludeSourceCity"] = exclude_source_city
         if source_county is not None:
             params["sourceCounty"] = source_county
+        if exclude_source_county is not None:
+            params["excludeSourceCounty"] = exclude_source_county
         if source_country is not None:
             params["sourceCountry"] = source_country
+        if exclude_source_country is not None:
+            params["excludeSourceCountry"] = exclude_source_country
         if source_state is not None:
             params["sourceState"] = source_state
+        if exclude_source_state is not None:
+            params["excludeSourceState"] = exclude_source_state
         if source_lat is not None:
             params["sourceLat"] = source_lat
         if source_lon is not None:
@@ -3304,7 +3368,10 @@ class V1Api:
         params = _normalise_query(params)
 
         resp = await self.api_client.request_async(
-            "POST", path, params=params, json=summary_body.model_dump(by_alias=True)
+            "POST",
+            path,
+            params=params,
+            json=summary_body.model_dump(by_alias=True, exclude_none=True),
         )
         resp.raise_for_status()
         return SummarySearchResult.model_validate(resp.json())
@@ -3673,7 +3740,7 @@ class V1Api:
             "POST",
             path,
             params=params,
-            json=article_search_params.model_dump(by_alias=True),
+            json=article_search_params.model_dump(by_alias=True, exclude_none=True),
         )
         resp.raise_for_status()
         return ArticlesVectorSearchResult.model_validate(resp.json())
@@ -3701,7 +3768,7 @@ class V1Api:
             "POST",
             path,
             params=params,
-            json=article_search_params.model_dump(by_alias=True),
+            json=article_search_params.model_dump(by_alias=True, exclude_none=True),
         )
         resp.raise_for_status()
         return ArticlesVectorSearchResult.model_validate(resp.json())
@@ -3730,7 +3797,7 @@ class V1Api:
             "POST",
             path,
             params=params,
-            json=wikipedia_search_params.model_dump(by_alias=True),
+            json=wikipedia_search_params.model_dump(by_alias=True, exclude_none=True),
         )
         resp.raise_for_status()
         return WikipediaVectorSearchResult.model_validate(resp.json())
@@ -3758,7 +3825,7 @@ class V1Api:
             "POST",
             path,
             params=params,
-            json=wikipedia_search_params.model_dump(by_alias=True),
+            json=wikipedia_search_params.model_dump(by_alias=True, exclude_none=True),
         )
         resp.raise_for_status()
         return WikipediaVectorSearchResult.model_validate(resp.json())
