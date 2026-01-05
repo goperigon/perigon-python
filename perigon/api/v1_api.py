@@ -3740,7 +3740,7 @@ class V1Api:
             "POST",
             path,
             params=params,
-            json=article_search_params.model_dump(by_alias=True),
+            json=article_search_params.model_dump(by_alias=True, exclude_none=True),
         )
         resp.raise_for_status()
         return ArticlesVectorSearchResult.model_validate(resp.json())
@@ -3768,7 +3768,7 @@ class V1Api:
             "POST",
             path,
             params=params,
-            json=article_search_params.model_dump(by_alias=True),
+            json=article_search_params.model_dump(by_alias=True, exclude_none=True),
         )
         resp.raise_for_status()
         return ArticlesVectorSearchResult.model_validate(resp.json())
@@ -3797,7 +3797,7 @@ class V1Api:
             "POST",
             path,
             params=params,
-            json=wikipedia_search_params.model_dump(by_alias=True),
+            json=wikipedia_search_params.model_dump(by_alias=True, exclude_none=True),
         )
         resp.raise_for_status()
         return WikipediaVectorSearchResult.model_validate(resp.json())
@@ -3825,7 +3825,7 @@ class V1Api:
             "POST",
             path,
             params=params,
-            json=wikipedia_search_params.model_dump(by_alias=True),
+            json=wikipedia_search_params.model_dump(by_alias=True, exclude_none=True),
         )
         resp.raise_for_status()
         return WikipediaVectorSearchResult.model_validate(resp.json())

@@ -57,8 +57,7 @@ class SummaryBody(BaseModel):
         description="Method for selecting articles: ARTICLES (include all matches) or CLUSTERS (one per cluster).",
     )
     model: Optional[StrictStr] = Field(
-        default="gpt-4o-mini",
-        description="The underlying LLM model to use for generation.",
+        default="gpt-4.1", description="The underlying LLM model to use for generation."
     )
     temperature: Optional[
         Union[
@@ -265,7 +264,7 @@ class SummaryBody(BaseModel):
                     obj.get("method") if obj.get("method") is not None else "ARTICLES"
                 ),
                 "model": (
-                    obj.get("model") if obj.get("model") is not None else "gpt-4o-mini"
+                    obj.get("model") if obj.get("model") is not None else "gpt-4.1"
                 ),
                 "temperature": (
                     obj.get("temperature")

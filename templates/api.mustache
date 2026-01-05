@@ -109,7 +109,8 @@ class {{classname}}:
         resp = self.api_client.request(
             "{{httpMethod}}",
             path,
-            params=params{{#bodyParam}}, json={{paramName}}.model_dump(by_alias=True){{/bodyParam}}
+            params=params{{#bodyParam}},
+            json={{paramName}}.model_dump(by_alias=True, exclude_none=True),{{/bodyParam}}
         )
         resp.raise_for_status()
 {{#returnType}}
@@ -157,7 +158,8 @@ class {{classname}}:
         resp = await self.api_client.request_async(
             "{{httpMethod}}",
             path,
-            params=params{{#bodyParam}}, json={{paramName}}.model_dump(by_alias=True){{/bodyParam}}
+            params=params{{#bodyParam}},
+            json={{paramName}}.model_dump(by_alias=True, exclude_none=True),{{/bodyParam}}
         )
         resp.raise_for_status()
 {{#returnType}}
