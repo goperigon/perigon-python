@@ -17,8 +17,11 @@ from perigon.models.all_endpoint_sort_by import AllEndpointSortBy
 from perigon.models.article_search_params import ArticleSearchParams
 from perigon.models.articles_vector_search_result import ArticlesVectorSearchResult
 from perigon.models.company_search_result import CompanySearchResult
+from perigon.models.create_source_group_params import CreateSourceGroupParams
+from perigon.models.create_watchlist_params import CreateWatchlistParams
 from perigon.models.journalist import Journalist
 from perigon.models.journalist_search_result import JournalistSearchResult
+from perigon.models.patch_source_group_params import PatchSourceGroupParams
 from perigon.models.people_search_result import PeopleSearchResult
 from perigon.models.query_search_result import QuerySearchResult
 from perigon.models.sort_by import SortBy
@@ -29,14 +32,25 @@ from perigon.models.story_search_result import StorySearchResult
 from perigon.models.summary_body import SummaryBody
 from perigon.models.summary_search_result import SummarySearchResult
 from perigon.models.topic_search_result import TopicSearchResult
+from perigon.models.update_watchlist_params import UpdateWatchlistParams
 from perigon.models.wikipedia_search_params import WikipediaSearchParams
 from perigon.models.wikipedia_search_result import WikipediaSearchResult
 from perigon.models.wikipedia_vector_search_result import WikipediaVectorSearchResult
 
 # Define API paths
+PATH_CREATE_SOURCE_GROUP = "/v1/api/sourceGroups"
+PATH_CREATE_WATCHLIST = "/v1/api/watchlists"
+PATH_DELETE_SOURCE_GROUP = "/v1/api/sourceGroups/{id}"
+PATH_DELETE_WATCHLIST = "/v1/api/watchlists/{id}"
 PATH_GET_JOURNALIST_BY_ID = "/v1/journalists/{id}"
+PATH_GET_SOURCE_GROUP = "/v1/api/sourceGroups/{id}"
 PATH_GET_STORY_COUNTS = "/v1/stories/stats"
 PATH_GET_STORY_HISTORY = "/v1/stories/history"
+PATH_GET_WATCHLIST = "/v1/api/watchlists/{id}"
+PATH_LIST_SOURCE_GROUPS = "/v1/api/sourceGroups"
+PATH_LIST_WATCHLISTS = "/v1/api/watchlists"
+PATH_RESOLVE_SOURCE_GROUPS = "/v1/api/sourceGroups/resolve"
+PATH_RESOLVE_WATCHLISTS = "/v1/api/watchlists/resolve"
 PATH_SEARCH_ARTICLES = "/v1/articles/all"
 PATH_SEARCH_COMPANIES = "/v1/companies/all"
 PATH_SEARCH_JOURNALISTS = "/v1/journalists/all"
@@ -46,6 +60,8 @@ PATH_SEARCH_STORIES = "/v1/stories/all"
 PATH_SEARCH_SUMMARIZER = "/v1/summarize"
 PATH_SEARCH_TOPICS = "/v1/topics/all"
 PATH_SEARCH_WIKIPEDIA = "/v1/wikipedia/all"
+PATH_UPDATE_SOURCE_GROUP = "/v1/api/sourceGroups/{id}"
+PATH_UPDATE_WATCHLIST = "/v1/api/watchlists/{id}"
 PATH_VECTOR_SEARCH_ARTICLES = "/v1/vector/news/all"
 PATH_VECTOR_SEARCH_WIKIPEDIA = "/v1/vector/wikipedia/all"
 
@@ -97,6 +113,202 @@ class V1Api:
     def __init__(self, api_client: Optional[ApiClient] = None):
         self.api_client = api_client or ApiClient()
 
+    # ----------------- create_source_group (sync) ----------------- #
+    def create_source_group(self, create_source_group_params: CreateSourceGroupParams):
+        """
+        Create a new source group under the organization associated with the API key.
+
+        Args:
+            create_source_group_params (CreateSourceGroupParams): Parameter create_source_group_params (required)
+
+        """
+        # Get path template from class attribute
+        path = PATH_CREATE_SOURCE_GROUP
+
+        # --- build query dict on the fly ---
+        params: Dict[str, Any] = {}
+        params = _normalise_query(params)
+
+        resp = self.api_client.request(
+            "POST",
+            path,
+            params=params,
+            json=create_source_group_params.model_dump(
+                by_alias=True, exclude_none=True
+            ),
+        )
+        resp.raise_for_status()
+        return resp.json()
+
+    # ----------------- create_source_group (async) ----------------- #
+    async def create_source_group_async(
+        self, create_source_group_params: CreateSourceGroupParams
+    ):
+        """
+        Async variant of create_source_group. Create a new source group under the organization associated with the API key.
+
+        Args:
+            create_source_group_params (CreateSourceGroupParams): Parameter create_source_group_params (required)
+
+        """
+        # Get path template from class attribute
+        path = PATH_CREATE_SOURCE_GROUP
+
+        params: Dict[str, Any] = {}
+        params = _normalise_query(params)
+
+        resp = await self.api_client.request_async(
+            "POST",
+            path,
+            params=params,
+            json=create_source_group_params.model_dump(
+                by_alias=True, exclude_none=True
+            ),
+        )
+        resp.raise_for_status()
+        return resp.json()
+
+    # ----------------- create_watchlist (sync) ----------------- #
+    def create_watchlist(self, create_watchlist_params: CreateWatchlistParams):
+        """
+        Create a new watchlist under the organization associated with the API key. A watchlist can contain up to 100 combined people and companies.
+
+        Args:
+            create_watchlist_params (CreateWatchlistParams): Parameter create_watchlist_params (required)
+
+        """
+        # Get path template from class attribute
+        path = PATH_CREATE_WATCHLIST
+
+        # --- build query dict on the fly ---
+        params: Dict[str, Any] = {}
+        params = _normalise_query(params)
+
+        resp = self.api_client.request(
+            "POST",
+            path,
+            params=params,
+            json=create_watchlist_params.model_dump(by_alias=True, exclude_none=True),
+        )
+        resp.raise_for_status()
+        return resp.json()
+
+    # ----------------- create_watchlist (async) ----------------- #
+    async def create_watchlist_async(
+        self, create_watchlist_params: CreateWatchlistParams
+    ):
+        """
+        Async variant of create_watchlist. Create a new watchlist under the organization associated with the API key. A watchlist can contain up to 100 combined people and companies.
+
+        Args:
+            create_watchlist_params (CreateWatchlistParams): Parameter create_watchlist_params (required)
+
+        """
+        # Get path template from class attribute
+        path = PATH_CREATE_WATCHLIST
+
+        params: Dict[str, Any] = {}
+        params = _normalise_query(params)
+
+        resp = await self.api_client.request_async(
+            "POST",
+            path,
+            params=params,
+            json=create_watchlist_params.model_dump(by_alias=True, exclude_none=True),
+        )
+        resp.raise_for_status()
+        return resp.json()
+
+    # ----------------- delete_source_group (sync) ----------------- #
+    def delete_source_group(self, id: int):
+        """
+        Delete a source group owned by the organization associated with the API key.
+
+        Args:
+            id (int): Parameter id (required)
+
+        """
+        # Get path template from class attribute
+        path = PATH_DELETE_SOURCE_GROUP
+
+        # Replace path parameters
+        path = path.format(id=str(id))
+
+        # --- build query dict on the fly ---
+        params: Dict[str, Any] = {}
+        params = _normalise_query(params)
+
+        resp = self.api_client.request("DELETE", path, params=params)
+        resp.raise_for_status()
+        return resp.json()
+
+    # ----------------- delete_source_group (async) ----------------- #
+    async def delete_source_group_async(self, id: int):
+        """
+        Async variant of delete_source_group. Delete a source group owned by the organization associated with the API key.
+
+        Args:
+            id (int): Parameter id (required)
+
+        """
+        # Get path template from class attribute
+        path = PATH_DELETE_SOURCE_GROUP
+
+        # Replace path parameters
+        path = path.format(id=str(id))
+
+        params: Dict[str, Any] = {}
+        params = _normalise_query(params)
+
+        resp = await self.api_client.request_async("DELETE", path, params=params)
+        resp.raise_for_status()
+        return resp.json()
+
+    # ----------------- delete_watchlist (sync) ----------------- #
+    def delete_watchlist(self, id: int):
+        """
+        Delete a watchlist owned by the organization associated with the API key. A watchlist cannot be deleted if it is attached to active signals.
+
+        Args:
+            id (int): Parameter id (required)
+
+        """
+        # Get path template from class attribute
+        path = PATH_DELETE_WATCHLIST
+
+        # Replace path parameters
+        path = path.format(id=str(id))
+
+        # --- build query dict on the fly ---
+        params: Dict[str, Any] = {}
+        params = _normalise_query(params)
+
+        resp = self.api_client.request("DELETE", path, params=params)
+        resp.raise_for_status()
+        return resp.json()
+
+    # ----------------- delete_watchlist (async) ----------------- #
+    async def delete_watchlist_async(self, id: int):
+        """
+        Async variant of delete_watchlist. Delete a watchlist owned by the organization associated with the API key. A watchlist cannot be deleted if it is attached to active signals.
+
+        Args:
+            id (int): Parameter id (required)
+
+        """
+        # Get path template from class attribute
+        path = PATH_DELETE_WATCHLIST
+
+        # Replace path parameters
+        path = path.format(id=str(id))
+
+        params: Dict[str, Any] = {}
+        params = _normalise_query(params)
+
+        resp = await self.api_client.request_async("DELETE", path, params=params)
+        resp.raise_for_status()
+        return resp.json()
+
     # ----------------- get_journalist_by_id (sync) ----------------- #
     def get_journalist_by_id(self, id: str) -> Journalist:
         """
@@ -145,6 +357,51 @@ class V1Api:
         resp = await self.api_client.request_async("GET", path, params=params)
         resp.raise_for_status()
         return Journalist.model_validate(resp.json())
+
+    # ----------------- get_source_group (sync) ----------------- #
+    def get_source_group(self, id: int):
+        """
+        Retrieve a source group by ID. Only returns source groups owned by the organization associated with the API key.
+
+        Args:
+            id (int): Parameter id (required)
+
+        """
+        # Get path template from class attribute
+        path = PATH_GET_SOURCE_GROUP
+
+        # Replace path parameters
+        path = path.format(id=str(id))
+
+        # --- build query dict on the fly ---
+        params: Dict[str, Any] = {}
+        params = _normalise_query(params)
+
+        resp = self.api_client.request("GET", path, params=params)
+        resp.raise_for_status()
+        return resp.json()
+
+    # ----------------- get_source_group (async) ----------------- #
+    async def get_source_group_async(self, id: int):
+        """
+        Async variant of get_source_group. Retrieve a source group by ID. Only returns source groups owned by the organization associated with the API key.
+
+        Args:
+            id (int): Parameter id (required)
+
+        """
+        # Get path template from class attribute
+        path = PATH_GET_SOURCE_GROUP
+
+        # Replace path parameters
+        path = path.format(id=str(id))
+
+        params: Dict[str, Any] = {}
+        params = _normalise_query(params)
+
+        resp = await self.api_client.request_async("GET", path, params=params)
+        resp.raise_for_status()
+        return resp.json()
 
     # ----------------- get_story_counts (sync) ----------------- #
     def get_story_counts(
@@ -687,6 +944,307 @@ class V1Api:
         resp.raise_for_status()
         return StoryHistoryResult.model_validate(resp.json())
 
+    # ----------------- get_watchlist (sync) ----------------- #
+    def get_watchlist(self, id: int):
+        """
+        Retrieve a watchlist by ID. Only returns watchlists owned by the organization associated with the API key.
+
+        Args:
+            id (int): Parameter id (required)
+
+        """
+        # Get path template from class attribute
+        path = PATH_GET_WATCHLIST
+
+        # Replace path parameters
+        path = path.format(id=str(id))
+
+        # --- build query dict on the fly ---
+        params: Dict[str, Any] = {}
+        params = _normalise_query(params)
+
+        resp = self.api_client.request("GET", path, params=params)
+        resp.raise_for_status()
+        return resp.json()
+
+    # ----------------- get_watchlist (async) ----------------- #
+    async def get_watchlist_async(self, id: int):
+        """
+        Async variant of get_watchlist. Retrieve a watchlist by ID. Only returns watchlists owned by the organization associated with the API key.
+
+        Args:
+            id (int): Parameter id (required)
+
+        """
+        # Get path template from class attribute
+        path = PATH_GET_WATCHLIST
+
+        # Replace path parameters
+        path = path.format(id=str(id))
+
+        params: Dict[str, Any] = {}
+        params = _normalise_query(params)
+
+        resp = await self.api_client.request_async("GET", path, params=params)
+        resp.raise_for_status()
+        return resp.json()
+
+    # ----------------- list_source_groups (sync) ----------------- #
+    def list_source_groups(
+        self,
+        sort_by: str,
+        sort_order: str,
+        name: Optional[str] = None,
+        domain: Optional[str] = None,
+        page: Optional[str] = None,
+        size: Optional[str] = None,
+    ):
+        """
+        List source groups owned by the organization associated with the API key, as well as publicly visible source groups. Supports filtering by name and domain.
+
+        Args:
+            sort_by (str): Field to sort by. (required)
+            sort_order (str): The sort order for the results.   _Available values: 'asc' or 'desc'_. (required)
+            name (Optional[str]): Parameter name
+            domain (Optional[str]): Parameter domain
+            page (Optional[str]): The page number to retrieve.   _Starting from 0_.   _Default value 0_.
+            size (Optional[str]): The number of items per page.   _Must be at least 1_.   _Default value 10_.
+
+        """
+        # Get path template from class attribute
+        path = PATH_LIST_SOURCE_GROUPS
+
+        # --- build query dict on the fly ---
+        params: Dict[str, Any] = {}
+        if name is not None:
+            params["name"] = name
+        if domain is not None:
+            params["domain"] = domain
+        if page is not None:
+            params["page"] = page
+        if size is not None:
+            params["size"] = size
+        if sort_by is not None:
+            params["sortBy"] = sort_by
+        if sort_order is not None:
+            params["sortOrder"] = sort_order
+        params = _normalise_query(params)
+
+        resp = self.api_client.request("GET", path, params=params)
+        resp.raise_for_status()
+        return resp.json()
+
+    # ----------------- list_source_groups (async) ----------------- #
+    async def list_source_groups_async(
+        self,
+        sort_by: str,
+        sort_order: str,
+        name: Optional[str] = None,
+        domain: Optional[str] = None,
+        page: Optional[str] = None,
+        size: Optional[str] = None,
+    ):
+        """
+        Async variant of list_source_groups. List source groups owned by the organization associated with the API key, as well as publicly visible source groups. Supports filtering by name and domain.
+
+        Args:
+            sort_by (str): Field to sort by. (required)
+            sort_order (str): The sort order for the results.   _Available values: 'asc' or 'desc'_. (required)
+            name (Optional[str]): Parameter name
+            domain (Optional[str]): Parameter domain
+            page (Optional[str]): The page number to retrieve.   _Starting from 0_.   _Default value 0_.
+            size (Optional[str]): The number of items per page.   _Must be at least 1_.   _Default value 10_.
+
+        """
+        # Get path template from class attribute
+        path = PATH_LIST_SOURCE_GROUPS
+
+        params: Dict[str, Any] = {}
+        if name is not None:
+            params["name"] = name
+        if domain is not None:
+            params["domain"] = domain
+        if page is not None:
+            params["page"] = page
+        if size is not None:
+            params["size"] = size
+        if sort_by is not None:
+            params["sortBy"] = sort_by
+        if sort_order is not None:
+            params["sortOrder"] = sort_order
+        params = _normalise_query(params)
+
+        resp = await self.api_client.request_async("GET", path, params=params)
+        resp.raise_for_status()
+        return resp.json()
+
+    # ----------------- list_watchlists (sync) ----------------- #
+    def list_watchlists(
+        self,
+        sort_by: str,
+        sort_order: str,
+        name: Optional[str] = None,
+        page: Optional[str] = None,
+        size: Optional[str] = None,
+    ):
+        """
+        List watchlists owned by the organization associated with the API key, as well as publicly visible watchlists. Supports filtering by name.
+
+        Args:
+            sort_by (str): Field to sort by. (required)
+            sort_order (str): The sort order for the results.   _Available values: 'asc' or 'desc'_. (required)
+            name (Optional[str]): Filter watchlists by name (case-insensitive, partial match)
+            page (Optional[str]): The page number to retrieve.   _Starting from 0_.   _Default value 0_.
+            size (Optional[str]): The number of items per page.   _Must be at least 1_.   _Default value 10_.
+
+        """
+        # Get path template from class attribute
+        path = PATH_LIST_WATCHLISTS
+
+        # --- build query dict on the fly ---
+        params: Dict[str, Any] = {}
+        if name is not None:
+            params["name"] = name
+        if page is not None:
+            params["page"] = page
+        if size is not None:
+            params["size"] = size
+        if sort_by is not None:
+            params["sortBy"] = sort_by
+        if sort_order is not None:
+            params["sortOrder"] = sort_order
+        params = _normalise_query(params)
+
+        resp = self.api_client.request("GET", path, params=params)
+        resp.raise_for_status()
+        return resp.json()
+
+    # ----------------- list_watchlists (async) ----------------- #
+    async def list_watchlists_async(
+        self,
+        sort_by: str,
+        sort_order: str,
+        name: Optional[str] = None,
+        page: Optional[str] = None,
+        size: Optional[str] = None,
+    ):
+        """
+        Async variant of list_watchlists. List watchlists owned by the organization associated with the API key, as well as publicly visible watchlists. Supports filtering by name.
+
+        Args:
+            sort_by (str): Field to sort by. (required)
+            sort_order (str): The sort order for the results.   _Available values: 'asc' or 'desc'_. (required)
+            name (Optional[str]): Filter watchlists by name (case-insensitive, partial match)
+            page (Optional[str]): The page number to retrieve.   _Starting from 0_.   _Default value 0_.
+            size (Optional[str]): The number of items per page.   _Must be at least 1_.   _Default value 10_.
+
+        """
+        # Get path template from class attribute
+        path = PATH_LIST_WATCHLISTS
+
+        params: Dict[str, Any] = {}
+        if name is not None:
+            params["name"] = name
+        if page is not None:
+            params["page"] = page
+        if size is not None:
+            params["size"] = size
+        if sort_by is not None:
+            params["sortBy"] = sort_by
+        if sort_order is not None:
+            params["sortOrder"] = sort_order
+        params = _normalise_query(params)
+
+        resp = await self.api_client.request_async("GET", path, params=params)
+        resp.raise_for_status()
+        return resp.json()
+
+    # ----------------- resolve_source_groups (sync) ----------------- #
+    def resolve_source_groups(self, name: Optional[List[str]] = None):
+        """
+        Resolve source groups by name. For each name, returns the organization&#39;s private source group if one exists, otherwise falls back to the matching public source group.
+
+        Args:
+            name (Optional[List[str]]): Source group names to resolve (max 100)
+
+        """
+        # Get path template from class attribute
+        path = PATH_RESOLVE_SOURCE_GROUPS
+
+        # --- build query dict on the fly ---
+        params: Dict[str, Any] = {}
+        if name is not None:
+            params["name"] = name
+        params = _normalise_query(params)
+
+        resp = self.api_client.request("GET", path, params=params)
+        resp.raise_for_status()
+        return resp.json()
+
+    # ----------------- resolve_source_groups (async) ----------------- #
+    async def resolve_source_groups_async(self, name: Optional[List[str]] = None):
+        """
+        Async variant of resolve_source_groups. Resolve source groups by name. For each name, returns the organization&#39;s private source group if one exists, otherwise falls back to the matching public source group.
+
+        Args:
+            name (Optional[List[str]]): Source group names to resolve (max 100)
+
+        """
+        # Get path template from class attribute
+        path = PATH_RESOLVE_SOURCE_GROUPS
+
+        params: Dict[str, Any] = {}
+        if name is not None:
+            params["name"] = name
+        params = _normalise_query(params)
+
+        resp = await self.api_client.request_async("GET", path, params=params)
+        resp.raise_for_status()
+        return resp.json()
+
+    # ----------------- resolve_watchlists (sync) ----------------- #
+    def resolve_watchlists(self, name: Optional[List[str]] = None):
+        """
+        Resolve watchlists by name. For each name, returns the organization&#39;s private watchlist if one exists, otherwise falls back to the matching public watchlist.
+
+        Args:
+            name (Optional[List[str]]): Watchlist names to resolve (max 100)
+
+        """
+        # Get path template from class attribute
+        path = PATH_RESOLVE_WATCHLISTS
+
+        # --- build query dict on the fly ---
+        params: Dict[str, Any] = {}
+        if name is not None:
+            params["name"] = name
+        params = _normalise_query(params)
+
+        resp = self.api_client.request("GET", path, params=params)
+        resp.raise_for_status()
+        return resp.json()
+
+    # ----------------- resolve_watchlists (async) ----------------- #
+    async def resolve_watchlists_async(self, name: Optional[List[str]] = None):
+        """
+        Async variant of resolve_watchlists. Resolve watchlists by name. For each name, returns the organization&#39;s private watchlist if one exists, otherwise falls back to the matching public watchlist.
+
+        Args:
+            name (Optional[List[str]]): Watchlist names to resolve (max 100)
+
+        """
+        # Get path template from class attribute
+        path = PATH_RESOLVE_WATCHLISTS
+
+        params: Dict[str, Any] = {}
+        if name is not None:
+            params["name"] = name
+        params = _normalise_query(params)
+
+        resp = await self.api_client.request_async("GET", path, params=params)
+        resp.raise_for_status()
+        return resp.json()
+
     # ----------------- search_articles (sync) ----------------- #
     def search_articles(
         self,
@@ -873,7 +1431,7 @@ class V1Api:
             neutral_sentiment_to (Optional[float]): Float. Filter articles with a neutral sentiment score less than or equal to the specified value. Scores range from 0 to 1, with higher values indicating stronger neutral tone.
             negative_sentiment_from (Optional[float]): Float. Filter articles with a negative sentiment score greater than or equal to the specified value. Scores range from 0 to 1, with higher values indicating stronger negative tone.
             negative_sentiment_to (Optional[float]): Float. Filter articles with a negative sentiment score less than or equal to the specified value. Scores range from 0 to 1, with higher values indicating stronger negative tone.
-            taxonomy (Optional[List[str]]): String Array. Filters by Google Content Categories. This field will accept 1 or more categories, must pass the full name of the category. Example: taxonomy=/Finance/Banking/Other, /Finance/Investing/Funds. [Full list](https://cloud.google.com/natural-language/docs/categories)
+            taxonomy (Optional[List[str]]): String Array. Filters by Google Content Categories. This field will accept 1 or more categories, must pass the full name of the category. Example: taxonomy=/Finance/Banking/Other, /Finance/Investing/Funds. [Full list](https://docs.cloud.google.com/natural-language/docs/categories#version_2)
             prefix_taxonomy (Optional[str]): String. Filters by Google Content Categories. This field will filter by the category prefix only. Example: prefixTaxonomy=/Finance
             show_highlighting (Optional[bool]): Boolean. When set to true, enables text highlighting in search results.
             highlight_fragment_size (Optional[int]): Integer. Specifies the size in characters of each highlighted text fragment. Defaults to 100 if not specified.
@@ -1268,7 +1826,7 @@ class V1Api:
             neutral_sentiment_to (Optional[float]): Float. Filter articles with a neutral sentiment score less than or equal to the specified value. Scores range from 0 to 1, with higher values indicating stronger neutral tone.
             negative_sentiment_from (Optional[float]): Float. Filter articles with a negative sentiment score greater than or equal to the specified value. Scores range from 0 to 1, with higher values indicating stronger negative tone.
             negative_sentiment_to (Optional[float]): Float. Filter articles with a negative sentiment score less than or equal to the specified value. Scores range from 0 to 1, with higher values indicating stronger negative tone.
-            taxonomy (Optional[List[str]]): String Array. Filters by Google Content Categories. This field will accept 1 or more categories, must pass the full name of the category. Example: taxonomy=/Finance/Banking/Other, /Finance/Investing/Funds. [Full list](https://cloud.google.com/natural-language/docs/categories)
+            taxonomy (Optional[List[str]]): String Array. Filters by Google Content Categories. This field will accept 1 or more categories, must pass the full name of the category. Example: taxonomy=/Finance/Banking/Other, /Finance/Investing/Funds. [Full list](https://docs.cloud.google.com/natural-language/docs/categories#version_2)
             prefix_taxonomy (Optional[str]): String. Filters by Google Content Categories. This field will filter by the category prefix only. Example: prefixTaxonomy=/Finance
             show_highlighting (Optional[bool]): Boolean. When set to true, enables text highlighting in search results.
             highlight_fragment_size (Optional[int]): Integer. Specifies the size in characters of each highlighted text fragment. Defaults to 100 if not specified.
@@ -2761,7 +3319,7 @@ class V1Api:
             neutral_sentiment_to (Optional[float]): Float. Filter articles with a neutral sentiment score less than or equal to the specified value. Scores range from 0 to 1, with higher values indicating stronger neutral tone.
             negative_sentiment_from (Optional[float]): Float. Filter articles with a negative sentiment score greater than or equal to the specified value. Scores range from 0 to 1, with higher values indicating stronger negative tone.
             negative_sentiment_to (Optional[float]): Float. Filter articles with a negative sentiment score less than or equal to the specified value. Scores range from 0 to 1, with higher values indicating stronger negative tone.
-            taxonomy (Optional[List[str]]): String Array. Filters by Google Content Categories. This field will accept 1 or more categories, must pass the full name of the category. Example: taxonomy=/Finance/Banking/Other, /Finance/Investing/Funds. [Full list](https://cloud.google.com/natural-language/docs/categories)
+            taxonomy (Optional[List[str]]): String Array. Filters by Google Content Categories. This field will accept 1 or more categories, must pass the full name of the category. Example: taxonomy=/Finance/Banking/Other, /Finance/Investing/Funds. [Full list](https://docs.cloud.google.com/natural-language/docs/categories#version_2)
             prefix_taxonomy (Optional[str]): String. Filters by Google Content Categories. This field will filter by the category prefix only. Example: prefixTaxonomy=/Finance
             show_highlighting (Optional[bool]): Boolean. When set to true, enables text highlighting in search results.
             highlight_fragment_size (Optional[int]): Integer. Specifies the size in characters of each highlighted text fragment. Defaults to 100 if not specified.
@@ -3163,7 +3721,7 @@ class V1Api:
             neutral_sentiment_to (Optional[float]): Float. Filter articles with a neutral sentiment score less than or equal to the specified value. Scores range from 0 to 1, with higher values indicating stronger neutral tone.
             negative_sentiment_from (Optional[float]): Float. Filter articles with a negative sentiment score greater than or equal to the specified value. Scores range from 0 to 1, with higher values indicating stronger negative tone.
             negative_sentiment_to (Optional[float]): Float. Filter articles with a negative sentiment score less than or equal to the specified value. Scores range from 0 to 1, with higher values indicating stronger negative tone.
-            taxonomy (Optional[List[str]]): String Array. Filters by Google Content Categories. This field will accept 1 or more categories, must pass the full name of the category. Example: taxonomy=/Finance/Banking/Other, /Finance/Investing/Funds. [Full list](https://cloud.google.com/natural-language/docs/categories)
+            taxonomy (Optional[List[str]]): String Array. Filters by Google Content Categories. This field will accept 1 or more categories, must pass the full name of the category. Example: taxonomy=/Finance/Banking/Other, /Finance/Investing/Funds. [Full list](https://docs.cloud.google.com/natural-language/docs/categories#version_2)
             prefix_taxonomy (Optional[str]): String. Filters by Google Content Categories. This field will filter by the category prefix only. Example: prefixTaxonomy=/Finance
             show_highlighting (Optional[bool]): Boolean. When set to true, enables text highlighting in search results.
             highlight_fragment_size (Optional[int]): Integer. Specifies the size in characters of each highlighted text fragment. Defaults to 100 if not specified.
@@ -3715,6 +4273,126 @@ class V1Api:
         resp = await self.api_client.request_async("GET", path, params=params)
         resp.raise_for_status()
         return WikipediaSearchResult.model_validate(resp.json())
+
+    # ----------------- update_source_group (sync) ----------------- #
+    def update_source_group(
+        self, id: int, patch_source_group_params: PatchSourceGroupParams
+    ):
+        """
+        Partially update a source group owned by the organization associated with the API key. Only provided fields will be updated.
+
+        Args:
+            id (int): Parameter id (required)
+            patch_source_group_params (PatchSourceGroupParams): Parameter patch_source_group_params (required)
+
+        """
+        # Get path template from class attribute
+        path = PATH_UPDATE_SOURCE_GROUP
+
+        # Replace path parameters
+        path = path.format(id=str(id))
+
+        # --- build query dict on the fly ---
+        params: Dict[str, Any] = {}
+        params = _normalise_query(params)
+
+        resp = self.api_client.request(
+            "PATCH",
+            path,
+            params=params,
+            json=patch_source_group_params.model_dump(by_alias=True, exclude_none=True),
+        )
+        resp.raise_for_status()
+        return resp.json()
+
+    # ----------------- update_source_group (async) ----------------- #
+    async def update_source_group_async(
+        self, id: int, patch_source_group_params: PatchSourceGroupParams
+    ):
+        """
+        Async variant of update_source_group. Partially update a source group owned by the organization associated with the API key. Only provided fields will be updated.
+
+        Args:
+            id (int): Parameter id (required)
+            patch_source_group_params (PatchSourceGroupParams): Parameter patch_source_group_params (required)
+
+        """
+        # Get path template from class attribute
+        path = PATH_UPDATE_SOURCE_GROUP
+
+        # Replace path parameters
+        path = path.format(id=str(id))
+
+        params: Dict[str, Any] = {}
+        params = _normalise_query(params)
+
+        resp = await self.api_client.request_async(
+            "PATCH",
+            path,
+            params=params,
+            json=patch_source_group_params.model_dump(by_alias=True, exclude_none=True),
+        )
+        resp.raise_for_status()
+        return resp.json()
+
+    # ----------------- update_watchlist (sync) ----------------- #
+    def update_watchlist(self, id: int, update_watchlist_params: UpdateWatchlistParams):
+        """
+        Partially update a watchlist owned by the organization associated with the API key. Only provided fields will be updated.
+
+        Args:
+            id (int): Parameter id (required)
+            update_watchlist_params (UpdateWatchlistParams): Parameter update_watchlist_params (required)
+
+        """
+        # Get path template from class attribute
+        path = PATH_UPDATE_WATCHLIST
+
+        # Replace path parameters
+        path = path.format(id=str(id))
+
+        # --- build query dict on the fly ---
+        params: Dict[str, Any] = {}
+        params = _normalise_query(params)
+
+        resp = self.api_client.request(
+            "PATCH",
+            path,
+            params=params,
+            json=update_watchlist_params.model_dump(by_alias=True, exclude_none=True),
+        )
+        resp.raise_for_status()
+        return resp.json()
+
+    # ----------------- update_watchlist (async) ----------------- #
+    async def update_watchlist_async(
+        self, id: int, update_watchlist_params: UpdateWatchlistParams
+    ):
+        """
+        Async variant of update_watchlist. Partially update a watchlist owned by the organization associated with the API key. Only provided fields will be updated.
+
+        Args:
+            id (int): Parameter id (required)
+            update_watchlist_params (UpdateWatchlistParams): Parameter update_watchlist_params (required)
+
+        """
+        # Get path template from class attribute
+        path = PATH_UPDATE_WATCHLIST
+
+        # Replace path parameters
+        path = path.format(id=str(id))
+
+        params: Dict[str, Any] = {}
+        params = _normalise_query(params)
+
+        resp = await self.api_client.request_async(
+            "PATCH",
+            path,
+            params=params,
+            json=update_watchlist_params.model_dump(by_alias=True, exclude_none=True),
+        )
+        resp.raise_for_status()
+        return resp.json()
 
     # ----------------- vector_search_articles (sync) ----------------- #
     def vector_search_articles(

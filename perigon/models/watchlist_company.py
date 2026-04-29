@@ -18,24 +18,29 @@ from __future__ import annotations
 import json
 import pprint
 import re  # noqa: F401
-from typing import Any, ClassVar, Dict, List, Optional, Set, Union
+from typing import Any, ClassVar, Dict, List, Optional, Set
 
-from pydantic import BaseModel, ConfigDict, StrictFloat, StrictInt
+from pydantic import BaseModel, ConfigDict, StrictStr
 from typing_extensions import Self
 
-from perigon.models.vector_data import VectorData
-from perigon.models.wiki_data import WikiData
 
-
-class ScoredDataWikiData(BaseModel):
+class WatchlistCompany(BaseModel):
     """
-    ScoredDataWikiData
+    Updated list of companies to include in the watchlist
     """  # noqa: E501
 
-    score: Optional[Union[StrictFloat, StrictInt]] = None
-    data: Optional[WikiData] = None
-    vectors: Optional[List[VectorData]] = None
-    __properties: ClassVar[List[str]] = ["score", "data", "vectors"]
+    name: Optional[StrictStr] = None
+    description: Optional[StrictStr] = None
+    id: Optional[StrictStr] = None
+    domain: Optional[StrictStr] = None
+    aliases: Optional[List[StrictStr]] = None
+    __properties: ClassVar[List[str]] = [
+        "name",
+        "description",
+        "id",
+        "domain",
+        "aliases",
+    ]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -54,7 +59,7 @@ class ScoredDataWikiData(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of ScoredDataWikiData from a JSON string"""
+        """Create an instance of WatchlistCompany from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -74,36 +79,36 @@ class ScoredDataWikiData(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of data
-        if self.data:
-            _dict["data"] = self.data.to_dict()
-        # override the default output from pydantic by calling `to_dict()` of each item in vectors (list)
-        _items = []
-        if self.vectors:
-            for _item_vectors in self.vectors:
-                if _item_vectors:
-                    _items.append(_item_vectors.to_dict())
-            _dict["vectors"] = _items
-        # set to None if score (nullable) is None
+        # set to None if name (nullable) is None
         # and model_fields_set contains the field
-        if self.score is None and "score" in self.model_fields_set:
-            _dict["score"] = None
+        if self.name is None and "name" in self.model_fields_set:
+            _dict["name"] = None
 
-        # set to None if data (nullable) is None
+        # set to None if description (nullable) is None
         # and model_fields_set contains the field
-        if self.data is None and "data" in self.model_fields_set:
-            _dict["data"] = None
+        if self.description is None and "description" in self.model_fields_set:
+            _dict["description"] = None
 
-        # set to None if vectors (nullable) is None
+        # set to None if id (nullable) is None
         # and model_fields_set contains the field
-        if self.vectors is None and "vectors" in self.model_fields_set:
-            _dict["vectors"] = None
+        if self.id is None and "id" in self.model_fields_set:
+            _dict["id"] = None
+
+        # set to None if domain (nullable) is None
+        # and model_fields_set contains the field
+        if self.domain is None and "domain" in self.model_fields_set:
+            _dict["domain"] = None
+
+        # set to None if aliases (nullable) is None
+        # and model_fields_set contains the field
+        if self.aliases is None and "aliases" in self.model_fields_set:
+            _dict["aliases"] = None
 
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of ScoredDataWikiData from a dict"""
+        """Create an instance of WatchlistCompany from a dict"""
         if obj is None:
             return None
 
@@ -112,17 +117,11 @@ class ScoredDataWikiData(BaseModel):
 
         _obj = cls.model_validate(
             {
-                "score": obj.get("score"),
-                "data": (
-                    WikiData.from_dict(obj["data"])
-                    if obj.get("data") is not None
-                    else None
-                ),
-                "vectors": (
-                    [VectorData.from_dict(_item) for _item in obj["vectors"]]
-                    if obj.get("vectors") is not None
-                    else None
-                ),
+                "name": obj.get("name"),
+                "description": obj.get("description"),
+                "id": obj.get("id"),
+                "domain": obj.get("domain"),
+                "aliases": obj.get("aliases"),
             }
         )
         return _obj

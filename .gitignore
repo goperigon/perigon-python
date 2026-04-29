@@ -64,3 +64,6 @@ target/
 
 #Ipython Notebook
 .ipynb_checkpoints
+
+# OpenAPI spec preprocessing artifact (produced by scripts/preprocess_spec.py)
+/.openapi-spec.modified.json

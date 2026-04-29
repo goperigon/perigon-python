@@ -1,8 +1,9 @@
-.gitignore
 README.md
 perigon/__init__.py
 perigon/api/__init__.py
+perigon/api/source_groups_api.py
 perigon/api/v1_api.py
+perigon/api/watchlists_api.py
 perigon/api_client.py
 perigon/api_response.py
 perigon/exceptions.py
@@ -20,6 +21,8 @@ perigon/models/company_holder.py
 perigon/models/company_search_result.py
 perigon/models/coordinate.py
 perigon/models/coordinate_filter.py
+perigon/models/create_source_group_params.py
+perigon/models/create_watchlist_params.py
 perigon/models/entity_holder.py
 perigon/models/error_response.py
 perigon/models/event_type_holder.py
@@ -34,6 +37,7 @@ perigon/models/location_count.py
 perigon/models/location_holder.py
 perigon/models/name_count.py
 perigon/models/news_cluster.py
+perigon/models/patch_source_group_params.py
 perigon/models/people_search_result.py
 perigon/models/person.py
 perigon/models/person_count.py
@@ -62,6 +66,10 @@ perigon/models/topic_dto.py
 perigon/models/topic_holder.py
 perigon/models/topic_labels.py
 perigon/models/topic_search_result.py
+perigon/models/update_watchlist_params.py
+perigon/models/vector_data.py
+perigon/models/watchlist_company.py
+perigon/models/watchlist_person.py
 perigon/models/web_resources.py
 perigon/models/wiki_data.py
 perigon/models/wiki_page.py

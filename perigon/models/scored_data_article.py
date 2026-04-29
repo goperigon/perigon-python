@@ -24,6 +24,7 @@ from pydantic import BaseModel, ConfigDict, StrictFloat, StrictInt
 from typing_extensions import Self
 
 from perigon.models.article import Article
+from perigon.models.vector_data import VectorData
 
 
 class ScoredDataArticle(BaseModel):
@@ -33,7 +34,8 @@ class ScoredDataArticle(BaseModel):
 
     score: Optional[Union[StrictFloat, StrictInt]] = None
     data: Optional[Article] = None
-    __properties: ClassVar[List[str]] = ["score", "data"]
+    vectors: Optional[List[VectorData]] = None
+    __properties: ClassVar[List[str]] = ["score", "data", "vectors"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -75,6 +77,13 @@ class ScoredDataArticle(BaseModel):
         # override the default output from pydantic by calling `to_dict()` of data
         if self.data:
             _dict["data"] = self.data.to_dict()
+        # override the default output from pydantic by calling `to_dict()` of each item in vectors (list)
+        _items = []
+        if self.vectors:
+            for _item_vectors in self.vectors:
+                if _item_vectors:
+                    _items.append(_item_vectors.to_dict())
+            _dict["vectors"] = _items
         # set to None if score (nullable) is None
         # and model_fields_set contains the field
         if self.score is None and "score" in self.model_fields_set:
@@ -84,6 +93,11 @@ class ScoredDataArticle(BaseModel):
         # and model_fields_set contains the field
         if self.data is None and "data" in self.model_fields_set:
             _dict["data"] = None
+
+        # set to None if vectors (nullable) is None
+        # and model_fields_set contains the field
+        if self.vectors is None and "vectors" in self.model_fields_set:
+            _dict["vectors"] = None
 
         return _dict
 
@@ -102,6 +116,11 @@ class ScoredDataArticle(BaseModel):
                 "data": (
                     Article.from_dict(obj["data"])
                     if obj.get("data") is not None
+                    else None
+                ),
+                "vectors": (
+                    [VectorData.from_dict(_item) for _item in obj["vectors"]]
+                    if obj.get("vectors") is not None
                     else None
                 ),
             }

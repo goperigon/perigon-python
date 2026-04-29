@@ -34,3 +34,4 @@ setup.py
 setup.cfg
 tox.ini
 .github/workflows/python.yml
+.gitignore

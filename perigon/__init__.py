@@ -18,7 +18,9 @@ Do not edit the class manually.
 __version__ = "1.0.0"
 
 # import apis into sdk package
+from perigon.api.source_groups_api import SourceGroupsApi
 from perigon.api.v1_api import V1Api
+from perigon.api.watchlists_api import WatchlistsApi
 from perigon.api_client import ApiClient
 
 # import ApiClient
@@ -46,6 +48,8 @@ from perigon.models.company_holder import CompanyHolder
 from perigon.models.company_search_result import CompanySearchResult
 from perigon.models.coordinate import Coordinate
 from perigon.models.coordinate_filter import CoordinateFilter
+from perigon.models.create_source_group_params import CreateSourceGroupParams
+from perigon.models.create_watchlist_params import CreateWatchlistParams
 from perigon.models.entity_holder import EntityHolder
 from perigon.models.error_response import ErrorResponse
 from perigon.models.event_type_holder import EventTypeHolder
@@ -60,6 +64,7 @@ from perigon.models.location_count import LocationCount
 from perigon.models.location_holder import LocationHolder
 from perigon.models.name_count import NameCount
 from perigon.models.news_cluster import NewsCluster
+from perigon.models.patch_source_group_params import PatchSourceGroupParams
 from perigon.models.people_search_result import PeopleSearchResult
 from perigon.models.person import Person
 from perigon.models.person_count import PersonCount
@@ -88,6 +93,10 @@ from perigon.models.topic_dto import TopicDto
 from perigon.models.topic_holder import TopicHolder
 from perigon.models.topic_labels import TopicLabels
 from perigon.models.topic_search_result import TopicSearchResult
+from perigon.models.update_watchlist_params import UpdateWatchlistParams
+from perigon.models.vector_data import VectorData
+from perigon.models.watchlist_company import WatchlistCompany
+from perigon.models.watchlist_person import WatchlistPerson
 from perigon.models.web_resources import WebResources
 from perigon.models.wiki_data import WikiData
 from perigon.models.wiki_page import WikiPage

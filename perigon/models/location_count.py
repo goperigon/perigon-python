@@ -29,12 +29,20 @@ class LocationCount(BaseModel):
     LocationCount
     """  # noqa: E501
 
+    country: Optional[StrictStr] = None
     state: Optional[StrictStr] = None
     county: Optional[StrictStr] = None
     city: Optional[StrictStr] = None
     area: Optional[StrictStr] = None
     count: Optional[StrictInt] = None
-    __properties: ClassVar[List[str]] = ["state", "county", "city", "area", "count"]
+    __properties: ClassVar[List[str]] = [
+        "country",
+        "state",
+        "county",
+        "city",
+        "area",
+        "count",
+    ]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -73,6 +81,11 @@ class LocationCount(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # set to None if country (nullable) is None
+        # and model_fields_set contains the field
+        if self.country is None and "country" in self.model_fields_set:
+            _dict["country"] = None
+
         # set to None if state (nullable) is None
         # and model_fields_set contains the field
         if self.state is None and "state" in self.model_fields_set:
@@ -111,6 +124,7 @@ class LocationCount(BaseModel):
 
         _obj = cls.model_validate(
             {
+                "country": obj.get("country"),
                 "state": obj.get("state"),
                 "county": obj.get("county"),
                 "city": obj.get("city"),

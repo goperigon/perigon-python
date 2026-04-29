@@ -23,19 +23,15 @@ from typing import Any, ClassVar, Dict, List, Optional, Set, Union
 from pydantic import BaseModel, ConfigDict, StrictFloat, StrictInt
 from typing_extensions import Self
 
-from perigon.models.vector_data import VectorData
-from perigon.models.wiki_data import WikiData
 
-
-class ScoredDataWikiData(BaseModel):
+class VectorData(BaseModel):
     """
-    ScoredDataWikiData
+    VectorData
     """  # noqa: E501
 
-    score: Optional[Union[StrictFloat, StrictInt]] = None
-    data: Optional[WikiData] = None
-    vectors: Optional[List[VectorData]] = None
-    __properties: ClassVar[List[str]] = ["score", "data", "vectors"]
+    data: Optional[List[Union[StrictFloat, StrictInt]]] = None
+    version: Optional[StrictInt] = None
+    __properties: ClassVar[List[str]] = ["data", "version"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -54,7 +50,7 @@ class ScoredDataWikiData(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of ScoredDataWikiData from a JSON string"""
+        """Create an instance of VectorData from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -74,36 +70,21 @@ class ScoredDataWikiData(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of data
-        if self.data:
-            _dict["data"] = self.data.to_dict()
-        # override the default output from pydantic by calling `to_dict()` of each item in vectors (list)
-        _items = []
-        if self.vectors:
-            for _item_vectors in self.vectors:
-                if _item_vectors:
-                    _items.append(_item_vectors.to_dict())
-            _dict["vectors"] = _items
-        # set to None if score (nullable) is None
-        # and model_fields_set contains the field
-        if self.score is None and "score" in self.model_fields_set:
-            _dict["score"] = None
-
         # set to None if data (nullable) is None
         # and model_fields_set contains the field
         if self.data is None and "data" in self.model_fields_set:
             _dict["data"] = None
 
-        # set to None if vectors (nullable) is None
+        # set to None if version (nullable) is None
         # and model_fields_set contains the field
-        if self.vectors is None and "vectors" in self.model_fields_set:
-            _dict["vectors"] = None
+        if self.version is None and "version" in self.model_fields_set:
+            _dict["version"] = None
 
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of ScoredDataWikiData from a dict"""
+        """Create an instance of VectorData from a dict"""
         if obj is None:
             return None
 
@@ -111,18 +92,6 @@ class ScoredDataWikiData(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate(
-            {
-                "score": obj.get("score"),
-                "data": (
-                    WikiData.from_dict(obj["data"])
-                    if obj.get("data") is not None
-                    else None
-                ),
-                "vectors": (
-                    [VectorData.from_dict(_item) for _item in obj["vectors"]]
-                    if obj.get("vectors") is not None
-                    else None
-                ),
-            }
+            {"data": obj.get("data"), "version": obj.get("version")}
         )
         return _obj
