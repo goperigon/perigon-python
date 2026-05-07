@@ -426,6 +426,7 @@ class V1Api:
         source: Optional[List[str]] = None,
         source_group: Optional[List[str]] = None,
         min_unique_sources: Optional[int] = None,
+        min_source_diversity: Optional[float] = None,
         person_wikidata_id: Optional[List[str]] = None,
         person_name: Optional[str] = None,
         company_id: Optional[List[str]] = None,
@@ -481,6 +482,7 @@ class V1Api:
             source (Optional[List[str]]): String Array. Filter stories that contain articles from specific publisher domains or subdomains. Supports wildcards (* and ?) for pattern matching (e.g., *.cnn.com). A story will match if it contains at least one article from any of the specified sources. Multiple values create an OR filter.
             source_group (Optional[List[str]]): String Array. Filter stories that contain articles from publishers in Perigon's curated bundles (e.g., top100, top25crypto). A story will match if it contains at least one article from any publisher in the specified bundles. Multiple values create an OR filter.
             min_unique_sources (Optional[int]): Integer. Specifies the minimum number of unique sources required for a story to appear in results. Higher values return more significant stories covered by multiple publications. Default is 3.
+            min_source_diversity (Optional[float]): Float. Minimum ratio of unique sources to unique articles (uniqueSources / uniqueCount). Filters out stories dominated by a single publisher. For example, a value of 0.05 requires at least 1 unique source per 20 articles. Not applied by default.
             person_wikidata_id (Optional[List[str]]): String Array. Filter stories by Wikidata IDs of top mentioned people. Returns stories where these individuals appear prominently. Refer to the /people endpoint for a complete list of tracked individuals.
             person_name (Optional[str]): String. Filter stories by exact name matches of top mentioned people. Does not support Boolean or complex logic. For available person entities, consult the /people endpoint.
             company_id (Optional[List[str]]): String Array. Filter stories by identifiers of top mentioned companies. Returns stories where these companies appear prominently. For a complete list of tracked companies, refer to the /companies endpoint.
@@ -557,6 +559,8 @@ class V1Api:
             params["sourceGroup"] = source_group
         if min_unique_sources is not None:
             params["minUniqueSources"] = min_unique_sources
+        if min_source_diversity is not None:
+            params["minSourceDiversity"] = min_source_diversity
         if person_wikidata_id is not None:
             params["personWikidataId"] = person_wikidata_id
         if person_name is not None:
@@ -646,6 +650,7 @@ class V1Api:
         source: Optional[List[str]] = None,
         source_group: Optional[List[str]] = None,
         min_unique_sources: Optional[int] = None,
+        min_source_diversity: Optional[float] = None,
         person_wikidata_id: Optional[List[str]] = None,
         person_name: Optional[str] = None,
         company_id: Optional[List[str]] = None,
@@ -701,6 +706,7 @@ class V1Api:
             source (Optional[List[str]]): String Array. Filter stories that contain articles from specific publisher domains or subdomains. Supports wildcards (* and ?) for pattern matching (e.g., *.cnn.com). A story will match if it contains at least one article from any of the specified sources. Multiple values create an OR filter.
             source_group (Optional[List[str]]): String Array. Filter stories that contain articles from publishers in Perigon's curated bundles (e.g., top100, top25crypto). A story will match if it contains at least one article from any publisher in the specified bundles. Multiple values create an OR filter.
             min_unique_sources (Optional[int]): Integer. Specifies the minimum number of unique sources required for a story to appear in results. Higher values return more significant stories covered by multiple publications. Default is 3.
+            min_source_diversity (Optional[float]): Float. Minimum ratio of unique sources to unique articles (uniqueSources / uniqueCount). Filters out stories dominated by a single publisher. For example, a value of 0.05 requires at least 1 unique source per 20 articles. Not applied by default.
             person_wikidata_id (Optional[List[str]]): String Array. Filter stories by Wikidata IDs of top mentioned people. Returns stories where these individuals appear prominently. Refer to the /people endpoint for a complete list of tracked individuals.
             person_name (Optional[str]): String. Filter stories by exact name matches of top mentioned people. Does not support Boolean or complex logic. For available person entities, consult the /people endpoint.
             company_id (Optional[List[str]]): String Array. Filter stories by identifiers of top mentioned companies. Returns stories where these companies appear prominently. For a complete list of tracked companies, refer to the /companies endpoint.
@@ -776,6 +782,8 @@ class V1Api:
             params["sourceGroup"] = source_group
         if min_unique_sources is not None:
             params["minUniqueSources"] = min_unique_sources
+        if min_source_diversity is not None:
+            params["minSourceDiversity"] = min_source_diversity
         if person_wikidata_id is not None:
             params["personWikidataId"] = person_wikidata_id
         if person_name is not None:
@@ -2724,6 +2732,7 @@ class V1Api:
         source: Optional[List[str]] = None,
         source_group: Optional[List[str]] = None,
         min_unique_sources: Optional[int] = None,
+        min_source_diversity: Optional[float] = None,
         person_wikidata_id: Optional[List[str]] = None,
         person_name: Optional[str] = None,
         company_id: Optional[List[str]] = None,
@@ -2777,6 +2786,7 @@ class V1Api:
             source (Optional[List[str]]): String Array. Filter stories that contain articles from specific publisher domains or subdomains. Supports wildcards (* and ?) for pattern matching (e.g., *.cnn.com). A story will match if it contains at least one article from any of the specified sources. Multiple values create an OR filter.
             source_group (Optional[List[str]]): String Array. Filter stories that contain articles from publishers in Perigon's curated bundles (e.g., top100, top25crypto). A story will match if it contains at least one article from any publisher in the specified bundles. Multiple values create an OR filter.
             min_unique_sources (Optional[int]): Integer. Specifies the minimum number of unique sources required for a story to appear in results. Higher values return more significant stories covered by multiple publications. Default is 3.
+            min_source_diversity (Optional[float]): Float. Minimum ratio of unique sources to unique articles (uniqueSources / uniqueCount). Filters out stories dominated by a single publisher. For example, a value of 0.05 requires at least 1 unique source per 20 articles. Not applied by default.
             person_wikidata_id (Optional[List[str]]): String Array. Filter stories by Wikidata IDs of top mentioned people. Returns stories where these individuals appear prominently. Refer to the /people endpoint for a complete list of tracked individuals.
             person_name (Optional[str]): String. Filter stories by exact name matches of top mentioned people. Does not support Boolean or complex logic. For available person entities, consult the /people endpoint.
             company_id (Optional[List[str]]): String Array. Filter stories by identifiers of top mentioned companies. Returns stories where these companies appear prominently. For a complete list of tracked companies, refer to the /companies endpoint.
@@ -2853,6 +2863,8 @@ class V1Api:
             params["sourceGroup"] = source_group
         if min_unique_sources is not None:
             params["minUniqueSources"] = min_unique_sources
+        if min_source_diversity is not None:
+            params["minSourceDiversity"] = min_source_diversity
         if person_wikidata_id is not None:
             params["personWikidataId"] = person_wikidata_id
         if person_name is not None:
@@ -2939,6 +2951,7 @@ class V1Api:
         source: Optional[List[str]] = None,
         source_group: Optional[List[str]] = None,
         min_unique_sources: Optional[int] = None,
+        min_source_diversity: Optional[float] = None,
         person_wikidata_id: Optional[List[str]] = None,
         person_name: Optional[str] = None,
         company_id: Optional[List[str]] = None,
@@ -2992,6 +3005,7 @@ class V1Api:
             source (Optional[List[str]]): String Array. Filter stories that contain articles from specific publisher domains or subdomains. Supports wildcards (* and ?) for pattern matching (e.g., *.cnn.com). A story will match if it contains at least one article from any of the specified sources. Multiple values create an OR filter.
             source_group (Optional[List[str]]): String Array. Filter stories that contain articles from publishers in Perigon's curated bundles (e.g., top100, top25crypto). A story will match if it contains at least one article from any publisher in the specified bundles. Multiple values create an OR filter.
             min_unique_sources (Optional[int]): Integer. Specifies the minimum number of unique sources required for a story to appear in results. Higher values return more significant stories covered by multiple publications. Default is 3.
+            min_source_diversity (Optional[float]): Float. Minimum ratio of unique sources to unique articles (uniqueSources / uniqueCount). Filters out stories dominated by a single publisher. For example, a value of 0.05 requires at least 1 unique source per 20 articles. Not applied by default.
             person_wikidata_id (Optional[List[str]]): String Array. Filter stories by Wikidata IDs of top mentioned people. Returns stories where these individuals appear prominently. Refer to the /people endpoint for a complete list of tracked individuals.
             person_name (Optional[str]): String. Filter stories by exact name matches of top mentioned people. Does not support Boolean or complex logic. For available person entities, consult the /people endpoint.
             company_id (Optional[List[str]]): String Array. Filter stories by identifiers of top mentioned companies. Returns stories where these companies appear prominently. For a complete list of tracked companies, refer to the /companies endpoint.
@@ -3067,6 +3081,8 @@ class V1Api:
             params["sourceGroup"] = source_group
         if min_unique_sources is not None:
             params["minUniqueSources"] = min_unique_sources
+        if min_source_diversity is not None:
+            params["minSourceDiversity"] = min_source_diversity
         if person_wikidata_id is not None:
             params["personWikidataId"] = person_wikidata_id
         if person_name is not None:

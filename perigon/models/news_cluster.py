@@ -18,9 +18,9 @@ from __future__ import annotations
 import json
 import pprint
 import re  # noqa: F401
-from typing import Any, ClassVar, Dict, List, Optional, Set
+from typing import Any, ClassVar, Dict, List, Optional, Set, Union
 
-from pydantic import BaseModel, ConfigDict, Field, StrictInt, StrictStr
+from pydantic import BaseModel, ConfigDict, Field, StrictFloat, StrictInt, StrictStr
 from typing_extensions import Self
 
 from perigon.models.category_holder import CategoryHolder
@@ -92,6 +92,9 @@ class NewsCluster(BaseModel):
         default=None, alias="topLocations"
     )
     highlights: Optional[Dict[str, List[StrictStr]]] = None
+    source_diversity: Optional[Union[StrictFloat, StrictInt]] = Field(
+        default=None, alias="sourceDiversity"
+    )
     __properties: ClassVar[List[str]] = [
         "createdAt",
         "updatedAt",
@@ -128,6 +131,7 @@ class NewsCluster(BaseModel):
         "locations",
         "topLocations",
         "highlights",
+        "sourceDiversity",
     ]
 
     model_config = ConfigDict(
@@ -466,6 +470,14 @@ class NewsCluster(BaseModel):
         if self.highlights is None and "highlights" in self.model_fields_set:
             _dict["highlights"] = None
 
+        # set to None if source_diversity (nullable) is None
+        # and model_fields_set contains the field
+        if (
+            self.source_diversity is None
+            and "source_diversity" in self.model_fields_set
+        ):
+            _dict["sourceDiversity"] = None
+
         return _dict
 
     @classmethod
@@ -586,6 +598,7 @@ class NewsCluster(BaseModel):
                     else None
                 ),
                 "highlights": obj.get("highlights"),
+                "sourceDiversity": obj.get("sourceDiversity"),
             }
         )
         return _obj
