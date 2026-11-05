@@ -26,6 +26,7 @@ A beginner-friendly introduction to the Perigon SDK showing:
 - Simple article search
 - Company lookup
 - Journalist search
+- Wikipedia search
 - Basic error handling
 
 **Run it:**
@@ -34,10 +35,10 @@ python examples/basic.py
 ```
 
 **What you'll learn:**
-- How to initialize the API client
+- How to initialize `V1Api` so it owns its HTTP client
 - Basic search operations
 - Handling API responses
-- Working with article, company, and journalist data
+- Working with article, company, journalist, and Wikipedia data
 
 ### 🚀 Advanced Example (`advanced.py`)
 
@@ -47,6 +48,7 @@ A comprehensive example demonstrating sophisticated features:
 - Article summarization
 - Story clustering
 - Topics exploration
+- Vector search over Wikipedia
 - Asynchronous operations with concurrent requests
 
 **Run it:**
@@ -83,7 +85,16 @@ python examples/advanced.py
    Found 2 journalists
    - John Smith
      ID: 67890
-     Bio: Technology journalist covering AI and machine learning developments...
+
+📚 Example 4: Wikipedia Search
+Searching Wikipedia pages about "machine learning"...
+
+Found 3 Wikipedia pages:
+  1. Machine learning
+     URL: https://en.wikipedia.org/wiki/Machine_learning
+     Summary: Machine learning is a field of study in artificial intelligence...
+     Views per day: 12000
+     Last modified: 12/09/2024
 
 ✅ Basic example completed!
 ```
@@ -109,6 +120,28 @@ python examples/advanced.py
    Generated summary (10 articles analyzed):
    Artificial intelligence is transforming healthcare through diagnostic tools...
 
+📚 Finding related story clusters...
+   Found 3 story clusters
+   1. Story ID: story-123
+      Title: Cryptocurrency regulation
+      Articles in cluster: 42
+
+🏷️  Exploring available topics...
+   Found 5 topics
+   - Technology
+     Category: Tech
+
+🧠 Example 6: Vector-based Wikipedia Search
+Using semantic search for pages about artificial intelligence...
+
+Found 3 semantically related Wikipedia pages:
+  1. Artificial intelligence
+     Relevance Score: 92.0%
+     URL: https://en.wikipedia.org/wiki/Artificial_intelligence
+     Summary: Artificial intelligence (AI) is the capability of computational systems...
+     Views per day: 50000
+     Wikidata ID: Q11660
+
 🔄 Running async operations...
    Running concurrent async searches...
    ✓ Async articles search: 2 articles
@@ -122,8 +155,8 @@ python examples/advanced.py
 
 After running these examples:
 
-1. **Explore the [API Documentation](https://docs.perigon.io)** for complete endpoint details
-2. **Check the test files** in `tests/integration/` for more usage patterns
+1. **Explore the [API Documentation](https://perigon.io/docs/api/intro)** for complete endpoint details
+2. **Check the test files** in `tests/` for more usage patterns
 3. **Build your own application** using these examples as a foundation
 4. **Consider rate limiting** and error handling for production use
 
@@ -135,15 +168,15 @@ After running these examples:
 
 **Import errors:**
 - Ensure you've installed the SDK: `pip install perigon`
-- Check your Python version (requires Python 3.8+)
+- Check your Python version (requires Python 3.11+)
 
 **API errors:**
 - Verify your API key is correct
 - Check your account's API limits
-- Review the [API documentation](https://docs.perigon.io) for endpoint-specific requirements
+- Review the [API documentation](https://perigon.io/docs/api/intro) for endpoint-specific requirements
 
 ## Support
 
-- **Documentation:** [docs.perigon.io](https://docs.perigon.io)
+- **Documentation:** [perigon.io](https://perigon.io/docs/api/intro)
 - **Issues:** Report bugs or request features on the project repository
 - **Questions:** Check the API documentation or contact support 

@@ -1,0 +1,8 @@
+generateSourceCodeOnly: true
+datetimeFormat: "%Y-%m-%dT%H:%M:%S"
+library: httpx
+packageName: perigon
+packageUrl: https://github.com/goperigon/perigon-python
+packageVersion: 2.0.0
+projectName: perigon
+sourceFolder: src

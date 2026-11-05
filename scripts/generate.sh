@@ -1,28 +1,34 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -euo pipefail
 
-# Preprocess the OpenAPI spec to strip fields that should not appear in the
-# public Python SDK (e.g. Article.vectors which is reserved for specific
-# customers). The helper writes the modified spec to disk and prints its path.
-echo "Preprocessing OpenAPI spec..."
-SPEC_PATH="$(poetry run python scripts/preprocess_spec.py)"
+# 1. Download the remote Perigon OpenAPI spec and preprocess it: keep a single
+#    v1 tag when an operation lists several, hidden fields and excluded paths
+#    from scripts/spec-filters.json, the Article/NewsCluster cycle split, and
+#    orphan-schema pruning. The snapshot is written to
+#    .openapi-spec/spec.local.json.
+uv run python scripts/preprocess_spec.py
 
-# Generate new SDK using OpenAPI Generator
-echo "Generating new SDK from $SPEC_PATH..."
-poetry run openapi-generator-cli generate \
+# 2. Generate the Python SDK from that snapshot.
+#    -c openapi-config.yaml
+#         package name, httpx library, src layout, and the other generator options
+#    -g python
+#    --global-property apiDocs=false,modelDocs=false,apiTests=false,modelTests=false
+#         skip generated docs and tests
+#    -i .openapi-spec/spec.local.json
+#    -t templates
+#         custom Mustache templates
+#
+uv run openapi-generator-cli generate \
+  -c openapi-config.yaml \
   -g python \
-  -i "$SPEC_PATH" \
-  -o ./ \
-  -t templates \
-  -c python.config.json \
-  --package-name perigon \
-  --global-property=apiDocs=false,modelDocs=false
+  --global-property apiDocs=false,modelDocs=false,apiTests=false,modelTests=false \
+  -i .openapi-spec/spec.local.json \
+  -t templates
 
-# Format the generated code
-echo "Formatting generated code with isort..."
-poetry run isort ./
+# 3. Lint and format the generated package.
+uv run ruff check --fix
+uv run ruff format
 
-echo "Formatting generated code with black..."
-poetry run black ./
-
-echo "SDK generation and formatting complete!"
+# 4. Typecheck, then run the test suite.
+uv run mypy
+uv run pytest

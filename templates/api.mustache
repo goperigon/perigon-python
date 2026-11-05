@@ -1,11 +1,16 @@
+from __future__ import annotations
+
+from datetime import datetime, timezone
 from enum import Enum
-from typing import Any, Dict, Mapping, Iterable, Optional
+from typing import Any, Dict, Mapping, Optional
 
 {{#packageName}}
-from {{packageName}}.api_client import ApiClient
+from {{packageName}}.api_client import ApiClient, AsyncApiClient, bind_client
+from {{packageName}}.configuration import Configuration
 {{/packageName}}
 {{^packageName}}
-from ..api_client import ApiClient
+from ..api_client import ApiClient, AsyncApiClient, bind_client
+from ..configuration import Configuration
 {{/packageName}}
 
 {{#imports}}
@@ -19,52 +24,83 @@ PATH_{{operationId.toUpperCase}} = "{{{path}}}"
 {{/operation}}
 {{/operations}}
 
+def _format_query_value(value: Any) -> str:
+    """Format one query value for the Perigon API."""
+    if isinstance(value, Enum):
+        value = value.value
+    if isinstance(value, datetime):
+        if value.tzinfo is not None:
+            value = value.astimezone(timezone.utc)
+        return value.strftime("%Y-%m-%dT%H:%M:%S")
+    if isinstance(value, bool):
+        return "true" if value else "false"
+    return str(value)
+
+
 def _normalise_query(params: Mapping[str, Any]) -> Dict[str, Any]:
     """
-    • Convert Enum → Enum.value
-    • Convert list/tuple/set → CSV string (after Enum handling)
-    • Skip None values
+    • Convert Enum to its value
+    • Format datetime as YYYY-MM-DDTHH:MM:SS in UTC, without an offset
+    • Format bool as true/false
+    • Keep list/tuple/set as a list so the key is repeated
+    • Skip None values and empty collections
     """
     out: Dict[str, Any] = {}
     for key, value in params.items():
-        if value is None:  # ignore "unset"
+        if value is None:
             continue
 
-        # Unwrap single Enum
-        if isinstance(value, Enum):  # Enum → str
-            value = value.value
+        if isinstance(value, (list, tuple, set)):
+            items = [_format_query_value(item) for item in value if item is not None]
+            if items:
+                out[key] = items
+            continue
 
-        # Handle datetime objects properly
-        from datetime import datetime
-
-        if isinstance(value, datetime):
-            value = value.isoformat().split("+")[0]
-
-        # Handle collection (after possible Enum unwrap)
-        elif isinstance(value, (list, tuple, set)):
-            # unwrap Enum members inside the collection
-            items: Iterable[str] = (
-                (
-                    item.isoformat().replace(" ", "+")
-                    if isinstance(item, datetime)
-                    else str(item.value if isinstance(item, Enum) else item)
-                )
-                for item in value
-            )
-            value = ",".join(items)  # CSV join
-        else:
-            value = str(value)
-
-        out[key] = value
+        out[key] = _format_query_value(value)
 
     return out
 
+
+def _json_body(body: Any) -> Any:
+    """Serialize a request model.
+
+    Only fields the caller passed are included. An explicit null is kept so a
+    PATCH can clear that field. Unset defaults are omitted. mode="json" converts
+    datetime and UUID values, including inside nested models.
+    """
+    return body.model_dump(mode="json", by_alias=True, exclude_unset=True)
+
 class {{classname}}:
     """{{{description}}}"""
-    
 
-    def __init__(self, api_client: Optional[ApiClient] = None):
-        self.api_client = api_client or ApiClient()
+    def __init__(
+        self,
+        api_client: Optional[ApiClient] = None,
+        *,
+        api_key: Optional[str] = None,
+        base_url: Optional[str] = None,
+        timeout: Optional[float] = None,
+        configuration: Optional[Configuration] = None,
+    ) -> None:
+        self.api_client, self._owns_client = bind_client(
+            api_client,
+            ApiClient,
+            api_key=api_key,
+            base_url=base_url,
+            timeout=timeout,
+            configuration=configuration,
+        )
+
+    def __enter__(self) -> {{classname}}:
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback) -> None:
+        self.close()
+
+    def close(self) -> None:
+        """Close the HTTP client when this API created it."""
+        if self._owns_client:
+            self.api_client.close()
 
 {{#operations}}
 {{#operation}}
@@ -110,7 +146,7 @@ class {{classname}}:
             "{{httpMethod}}",
             path,
             params=params{{#bodyParam}},
-            json={{paramName}}.model_dump(by_alias=True, exclude_none=True),{{/bodyParam}}
+            json=_json_body({{paramName}}),{{/bodyParam}}
         )
         resp.raise_for_status()
 {{#returnType}}
@@ -119,13 +155,52 @@ class {{classname}}:
 {{^returnType}}
         return resp.json()
 {{/returnType}}
+{{/operation}}
+{{/operations}}
 
+
+class Async{{classname}}:
+    """Async {{{description}}}"""
+
+    def __init__(
+        self,
+        api_client: Optional[AsyncApiClient] = None,
+        *,
+        api_key: Optional[str] = None,
+        base_url: Optional[str] = None,
+        timeout: Optional[float] = None,
+        configuration: Optional[Configuration] = None,
+    ) -> None:
+        self.api_client, self._owns_client = bind_client(
+            api_client,
+            AsyncApiClient,
+            api_key=api_key,
+            base_url=base_url,
+            timeout=timeout,
+            configuration=configuration,
+        )
+
+    async def __aenter__(self) -> Async{{classname}}:
+        return self
+
+    async def __aexit__(self, exc_type, exc_value, traceback) -> None:
+        await self.close()
+
+    async def close(self) -> None:
+        """Close the HTTP client when this API created it."""
+        if self._owns_client:
+            await self.api_client.close()
+
+{{#operations}}
+{{#operation}}
     # ----------------- {{operationId}} (async) ----------------- #
-    async def {{operationId}}_async(
+    async def {{operationId}}(
         self{{#allParams}}, {{paramName}}: {{^required}}Optional[{{/required}}{{dataType}}{{^required}}] = None{{/required}}{{/allParams}}
     ){{#returnType}} -> {{returnType}}{{/returnType}}:
         """
-        Async variant of {{operationId}}. {{#notes}}{{notes}}{{/notes}}
+        {{#notes}}
+        {{notes}}
+        {{/notes}}
 
         {{#allParams.0}}
         Args:
@@ -142,7 +217,7 @@ class {{classname}}:
         """
         # Get path template from class attribute
         path = PATH_{{operationId.toUpperCase}}
-        
+
         {{#pathParams}}
         # Replace path parameters
         path = path.format({{{baseName}}}=str({{paramName}}))
@@ -155,11 +230,11 @@ class {{classname}}:
 {{/queryParams}}
         params = _normalise_query(params)
 
-        resp = await self.api_client.request_async(
+        resp = await self.api_client.request(
             "{{httpMethod}}",
             path,
             params=params{{#bodyParam}},
-            json={{paramName}}.model_dump(by_alias=True, exclude_none=True),{{/bodyParam}}
+            json=_json_body({{paramName}}),{{/bodyParam}}
         )
         resp.raise_for_status()
 {{#returnType}}
@@ -169,5 +244,4 @@ class {{classname}}:
         return resp.json()
 {{/returnType}}
 {{/operation}}
-
 {{/operations}}
