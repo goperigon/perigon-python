@@ -31,6 +31,12 @@ from perigon.exceptions import ApiKeyError
 from perigon.exceptions import ApiAttributeError
 from perigon.exceptions import ApiException
 
+# import webhook signature verification
+from perigon.webhooks import WEBHOOK_HEADER
+from perigon.webhooks import SignatureVerificationError
+from perigon.webhooks import WebhookEvent
+from perigon.webhooks import Webhooks
+
 # import models into sdk package
 from perigon.models.all_endpoint_sort_by import AllEndpointSortBy
 from perigon.models.api_key_status import ApiKeyStatus

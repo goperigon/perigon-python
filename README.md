@@ -255,6 +255,33 @@ results = api.vector_search_wikipedia(
 
 ---
 
+## Webhooks
+
+Verify a delivery before reading the body. Pass the raw request bytes and the
+`perigon-signature` header. The default tolerance is 5 minutes.
+
+```python
+import os
+
+from perigon import WEBHOOK_HEADER, SignatureVerificationError, Webhooks
+
+webhooks = Webhooks()
+secret = os.environ["PERIGON_WEBHOOK_SECRET"]
+
+
+def handle(raw_body: bytes, signature: str | None):
+    try:
+        event = webhooks.construct_event(raw_body, signature, secret)
+    except SignatureVerificationError:
+        return None
+    return event
+```
+
+`signature` is the `perigon-signature` header (`WEBHOOK_HEADER`). A full
+listener is in `examples/webhooks.py`.
+
+---
+
 ## 🔄 Async Support
 
 `AsyncV1Api` has the same method names. Each one is a coroutine:

@@ -24,6 +24,12 @@ from {{packageName}}.exceptions import ApiException
 from {{packageName}}.signing import HttpSigningConfiguration
 {{/hasHttpSignatureMethods}}
 
+# import webhook signature verification
+from {{packageName}}.webhooks import WEBHOOK_HEADER
+from {{packageName}}.webhooks import SignatureVerificationError
+from {{packageName}}.webhooks import WebhookEvent
+from {{packageName}}.webhooks import Webhooks
+
 # import models into sdk package
 {{#models}}
 {{#model}}

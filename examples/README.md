@@ -63,6 +63,19 @@ python examples/advanced.py
 - Async/await patterns for concurrent operations
 - Error handling for complex workflows
 
+### Webhooks (`webhooks.py`)
+
+Verify a raw webhook body against the `perigon-signature` header.
+
+**Run it:**
+```bash
+export PERIGON_WEBHOOK_SECRET="your-webhook-secret"
+python examples/webhooks.py
+```
+
+The server listens on `http://127.0.0.1:3000/webhook` and returns 400 when the
+signature does not verify.
+
 ## Example Output
 
 ### Basic Example
