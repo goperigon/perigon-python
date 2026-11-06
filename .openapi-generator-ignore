@@ -21,17 +21,7 @@
 #docs/*.md
 # Then explicitly reverse the ignore rule for a single file:
 #!docs/README.md
-perigon/rest.py
-perigon/configuration.py
-test/
-requirements.txt
-test-requirements.txt
-.github/**
-.travis.yml
-git_push.sh
-.gitlab-ci.yml
-setup.py
-setup.cfg
-tox.ini
-.github/workflows/python.yml
-.gitignore
+
+perigon_README.md
+src/perigon/rest.py
+src/perigon/webhooks.py

@@ -1,61 +1,95 @@
-[tool.poetry]
+[project]
 name = "perigon"
-version = "0.0.0"
+version = "2.0.0"
 description = "Perigon API"
-authors = ["Perigon Support <data@perigon.io>"]
-license = "NoLicense"
 readme = "README.md"
-repository = "https://github.com/goperigon/perigon-python"
+requires-python = ">=3.11"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [
+    { name = "Perigon Support", email = "data@perigon.io" },
+]
 keywords = ["OpenAPI", "OpenAPI-Generator", "Perigon API"]
-include = ["perigon/py.typed"]
 
-[tool.poetry.dependencies]
-python = "^3.9"
+dependencies = [
+    "httpx>=0.28.1",
+    "pydantic>=2.11.3",
+    "pydantic-core>=2.50.4",
+    "python-dateutil>=2.8.2",
+    "typing-extensions>=4.7.1",
+]
 
-# ---- core runtime dependencies ----
-httpx = ">= 0.27, < 1.0"        
-python-dateutil = ">= 2.8.2"
-pydantic = ">= 2"
-typing-extensions = ">= 4.7.1"
-
-
-
-[tool.poetry.group.dev.dependencies]
-isort = ">= 6.0.1"
-black = ">=25.1.0"
-pytest = ">= 7.2.1"
-pytest-cov = ">= 2.8.1"
-tox = ">= 3.9.0"
-flake8 = ">= 4.0.0"
-types-python-dateutil = ">= 2.8.19.14"
-mypy = ">= 1.5"
-
-[tool.poetry-dynamic-versioning]
-enable = true          # plugin only activates if this flag is on
+[project.urls]
+Homepage = "https://perigon.io"
+Documentation = "https://perigon.io/docs/api/intro"
+Repository = "https://github.com/goperigon/perigon-python"
+Issues = "https://github.com/goperigon/perigon-python/issues"
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["uv_build>=0.13.7,<0.14.0"]
+build-backend = "uv_build"
 
-[tool.pylint.'MESSAGES CONTROL']
-extension-pkg-whitelist = "pydantic"
+[dependency-groups]
+dev = [
+    "mypy>=1.5",
+    "openapi-generator-cli==7.27.0",
+    "pytest>=9.0.3",
+    "pytest-asyncio>=1.3.0",
+    "pytest-cov>=2.8.1",
+    "respx>=0.23.1",
+    "ruff>=0.17.3",
+    "types-python-dateutil>=2.8.19.14",
+    "wcmatch>=12.0",
+]
 
 [tool.mypy]
-files = [
-  "perigon",
-  "tests",
-]
+files = ["src/perigon", "examples", "scripts", "tests"]
+plugins = ["pydantic.mypy"]
+# TODO: enable "strict" once all these individual checks are passing
+# strict = true
+
+# List from: https://mypy.readthedocs.io/en/stable/existing_code.html#introduce-stricter-options
 warn_unused_configs = true
 warn_redundant_casts = true
 warn_unused_ignores = true
+
+## Getting these passing should be easy
 strict_equality = true
 extra_checks = true
+
+## Strongly recommend enabling this one as soon as you can
 check_untyped_defs = true
+
+## These shouldn't be too much additional work, but may be tricky to
+## get passing if you use a lot of untyped libraries
 disallow_subclassing_any = true
 disallow_untyped_decorators = true
 disallow_any_generics = true
-disallow_untyped_calls = true
-disallow_incomplete_defs = true
-disallow_untyped_defs = true
-no_implicit_reexport = true
-warn_return_any = true
+
+### These next few are various gradations of forcing use of type annotations
+# disallow_untyped_calls = true
+# disallow_incomplete_defs = true
+# disallow_untyped_defs = true
+
+### This one isn't too hard to get passing, but return on investment is lower
+# no_implicit_reexport = true
+
+### This one can be tricky to get passing if you use a lot of untyped libraries
+# warn_return_any = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "session"
+testpaths = ["tests"]
+markers = [
+    "integration: live Perigon API tests; run with pytest --integration",
+]
+
+[tool.ruff]
+line-length = 88
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "RUF100"]
+
+[tool.ruff.lint.per-file-ignores]
+"src/perigon/**" = ["E501"]

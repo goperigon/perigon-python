@@ -1,102 +1,210 @@
 {{#packageName}}
-# Package : {{packageName}}
+# Package: {{packageName}}
 {{/packageName}}
 from __future__ import annotations
 
+from typing import Any, TypeVar
+
 import httpx
-from typing import Any, Dict, Optional
 
-class ApiClient:
-    """
-    Single entry‑point that wraps an httpx.Client *and* httpx.AsyncClient.
-    Accepts api_key & base_url directly instead of a separate Configuration.
-    """
+from {{packageName}}.configuration import DEFAULT_BASE_URL, Configuration
 
-    def __init__(
-        self,
-        api_key: Optional[str] = None,
-        base_url: str = "{{{basePath}}}",
-        timeout: Optional[float] = None,
-    ):
-        self.api_key = api_key
-        self.base_url = base_url or "{{{basePath}}}"
-        self.timeout = timeout
+# The generator REST client uses this timeout when the caller does not set one.
+DEFAULT_ASYNC_TIMEOUT = 5 * 60
 
-        # Persistent sessions for connection‑pool reuse (HTTP/1.1 or HTTP/2)
-        self._sync = httpx.Client(base_url=self.base_url, timeout=self.timeout)
-        self._async = httpx.AsyncClient(base_url=self.base_url, timeout=self.timeout)
+ClientT = TypeVar("ClientT", bound="ApiClient | AsyncApiClient")
 
-    # ------------------------------------------------------------------ #
-    # Internal helpers
-    # ------------------------------------------------------------------ #
-    def _auth_headers(self) -> Dict[str, str]:
-        hdrs: Dict[str, str] = {}
+
+def _auth_headers(api_key: str | None) -> dict[str, str]:
+    headers: dict[str, str] = {}
+    if not api_key:
+        return headers
 {{#authMethods}}
 {{#isApiKey}}
 {{#isKeyInHeader}}
-        if self.api_key:
-            hdrs["{{keyParamName}}"] = self.api_key
+    headers["{{keyParamName}}"] = api_key
 {{/isKeyInHeader}}
 {{/isApiKey}}
-
-{{#isBasicBearer}}  {{! ← Bearer token (type:http / scheme:bearer) }}
-        if self.api_key:          {{! or rename to access_token if you wish }}
-            hdrs["Authorization"] = f"Bearer {self.api_key}"
+{{#isBasicBearer}}
+    headers["Authorization"] = f"Bearer {api_key}"
 {{/isBasicBearer}}
-
-{{#isBearerToken}}   {{! ← synonym used by some generators ≥ v7.0.0 }}
-        if self.api_key:
-            hdrs["Authorization"] = f"Bearer {self.api_key}"
+{{#isBearerToken}}
+    headers["Authorization"] = f"Bearer {api_key}"
 {{/isBearerToken}}
 {{/authMethods}}
-        return hdrs
+    return headers
 
-    def _prepare_url(self, path: str) -> str:
-        url = f"{self.base_url}{path}"
-{{#authMethods}}
-{{#isApiKey}}
-{{#isKeyInQuery}}        if self.api_key:
-            delimiter = "?" if "?" not in url else "&"
-            url = f"{url}{delimiter}{{keyParamName}}={self.api_key}"
-{{/isKeyInQuery}}
-{{/isApiKey}}
-{{/authMethods}}
-        return url
 
-    # ------------------------------------------------------------------ #
-    # Public request wrappers
-    # ------------------------------------------------------------------ #
+def _resolve_configuration(
+    api_key: str | None,
+    base_url: str | None,
+    configuration: Configuration | None,
+) -> Configuration:
+    if configuration is not None and (api_key is not None or base_url is not None):
+        raise ValueError("Pass either configuration or api_key and base_url, not both.")
+    if configuration is not None:
+        return configuration
+    return Configuration(api_key=api_key, base_url=base_url or DEFAULT_BASE_URL)
+
+
+class ApiClient:
+    """Sync HTTP client. Owns one ``httpx.Client`` and one connection pool."""
+
+    def __init__(
+        self,
+        api_key: str | None = None,
+        base_url: str | None = None,
+        timeout: float | None = None,
+        configuration: Configuration | None = None,
+    ) -> None:
+        self.configuration = _resolve_configuration(api_key, base_url, configuration)
+        self.timeout = timeout
+        # The pool is created here. __enter__ does not enter the httpx client,
+        # because httpx only allows that before the first request.
+        self._client = httpx.Client(
+            base_url=self.configuration.base_url, timeout=self.timeout
+        )
+
     def request(
         self,
         method: str,
         path: str,
-        headers: Optional[Dict[str, str]] = None,
+        headers: dict[str, str] | None = None,
         **kwargs: Any,
     ) -> httpx.Response:
-        all_headers = self._auth_headers()
-        if headers:               # merge user‑provided headers
+        all_headers = _auth_headers(self.configuration.api_key)
+        if headers:
             all_headers.update(headers)
-        url = self._prepare_url(path)
-        return self._sync.request(method, url, headers=all_headers, **kwargs)
+        url = f"{self.configuration.base_url}{path}"
+{{#authMethods}}
+{{#isApiKey}}
+{{#isKeyInQuery}}
+        if self.configuration.api_key:
+            delimiter = "?" if "?" not in url else "&"
+            url = f"{url}{delimiter}{{keyParamName}}={self.configuration.api_key}"
+{{/isKeyInQuery}}
+{{/isApiKey}}
+{{/authMethods}}
+        return self._client.request(method, url, headers=all_headers, **kwargs)
 
-    async def request_async(
+    def __enter__(self) -> ApiClient:
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback) -> None:
+        self.close()
+
+    def close(self) -> None:
+        self._client.close()
+
+
+class _AsyncRESTClient:
+    """Lazy async pool, following the generator REST client.
+
+    ``pool_manager`` stays ``None`` until the first request, which creates the
+    ``httpx.AsyncClient`` on the running loop.
+    """
+
+    def __init__(self, timeout: float) -> None:
+        self.timeout = timeout
+        self.pool_manager: httpx.AsyncClient | None = None
+
+    async def close(self) -> None:
+        if self.pool_manager is not None:
+            await self.pool_manager.aclose()
+
+    async def request(
+        self,
+        method: str,
+        url: str,
+        headers: dict[str, str] | None = None,
+        **kwargs: Any,
+    ) -> httpx.Response:
+        if self.pool_manager is None:
+            self.pool_manager = httpx.AsyncClient()
+        kwargs.setdefault("timeout", self.timeout)
+        return await self.pool_manager.request(method, url, headers=headers, **kwargs)
+
+
+class AsyncApiClient:
+    """Async HTTP client. The pool is created on the first request."""
+
+    def __init__(
+        self,
+        api_key: str | None = None,
+        base_url: str | None = None,
+        timeout: float | None = None,
+        configuration: Configuration | None = None,
+    ) -> None:
+        self.configuration = _resolve_configuration(api_key, base_url, configuration)
+        self.timeout = DEFAULT_ASYNC_TIMEOUT if timeout is None else timeout
+        self.rest_client = _AsyncRESTClient(self.timeout)
+
+    async def request(
         self,
         method: str,
         path: str,
-        headers: Optional[Dict[str, str]] = None,
+        headers: dict[str, str] | None = None,
         **kwargs: Any,
     ) -> httpx.Response:
-        all_headers = self._auth_headers()
+        all_headers = _auth_headers(self.configuration.api_key)
         if headers:
             all_headers.update(headers)
-        url = self._prepare_url(path)
-        return await self._async.request(method, url, headers=all_headers, **kwargs)
+        url = f"{self.configuration.base_url}{path}"
+{{#authMethods}}
+{{#isApiKey}}
+{{#isKeyInQuery}}
+        if self.configuration.api_key:
+            delimiter = "?" if "?" not in url else "&"
+            url = f"{url}{delimiter}{{keyParamName}}={self.configuration.api_key}"
+{{/isKeyInQuery}}
+{{/isApiKey}}
+{{/authMethods}}
+        return await self.rest_client.request(
+            method, url, headers=all_headers, **kwargs
+        )
 
-    # ------------------------------------------------------------------ #
-    # Clean‑up helpers
-    # ------------------------------------------------------------------ #
-    def close(self) -> None:
-        self._sync.close()
+    async def __aenter__(self) -> AsyncApiClient:
+        return self
 
-    async def aclose(self) -> None:
-        await self._async.aclose()
+    async def __aexit__(self, exc_type, exc_value, traceback) -> None:
+        await self.close()
+
+    async def close(self) -> None:
+        await self.rest_client.close()
+
+
+def bind_client(
+    api_client: ClientT | None,
+    client_cls: type[ClientT],
+    *,
+    api_key: str | None = None,
+    base_url: str | None = None,
+    timeout: float | None = None,
+    configuration: Configuration | None = None,
+) -> tuple[ClientT, bool]:
+    """Return a client and whether the caller owns it.
+
+    A passed client is borrowed. Keyword arguments create a client that the
+    caller must close. Passing both is rejected.
+    """
+    if api_client is not None and (
+        api_key is not None
+        or base_url is not None
+        or timeout is not None
+        or configuration is not None
+    ):
+        raise ValueError(
+            "Pass either an API client or api_key, base_url, timeout, "
+            "and configuration, not both."
+        )
+    if api_client is not None:
+        return api_client, False
+    return (
+        client_cls(
+            api_key=api_key,
+            base_url=base_url,
+            timeout=timeout,
+            configuration=configuration,
+        ),
+        True,
+    )

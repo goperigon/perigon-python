@@ -1,3 +1,4 @@
+### Python ###
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -8,7 +9,6 @@ __pycache__/
 
 # Distribution / packaging
 .Python
-env/
 build/
 develop-eggs/
 dist/
@@ -20,9 +20,12 @@ lib64/
 parts/
 sdist/
 var/
+wheels/
+share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+MANIFEST
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
@@ -37,17 +40,17 @@ pip-delete-this-directory.txt
 # Unit test / coverage reports
 htmlcov/
 .tox/
+.nox/
 .coverage
 .coverage.*
 .cache
 nosetests.xml
 coverage.xml
-*,cover
+*.cover
+*.py,cover
 .hypothesis/
-venv/
-.venv/
-.python-version
-.pytest_cache
+.pytest_cache/
+cover/
 
 # Translations
 *.mo
@@ -55,15 +58,97 @@ venv/
 
 # Django stuff:
 *.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Flask stuff:
+instance/
+.webassets-cache
+
+# Scrapy stuff:
+.scrapy
 
 # Sphinx documentation
 docs/_build/
 
 # PyBuilder
+.pybuilder/
 target/
 
-#Ipython Notebook
+# Jupyter Notebook
 .ipynb_checkpoints
 
-# OpenAPI spec preprocessing artifact (produced by scripts/preprocess_spec.py)
-/.openapi-spec.modified.json
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+#   For a library or package, you might want to ignore these files since the code is
+#   intended to run in multiple environments; otherwise, check them in:
+.python-version
+
+# pdm
+#   pdm stores project-wide configurations in .pdm.toml, but it is recommended to not include it
+#   in version control.
+#   https://pdm.fming.dev/#use-with-ide
+.pdm.toml
+
+# PEP 582; used by e.g. github.com/David-OConnor/pyflow and github.com/pdm-project/pdm
+__pypackages__/
+
+# Celery stuff
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath parsed files
+*.sage.py
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# pytype static type analyzer
+.pytype/
+
+# Cython debug symbols
+cython_debug/
+
+# PyCharm
+.idea/
+
+# Poetry local configuration file - https://python-poetry.org/docs/configuration/#local-configuration
+poetry.toml
+
+# ruff
+.ruff_cache/
+
+# LSP config files
+pyrightconfig.json
+
+# OpenAPI
+.openapi-generator/
+.openapi-spec/
